@@ -1,3 +1,6 @@
 [submodule "Libs/GRAPES"]
 	path = Libs/GRAPES
 	url = https://ans.disi.unitn.it/redmine/grapes.git
+[submodule "Libs/mongoose"]
+	path = Libs/mongoose
+	url = https://ans.disi.unitn.it/redmine/mongoose.git

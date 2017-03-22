@@ -3,7 +3,7 @@ OBJS=$(SRC:.c=.o)
 
 EXE=peerstreamer-ng
 
-CFLAGS+=-Isrc/ -I Libs/mongoose/
+CFLAGS+=-Isrc/ -ILibs/mongoose/
 ifdef DEBUG
 CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter 
 else
@@ -15,14 +15,16 @@ LDFLAGS+=-lm
 
 all: $(EXE)
 
-$(EXE): mongoose $(OBJS) peerstreamer-ng.c
+$(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
 	$(CC) peerstreamer-ng.c -o peerstreamer-ng $(OBJS) $(CFLAGS) $(LIBS) $(LDFLAGS)
 
 %.o: %.c 
 	$(CC) $< -o $@ -c $(CFLAGS) 
 
-mongoose:
-	make -C Libs/mongoose/
+Libs/mongoose/mongoose.o:
+	git submodule init Libs/mongoose/
+	git submodule update Libs/mongoose/
+	$(CC) -c -o Libs/mongoose/mongoose.o Libs/mongoose/mongoose.c $(CFLAGS) -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 
 tests:
 	make -C Test/
@@ -30,8 +32,7 @@ tests:
 
 clean:
 	make -C Test/ clean
-	make -C Libs/mongoose/ clean
-	rm -f *.o $(EXE) $(OBJS)
+	rm -f *.o $(EXE) $(OBJS) $(LIBS)
 
 .PHONY: all clean
 

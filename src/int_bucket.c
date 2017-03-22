@@ -156,6 +156,7 @@ const uint32_t * int_bucket_iter(const struct int_bucket *ib, const uint32_t * i
 	uint32_t pos;
 
 	if (ib && (ib->n_elements))
+	{
 		if (iter)
 		{
 			pos = int_bucket_check_pos(ib, *iter);
@@ -163,5 +164,6 @@ const uint32_t * int_bucket_iter(const struct int_bucket *ib, const uint32_t * i
 				res = iter+1;
 		} else
 			res = ib->integers;
+	}
 	return res;
 }
