@@ -102,7 +102,7 @@ void router_handle_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
-int main(int argc, char ** argv)
+int main(int argv, char ** argc)
 {
 	router_destroy_test();
 	router_add_route_test();

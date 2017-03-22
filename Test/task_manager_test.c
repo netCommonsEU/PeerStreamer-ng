@@ -148,7 +148,6 @@ void task_manager_poll_test()
 
 	/****** File descriptor part ***********/
 
-	char tmpfile[] = "/tmp/hello-XXXXXX";
 	counter = 0;
 	reset = 0;
 
@@ -178,7 +177,7 @@ void task_manager_poll_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
-int main(char ** argc,int argv)
+int main(int argv, char ** argc)
 {
 	task_manager_new_test();
 	task_manager_new_task_test();

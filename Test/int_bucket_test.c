@@ -132,7 +132,7 @@ void int_bucket_iter_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
-int main(char ** argc,int argv)
+int main(int argc, char ** argv)
 {
 	int_bucket_init_test();
 	int_bucket_insert_test();

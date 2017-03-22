@@ -5,7 +5,7 @@ EXE=peerstreamer-ng
 
 CFLAGS+=-Isrc/ -ILibs/mongoose/
 ifdef DEBUG
-CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter 
+CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0
 else
 CFLAGS+=-O6
 endif
