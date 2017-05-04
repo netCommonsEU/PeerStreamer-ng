@@ -21,7 +21,8 @@
 #define __TASK_MANAGER__ 1
 
 #include<stdint.h>
-#include <sys/select.h>
+#include<sys/select.h>
+#include<mongoose.h>
 
 typedef uint16_t timeout;
 
@@ -29,7 +30,7 @@ struct periodic_task;
 
 struct task_manager;
 
-typedef uint8_t (*periodic_task_callback)(int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
+typedef uint8_t (*periodic_task_callback)(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
 
 typedef uint8_t (*periodic_task_reinit)(struct periodic_task * pt);
 
@@ -37,7 +38,7 @@ struct task_manager * task_manager_new();
 
 void task_manager_destroy(struct task_manager **tm);
 
-struct periodic_task * task_manager_new_task(struct task_manager *tm, periodic_task_reinit reinit, periodic_task_callback callback, timeout to);
+struct periodic_task * task_manager_new_task(struct task_manager *tm, periodic_task_reinit reinit, periodic_task_callback callback, timeout to, void * data);
 
 void task_manager_destroy_task(struct task_manager * tm, struct periodic_task ** pt);
 
@@ -51,6 +52,16 @@ int periodic_task_readfd_add(struct periodic_task * pt, int fd);
 
 int periodic_task_errfd_add(struct periodic_task * pt, int fd);
 
-int periodic_task_reset_timeout(struct periodic_task * pt, timeout to);
+void periodic_task_flush_fdsets(struct periodic_task *pt);
+
+int periodic_task_set_data(struct periodic_task * pt, void * data);
+
+void * periodic_task_get_data(const struct periodic_task * pt);
+
+timeout periodic_task_reset_timeout(struct periodic_task * pt);
+
+int periodic_task_set_remaining_time(struct periodic_task * pt, timeout to);
+
+timeout periodic_task_get_remaining_time(const struct periodic_task * pt);
 
 #endif

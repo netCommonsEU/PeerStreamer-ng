@@ -10,7 +10,8 @@ else
 CFLAGS+=-O6
 endif
 
-LIBS+=Libs/mongoose/mongoose.o
+LIBS+=Libs/mongoose/mongoose.o 
+MONGOOSE_OPTS+=-DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 LDFLAGS+=-lm
 
 all: $(EXE)
@@ -24,6 +25,7 @@ $(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
 Libs/mongoose/mongoose.o:
 	git submodule init Libs/mongoose/
 	git submodule update Libs/mongoose/
+	make -C Libs/mongoose/
 	$(CC) -c -o Libs/mongoose/mongoose.o Libs/mongoose/mongoose.c $(CFLAGS) -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 
 tests:

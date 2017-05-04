@@ -26,9 +26,12 @@
 typedef int sock_t;
 
 #define TASK_NUM_INC 10
+#ifndef MIN
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+#ifndef MAX
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-#define INVALID_SOCKET (-1)
+#endif
 
 struct periodic_task {
 	periodic_task_callback callback;
@@ -39,6 +42,7 @@ struct periodic_task {
 	struct int_bucket * readfds;
 	struct int_bucket * errfds;
 	struct list_head list_el;
+	void * data;
 };
 
 struct task_manager {
@@ -57,7 +61,7 @@ struct task_manager * task_manager_new()
 	return tm;
 }
 
-struct periodic_task * periodic_task_new(periodic_task_reinit reinit, periodic_task_callback callback, timeout to)
+struct periodic_task * periodic_task_new(periodic_task_reinit reinit, periodic_task_callback callback, timeout to, void * data)
 {
 	struct periodic_task * pt;
 
@@ -69,21 +73,33 @@ struct periodic_task * periodic_task_new(periodic_task_reinit reinit, periodic_t
 	pt->writefds = int_bucket_new(10);
 	pt->readfds = int_bucket_new(10);
 	pt->errfds = int_bucket_new(10);
+	pt->data = data;
 
 	if (pt->reinit)
 		pt->reinit(pt);
 	return pt;
 }
 
-int periodic_task_reset_timeout(struct periodic_task * pt, timeout to)
+int periodic_task_set_remaining_time(struct periodic_task * pt, timeout to)
 {
 	if(pt)
 	{
-		pt->to = to;
+		pt->time_to_expire = to;
 		return 0;
 	}
 	else
 		return -1;
+}
+
+timeout periodic_task_reset_timeout(struct periodic_task * pt)
+{
+	if(pt)
+	{
+		pt->time_to_expire = pt->to;
+		return pt->to;
+	}
+	else
+		return 0;
 }
 
 int periodic_task_writefd_add(struct periodic_task * pt, int fd)
@@ -148,12 +164,12 @@ void task_manager_destroy(struct task_manager ** tm)
 	}
 }
 
-struct periodic_task * task_manager_new_task(struct task_manager *tm, periodic_task_reinit reinit, periodic_task_callback callback, timeout to)
+struct periodic_task * task_manager_new_task(struct task_manager *tm, periodic_task_reinit reinit, periodic_task_callback callback, timeout to, void * data)
 {
 	struct periodic_task * pt;
 	uint8_t res;
 
-	pt = periodic_task_new(reinit, callback, to);
+	pt = periodic_task_new(reinit, callback, to, data);
 	res = task_manager_add(tm, pt);
 	if (res)
 	{
@@ -180,7 +196,7 @@ void periodic_task_trigger(struct periodic_task * pt, int event, fd_set * read_s
 	if (pt)
 	{
 		if(pt->callback)
-			pt->callback(event, read_set, write_set, err_set);
+			pt->callback(pt, event, read_set, write_set, err_set);
 		if(pt->reinit)
 			pt->reinit(pt);
 		pt->time_to_expire = pt->to;
@@ -224,7 +240,7 @@ int task_manager_poll(struct task_manager * tm, timeout to)
 	fd_set read_set, write_set, err_set;
 	sock_t max_fd;
 	struct timeval tv;
-	struct periodic_task * pos, *triggered_task;
+	struct periodic_task * pos;
 	int event;
 
 	if (tm)
@@ -234,7 +250,6 @@ int task_manager_poll(struct task_manager * tm, timeout to)
 		FD_ZERO(&write_set);
 		FD_ZERO(&err_set);
 		min_to = to;
-		triggered_task = NULL;  // it means task manager got triggered for a timeout
 
 		list_for_each_entry(pos, tm->tasks, list_el)
 		{
@@ -242,10 +257,7 @@ int task_manager_poll(struct task_manager * tm, timeout to)
 			task_manager_int_bucket2fd_set(pos->writefds, &write_set, &max_fd);
 			task_manager_int_bucket2fd_set(pos->errfds, &err_set, &max_fd);
 			if (pos->time_to_expire < min_to)
-			{
 				min_to = pos->time_to_expire;
-				triggered_task = pos;	
-			}
 		}
 
 		tv.tv_sec = min_to / 1000;
@@ -259,9 +271,11 @@ int task_manager_poll(struct task_manager * tm, timeout to)
 		if(event == 0)  // timeout
 		{
 			list_for_each_entry(pos, tm->tasks, list_el)
+			{
 				pos->time_to_expire = MAX(0, pos->time_to_expire - sleep_time);
-			if (triggered_task != NULL)  // not idle loop, an actual task as to perform periodic update
-				periodic_task_trigger(triggered_task, event, &read_set, &write_set, &err_set);
+				if (pos->time_to_expire == 0)  // not idle loop, an actual task has to perform a periodic update
+					periodic_task_trigger(pos, event, &read_set, &write_set, &err_set);
+			}
 		}
 
 		if (event > 0)
@@ -286,4 +300,35 @@ void task_manager_destroy_task(struct task_manager * tm, struct periodic_task **
 		periodic_task_destroy(pt);
 	}
 
+}
+
+int periodic_task_set_data(struct periodic_task * pt, void * data)
+{
+	if (pt)
+	{
+		pt->data = data;
+		return 0;
+	}
+	return 1;
+}
+
+void * periodic_task_get_data(const struct periodic_task * pt)
+{
+	if (pt)
+		return pt->data;
+	return NULL;
+}
+
+timeout periodic_task_get_remaining_time(const struct periodic_task * pt)
+{
+	if (pt)
+		return pt->time_to_expire;
+	return 0;
+}
+
+void periodic_task_flush_fdsets(struct periodic_task *pt)
+{
+	int_bucket_flush(pt->writefds);
+	int_bucket_flush(pt->readfds);
+	int_bucket_flush(pt->errfds);
 }

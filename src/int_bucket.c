@@ -31,6 +31,11 @@ struct int_bucket {
 	uint32_t n_elements;
 };
 
+void int_bucket_flush(struct int_bucket * h)
+{
+	h->n_elements = 0;
+}
+
 uint32_t int_bucket_check_pos(const struct int_bucket *h, const uint32_t n)
 {
 	uint32_t a,b,i;

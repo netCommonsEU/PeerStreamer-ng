@@ -28,20 +28,20 @@ int UDP_socket(struct sockaddr_in * addr, int port)
 	return s;
 }
 
-uint8_t producer_callback(int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+uint8_t producer_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
 {
 	char msg[] = "ciao";
 	sendto(producer_sock, msg, strlen(msg), 0, (struct sockaddr *) &consumer_addr, sizeof(consumer_addr));
 	return 0;
 }
 
-uint8_t dummy_callback(int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+uint8_t dummy_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
 {
 	counter++;
 	return 0;
 }
 
-uint8_t dummy_callback2(int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+uint8_t dummy_callback2(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
 {
 	counter--;
 	return 0;

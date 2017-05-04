@@ -28,6 +28,8 @@ struct int_bucket * int_bucket_new(const uint32_t size);
 
 void int_bucket_destroy(struct int_bucket **ib);
 
+void int_bucket_flush(struct int_bucket *ib);
+
 int int_bucket_insert(struct int_bucket * ib,const uint32_t n,const uint32_t occurr);
 
 void int_bucket_sum(struct int_bucket *dst, const struct int_bucket *op);
