@@ -25,15 +25,15 @@ $(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
 Libs/mongoose/mongoose.o:
 	git submodule init Libs/mongoose/
 	git submodule update Libs/mongoose/
-	make -C Libs/mongoose/
-	$(CC) -c -o Libs/mongoose/mongoose.o Libs/mongoose/mongoose.c $(CFLAGS) -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
+	make -C Libs/mongoose/ CFLAGS="$(CFLAGS)" MONGOOSE_OPTS="$(MONGOOSE_OPTS)"
 
 tests:
-	make -C Test/
+	make -C Test/ CFLAGS="$(CFLAGS)"
 	Test/run_tests.sh
 
 clean:
 	make -C Test/ clean
+	make -C Libs/mongoose clean
 	rm -f *.o $(EXE) $(OBJS) $(LIBS)
 
 .PHONY: all clean
