@@ -20,10 +20,33 @@
 #include <stdint.h>
 
 #include<router.h>
+#include<pschannel.h>
+#include<context.h>
+#include<mongoose.h>
+
+// mg_get_http_var(&hm->body, "n1", n1, sizeof(n1));
+//
+void channel_index(struct mg_connection *nc, struct http_message *hm)
+{
+	char * channels;
+	const struct context * c;
+
+	c = (const struct context *) nc->user_data;
+
+	channels = pschannel_bucket_to_json(c->pb);
+
+	mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+	mg_printf_http_chunk(nc, "%s", channels);
+	mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+
+	free(channels);
+}
 
 uint8_t load_path_handlers(struct router *r)
 {
 	uint8_t res = 0;
+
+	res |= router_add_route(r, "GET", "^/channels.json$", channel_index);
 
 	return res;
 }

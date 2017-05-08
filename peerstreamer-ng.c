@@ -23,20 +23,14 @@
 #include<path_handlers.h>
 #include<debug.h>
 #include<task_manager.h>
+#include<context.h>
+#include<pschannel.h>
 #include<mg_periodic_task_intfs.h>
 
 #include<mongoose.h>
 
 
 static uint8_t running = 1;
-
-struct context{
-	struct mg_serve_http_opts http_opts;
-	char http_port[16];
-	struct router * router;
-	struct task_manager * tm;
-	struct mg_mgr * mongoose_srv;
-};
 
 void sig_exit(int signo)
 {
@@ -60,7 +54,7 @@ void parse_args(struct context *c, int argc, char *const* argv)
 
 void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 {
-	struct context *c = nc->mgr->user_data;
+	struct context *c = nc->user_data;
 	struct http_message *hm;
 
 	switch (ev) {
@@ -88,6 +82,11 @@ void init(struct context *c, int argc, char **argv)
 	c->router = router_create(10);
 	load_path_handlers(c->router);
 	c->tm = task_manager_new();
+	c->pb = pschannel_bucket_new();
+	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps");
+
+	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
+	mg_mgr_init(c->mongoose_srv, c);
 
 	parse_args(c, argc, argv);
 }
@@ -96,9 +95,8 @@ struct mg_mgr * launch_http_task(struct context *c)
 {
 	struct mg_connection *nc;
 
-	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
-	mg_mgr_init(c->mongoose_srv, c);
 	nc = mg_bind(c->mongoose_srv, c->http_port, ev_handler);
+	nc->user_data = c;
 	if (nc == NULL) {
 		fprintf(stderr, "Error starting server on port %s\n", c->http_port);
 		exit(1);
@@ -113,6 +111,7 @@ void context_deinit(struct context *c)
 {
 	router_destroy(&(c->router));
 	task_manager_destroy(&(c->tm));
+	pschannel_bucket_destroy(&(c->pb));
 	mg_mgr_free(c->mongoose_srv);
 	free(c->mongoose_srv);
 }
