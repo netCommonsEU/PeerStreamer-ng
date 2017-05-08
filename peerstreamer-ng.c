@@ -77,6 +77,7 @@ void init(struct context *c, int argc, char **argv)
 
 	c->http_opts.enable_directory_listing = "no";
 	c->http_opts.document_root = "Public/";
+	c->http_opts.index_files = "index.html,player.html";
 	set_debug(1);
 
 	c->router = router_create(10);

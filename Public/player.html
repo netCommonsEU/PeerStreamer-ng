@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>PeerSteamer-ng</title>
+
+	<!-- Twitter Bootstrap -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<script src="/assets/psng.js"></script>
+
+</head>
+<body>
+	<div id=main-container class=container>
+		<div class=jumbotron>
+			<h1>PeerStreamer-ng</h1>
+			Your friendly-neighborhood streaming platform
+		</div>
+	</div>
+
+	
+	<nav class="navbar navbar-default ">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+			</div>
+			<div id="navbar" class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li class="active"><a href="/player.html">Player</a></li>
+					<li><a href="/mysources.html">My Sources</a></li>
+					<li><a href="#">About</a></li>
+				</ul>
+			</div><!--/.nav-collapse -->
+		</div><!--/.container-fluid -->
+	</nav>
+
+
+	<div class="row center-block">
+		<div class="col-md-10">
+			<div class="row center-block">
+				<h2 class="text-center">&lt;Pick a channel from the list&gt;</h2>
+			</div>
+			<embed type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" version="VideoLAN.VLCPlugin.2"  width="100%" height="100%" id="vlc" loop="no" autoplay="yes" target="http://10.1.2.201:8000/"/>
+		</div>
+		<div class="col-md-2">
+			<div class="row center-block">
+				<h2 class="text-center">Channels</h2>
+			</div>
+			<ul class="list-group" id="channel-list">
+			</ul>
+		</div>
+	</div>
+</body>
+</html>

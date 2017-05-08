@@ -110,7 +110,9 @@ char * pschannel_bucket_to_json(const struct pschannel_bucket * pb)
 		i = 1;
 		for(iter = NULL; (iter = pschannel_bucket_iter(pb, iter));)
 		{
-			i += sprintf(res+i, "{\"name\":\"%s\",\"ipaddr\":\"%s\",\"port\":\"%s\",\"quality\":\"%s\"},", 
+			if (i > 1)
+				res[i++] = ',';
+			i += sprintf(res+i, "{\"name\":\"%s\",\"ipaddr\":\"%s\",\"port\":\"%s\",\"quality\":\"%s\"}", 
 					iter->name, iter->ipaddr, iter->port, iter->quality);
 		}
 		res[i] = ']'; i++;

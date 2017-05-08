@@ -83,7 +83,12 @@ void pschannel_bucket_to_json_test()
 
 	pschannel_bucket_insert(pb, "channel1", "10.0.0.1", "8000", "1Mbps");
 	s = pschannel_bucket_to_json(pb);
-	assert(strcmp(s, "[{\"name\":\"channel1\",\"ipaddr\":\"10.0.0.1\",\"port\":\"8000\",\"quality\":\"1Mbps\"},]") == 0);
+	assert(strcmp(s, "[{\"name\":\"channel1\",\"ipaddr\":\"10.0.0.1\",\"port\":\"8000\",\"quality\":\"1Mbps\"}]") == 0);
+	free(s);
+
+	pschannel_bucket_insert(pb, "channel2", "10.0.0.1", "8001", "1Mbps");
+	s = pschannel_bucket_to_json(pb);
+	assert(strcmp(s, "[{\"name\":\"channel1\",\"ipaddr\":\"10.0.0.1\",\"port\":\"8000\",\"quality\":\"1Mbps\"},{\"name\":\"channel2\",\"ipaddr\":\"10.0.0.1\",\"port\":\"8001\",\"quality\":\"1Mbps\"}]") == 0);
 	free(s);
 
 	pschannel_bucket_destroy(&pb);
