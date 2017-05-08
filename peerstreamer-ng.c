@@ -127,9 +127,9 @@ int main(int argc, char** argv)
 	debug("Starting server on port %s\n", c.http_port);
 	launch_http_task(&c);
 	while (running)
-		//mg_mgr_poll(c.mongoose_srv, 1000);
 		task_manager_poll(c.tm, 1000);
 
 	debug("\nExiting..\n");
+	context_deinit(&c);
 	return 0;
 }

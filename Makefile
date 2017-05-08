@@ -28,7 +28,7 @@ Libs/mongoose/mongoose.o:
 	make -C Libs/mongoose/ CFLAGS="$(CFLAGS)" MONGOOSE_OPTS="$(MONGOOSE_OPTS)"
 
 tests:
-	make -C Test/ CFLAGS="$(CFLAGS)"
+	make -C Test/  # CFLAGS="$(CFLAGS)"
 	Test/run_tests.sh
 
 clean:

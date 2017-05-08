@@ -91,13 +91,13 @@ void task_manager_new_task_test()
 
 	tm = task_manager_new();
 
-	res = task_manager_new_task(NULL, NULL, NULL, 0);
+	res = task_manager_new_task(NULL, NULL, NULL, 0, NULL);
 	assert(res == NULL);
 
-	res = task_manager_new_task(tm, NULL, NULL, 0);
+	res = task_manager_new_task(tm, NULL, NULL, 0, NULL);
 	assert(res != NULL);
 
-	res = task_manager_new_task(tm, dummy_reinit, dummy_callback, 10);
+	res = task_manager_new_task(tm, dummy_reinit, dummy_callback, 10, NULL);
 	assert(res != NULL);
 
 	task_manager_destroy(&tm);
@@ -116,7 +116,7 @@ void task_manager_poll_test()
 
 	tm = task_manager_new();
 
-	task_manager_new_task(tm, dummy_reinit, dummy_callback, 10);
+	task_manager_new_task(tm, dummy_reinit, dummy_callback, 10, NULL);
 	assert(reset == 1);
 
 	res = task_manager_poll(NULL, 0);
@@ -134,7 +134,7 @@ void task_manager_poll_test()
 	assert(counter == 1);
 	assert(reset == 2);
 
-	task_manager_new_task(tm, dummy_reinit, dummy_callback2, 5);
+	task_manager_new_task(tm, dummy_reinit, dummy_callback2, 5, NULL);
 	assert(reset == 3);
 
 	res = stopwatch_task_manager_poll(tm, 1000, &elapsed);
@@ -155,8 +155,8 @@ void task_manager_poll_test()
 	consumer_sock = UDP_socket(&consumer_addr, 6000);
 	producer_sock = UDP_socket(&producer_addr, 7000);
 
-	task_manager_new_task(tm, dummy_reinit, producer_callback, 5);
-	task_manager_new_task(tm, consumer_reinit, dummy_callback, 100);
+	task_manager_new_task(tm, dummy_reinit, producer_callback, 5, NULL);
+	task_manager_new_task(tm, consumer_reinit, dummy_callback, 100, NULL);
 	assert(reset == 2);
 
 	res = stopwatch_task_manager_poll(tm, 1000, &elapsed);

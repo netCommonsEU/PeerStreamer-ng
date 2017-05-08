@@ -6,7 +6,7 @@ TARGET_OBJS=$(TARGET_SRC:.c=.o)
 
 LIBS=../Libs/mongoose/mongoose.o
 LDFLAGS +=-lm
-CFLAGS +=-g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0 -I../Libs/mongoose/  -I../src
+CFLAGS += -g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0 -I../Libs/mongoose/  -I../src
 
 all: $(LIBS) $(TARGET_SRC) $(TARGET_OBJS) $(OBJS)
 

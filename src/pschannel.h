@@ -17,16 +17,33 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************/
 
-#ifndef __PERIODIC_TASK_INTFS__
-#define __PERIODIC_TASK_INTFS__ 1
+#ifndef __PSCHANNEL_H__
+#define __PSCHANNEL_H__
 
-#include<task_manager.h>
-#include <sys/select.h>
+#include<stdint.h>
 
-void add_fd_to_fdset(void * handler, int sock, char set);
+#define MAX_NAME_LENGTH 80
+#define MAX_IPADDR_LENGTH 46  // IPv6 digits (including colons and square brackets)
+#define MAX_PORT_LENGTH 6  // 2^16 digits plus one for \0
+#define MAX_QUALITY_LENGTH 10  // for future use
 
-uint8_t mongoose_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
+struct pschannel {
+	char name[MAX_NAME_LENGTH];
+	char ipaddr[MAX_IPADDR_LENGTH];
+	char port[MAX_PORT_LENGTH];
+	char quality[MAX_QUALITY_LENGTH];
+};
 
-uint8_t mongoose_task_reinit(struct periodic_task * pt);
+struct pschannel_bucket;
+
+struct pschannel_bucket * pschannel_bucket_new();
+
+uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char * ip, char * port, char * quality);
+
+const struct pschannel * pschannel_bucket_iter(const struct pschannel_bucket * pb, const struct pschannel * iter);
+
+void pschannel_bucket_destroy(struct pschannel_bucket ** pb);
+
+char * pschannel_bucket_to_json(const struct pschannel_bucket * pb);
 
 #endif
