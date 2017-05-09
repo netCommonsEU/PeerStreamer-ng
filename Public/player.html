@@ -44,7 +44,17 @@
 			<div class="row center-block">
 				<h2 class="text-center">&lt;Pick a channel from the list&gt;</h2>
 			</div>
-			<embed type="application/x-vlc-plugin" pluginspage="http://www.videolan.org" version="VideoLAN.VLCPlugin.2"  width="100%" height="100%" id="vlc" loop="no" autoplay="yes" target="http://10.1.2.201:8000/"/>
+			<div id="vlc-plugin" class="row text-center" >
+				<embed pluginspage="http://www.videolan.org"
+					type="application/x-vlc-plugin"
+					version="VideoLAN.VLCPlugin.2"
+					width="720" volume="50"
+					height="480"
+					name="vlc" id="vlc"
+					autoplay="true" allowfullscreen="true" 
+					target="channel.sdp">
+				</embed>
+			</div>
 		</div>
 		<div class="col-md-2">
 			<div class="row center-block">
