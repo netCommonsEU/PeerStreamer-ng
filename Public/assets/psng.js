@@ -22,7 +22,7 @@ function refresh_channels()
 			update_channels(channels);
 		}
 	};
-	xhttp.open("GET", "/channels.json", true);
+	xhttp.open("GET", "/channels", true);
 	xhttp.send();
 }
 

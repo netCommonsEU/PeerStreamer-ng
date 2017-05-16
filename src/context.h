@@ -5,6 +5,7 @@
 #include<router.h>
 #include<task_manager.h>
 #include<pschannel.h>
+#include<pstreamer.h>
 
 struct context{
 	struct mg_serve_http_opts http_opts;
@@ -13,6 +14,7 @@ struct context{
 	struct task_manager * tm;
 	struct mg_mgr * mongoose_srv;
 	struct pschannel_bucket * pb;
+	struct pstreamer_manager * psm;
 };
 
 #endif

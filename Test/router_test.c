@@ -61,6 +61,29 @@ void router_add_route_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void router_handle_post_test()
+{
+	struct router * r = NULL;
+	struct http_message hm;
+	char method[] = "POST";
+	uint8_t res;
+
+	r = router_create(0);
+	res = router_add_route(r, "POST", "^/users/[a-z]+$", handler_users);
+	assert(res == 0);
+
+	hm.method.p = method;
+	hm.method.len = strlen(method);
+	hm.uri.p = users_path;
+	hm.uri.len = strlen(users_path);
+
+	res = router_handle(r, NULL, &hm);
+	assert(res == 0);
+
+	router_destroy(&r);
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 void router_handle_test()
 {
 	struct router * r = NULL;
@@ -107,6 +130,7 @@ int main(int argv, char ** argc)
 	router_destroy_test();
 	router_add_route_test();
 	router_handle_test();
+	router_handle_post_test();
 	return 0;
 }
 

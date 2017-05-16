@@ -26,6 +26,7 @@
 #include<context.h>
 #include<pschannel.h>
 #include<mg_periodic_task_intfs.h>
+#include<pstreamer.h>
 
 #include<mongoose.h>
 
@@ -84,6 +85,7 @@ void init(struct context *c, int argc, char **argv)
 	load_path_handlers(c->router);
 	c->tm = task_manager_new();
 	c->pb = pschannel_bucket_new();
+	c->psm = pstreamer_manager_new();
 	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps");
 
 	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
@@ -113,6 +115,7 @@ void context_deinit(struct context *c)
 	router_destroy(&(c->router));
 	task_manager_destroy(&(c->tm));
 	pschannel_bucket_destroy(&(c->pb));
+	pstreamer_manager_destroy(&(c->psm));
 	mg_mgr_free(c->mongoose_srv);
 	free(c->mongoose_srv);
 }

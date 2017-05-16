@@ -6,5 +6,6 @@
 #define MAX_PORT_LENGTH 6  // 2^16 digits plus one for \0
 #define MAX_QUALITY_LENGTH 10  // for future use
 #define PSID_LENGTH 16
+#define MAX_URI_LENGTH 80
 
 #endif

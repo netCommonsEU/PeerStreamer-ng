@@ -30,7 +30,7 @@ void debug(char *msg, ...)
 	if(debug_on)
 	{
 		va_start(argp, msg);
-		vfprintf(stdout, msg, argp);
+		vfprintf(stderr, msg, argp);
 		va_end(argp);
 	}
 }
