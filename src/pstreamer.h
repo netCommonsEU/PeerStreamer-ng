@@ -17,29 +17,24 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************/
 
-#ifndef __PSCHANNEL_H__
-#define __PSCHANNEL_H__
+#ifndef __PSTREAMER_H__
+#define __PSTREAMER_H__ 
 
+#include<ord_set.h>
 #include<stdint.h>
 #include<name_lengths.h>
 
-struct pschannel {
-	char name[MAX_NAME_LENGTH];
-	char ipaddr[MAX_IPADDR_LENGTH];
-	char port[MAX_PORT_LENGTH];
-	char quality[MAX_QUALITY_LENGTH];
-};
+struct pstreamer;
+struct pstreamer_manager;
 
-struct pschannel_bucket;
+struct pstreamer_manager * pstreamer_manager_new();
 
-struct pschannel_bucket * pschannel_bucket_new();
+void pstreamer_manager_destroy(struct pstreamer_manager ** psm);
 
-uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char * ip, char * port, char * quality);
+const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id);
 
-const struct pschannel * pschannel_bucket_iter(const struct pschannel_bucket * pb, const struct pschannel * iter);
+char * pstreamer_to_json(const struct pstreamer * ps);
 
-void pschannel_bucket_destroy(struct pschannel_bucket ** pb);
-
-char * pschannel_bucket_to_json(const struct pschannel_bucket * pb);
+uint8_t pstreamer_manager_destroy_streamer(struct pstreamer_manager *psm, const struct pstreamer *ps);
 
 #endif

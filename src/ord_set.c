@@ -74,6 +74,44 @@ void ord_set_destroy(struct ord_set ** os, uint8_t free_elements)
 	}
 }
 
+const void * ord_set_find(const struct ord_set * os, const void * el)
+{
+	ord_set_size i;
+	void * res = NULL;
+
+
+	if(os && el)
+	{
+		i = ord_set_check_pos(os, el);
+		if(i < os->n_elements && os->cmp(os->elements[i], el) == 0)
+			res = os->elements[i];
+	}
+	return res;
+}
+
+uint8_t ord_set_remove(struct ord_set * os, const void * el, uint8_t free_element)
+{
+	uint8_t res = 1;
+	ord_set_size i;
+
+	if(os && el)
+	{
+		i = ord_set_check_pos(os, el);
+		if(i < os->n_elements && os->cmp(os->elements[i], el) == 0)
+		{
+			if (free_element)
+			{
+				free(os->elements[i]);
+				os->elements[i] = NULL;
+			}
+			memmove(os->elements + i, os->elements + i + 1, sizeof(void *) * (os->n_elements - i - 1));
+			os->n_elements--;
+			res = 0;
+		}
+	}
+	return res;
+}
+
 void * ord_set_insert(struct ord_set * os, void * el, uint8_t override)
 {
 	ord_set_size i;

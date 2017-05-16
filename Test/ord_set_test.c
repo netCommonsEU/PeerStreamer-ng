@@ -131,11 +131,76 @@ void ord_set_iter_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void ord_set_find_test()
+{
+	struct ord_set * os;
+	int e1=1, e2=12, e3=32;
+	const void * iter;
+
+	iter = ord_set_find(NULL, NULL);
+	assert(iter == NULL);
+
+	os = ord_set_new(1, int_cmp);
+	iter = ord_set_find(os, NULL);
+	assert(iter == NULL);
+
+	ord_set_insert(os, &e3, 0);
+	ord_set_insert(os, &e2, 0);
+
+	iter = ord_set_find(os, &e1);
+	assert(iter == NULL);
+
+	e1 = e2;
+	iter = ord_set_find(os, &e1);
+	assert(iter == &e2);
+
+	ord_set_destroy(&os, 0);
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
+void ord_set_remove_test()
+{
+	struct ord_set * os;
+	int e1=1, e2=12, e3=32;
+	uint8_t res;
+	const void * iter = NULL;
+
+	res = ord_set_remove(NULL, NULL, 0);
+	assert(res);
+
+	os = ord_set_new(1, int_cmp);
+	res = ord_set_remove(os, NULL, 0);
+	assert(res);
+
+	ord_set_insert(os, &e3, 0);
+	ord_set_insert(os, &e2, 0);
+
+	res = ord_set_remove(os, &e1, 0);
+	assert(res);
+
+	e1 = e2;
+	res = ord_set_remove(os, &e1, 0);
+	assert(res == 0);
+
+	iter = ord_set_iter(os, iter);
+	assert(iter = &e2);
+	iter = ord_set_iter(os, iter);
+	assert(iter = &e3);
+	iter = ord_set_iter(os, iter);
+	assert(iter == NULL);
+
+	ord_set_destroy(&os, 0);
+
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 int main(int argv, char ** argc)
 {
 	ord_set_new_test();
 	ord_set_insert_test();
 	ord_set_destroy_test();
 	ord_set_iter_test();
+	ord_set_find_test();
+	ord_set_remove_test();
 	return 0;
 }

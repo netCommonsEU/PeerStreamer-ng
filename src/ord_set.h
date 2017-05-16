@@ -31,4 +31,8 @@ const void * ord_set_iter(const struct ord_set * os, const void * iter);
 
 ord_set_size ord_set_length(const struct ord_set * os);
 
+const void * ord_set_find(const struct ord_set * os, const void * el);
+
+uint8_t ord_set_remove(struct ord_set * os, const void * el, uint8_t free_element);
+
 #endif
