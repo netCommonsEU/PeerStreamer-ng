@@ -49,12 +49,12 @@ struct pschannel_bucket * pschannel_bucket_new()
 	return pb;
 }
 
-uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char * ip, char * port, char * quality)
+uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char * ip, char * port, char * quality, char * sdpfile)
 {
 	struct pschannel * ch;
 	void * res;
 
-	if (pb && name && ip && port && quality)
+	if (pb && name && ip && port && quality && sdpfile)
 	{
 		ch = (struct pschannel *) malloc(sizeof(struct pschannel));
 		memset(ch, 0, sizeof(struct pschannel));
@@ -62,6 +62,7 @@ uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char 
 		strncpy(ch->ipaddr, ip, MAX_IPADDR_LENGTH-1);
 		strncpy(ch->port, port, MAX_PORT_LENGTH-1);
 		strncpy(ch->quality, quality, MAX_QUALITY_LENGTH-1);
+		strncpy(ch->sdpfile, sdpfile, MAX_SDPFILENAME_LENGTH-1);
 
 		res = ord_set_insert(pb->channels, ch, 0);
 		if (res != ch)  // there is a conflict
@@ -120,4 +121,18 @@ char * pschannel_bucket_to_json(const struct pschannel_bucket * pb)
 	}
 
 	return res;
+}
+
+const struct pschannel * pschannel_bucket_find(const struct pschannel_bucket * psb, const char * ipaddr, const char * port)
+{
+	struct pschannel ch;
+	
+	if (ipaddr && port)
+	{
+		strncpy(ch.ipaddr, ipaddr, MAX_IPADDR_LENGTH);
+		strncpy(ch.port, port, MAX_PORT_LENGTH);
+		return (const struct pschannel *) ord_set_find(psb->channels, &ch);
+
+	} else
+		return NULL;
 }

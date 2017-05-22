@@ -27,7 +27,7 @@
 struct pstreamer;
 struct pstreamer_manager;
 
-struct pstreamer_manager * pstreamer_manager_new();
+struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port);
 
 void pstreamer_manager_destroy(struct pstreamer_manager ** psm);
 
@@ -36,5 +36,9 @@ const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_mana
 char * pstreamer_to_json(const struct pstreamer * ps);
 
 uint8_t pstreamer_manager_destroy_streamer(struct pstreamer_manager *psm, const struct pstreamer *ps);
+
+const char * pstreamer_id(const struct pstreamer * ps);
+
+uint16_t pstreamer_base_port(const struct pstreamer * ps);
 
 #endif

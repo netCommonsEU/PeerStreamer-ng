@@ -19,7 +19,7 @@ void pstreamer_manager_destroy_test()
 	pstreamer_manager_destroy(NULL);
 	pstreamer_manager_destroy(&psm);
 
-	psm = pstreamer_manager_new();
+	psm = pstreamer_manager_new(6000);
 
 	pstreamer_manager_destroy(&psm);
 
@@ -34,7 +34,7 @@ void pstreamer_manager_create_streamer_test()
 	ps = pstreamer_manager_create_streamer(NULL, NULL, NULL, NULL);
 	assert(ps == NULL);
 
-	psm = pstreamer_manager_new();
+	psm = pstreamer_manager_new(6000);
 
 	ps = pstreamer_manager_create_streamer(psm, NULL, NULL, NULL);
 	assert(ps == NULL);
@@ -62,7 +62,7 @@ void pstreamer_to_json_test()
 	json = pstreamer_to_json(NULL);
 	assert(json == NULL);
 
-	psm = pstreamer_manager_new();
+	psm = pstreamer_manager_new(6000);
 	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42");
 
 	json = pstreamer_to_json(ps);
@@ -82,7 +82,7 @@ void pstreamer_manager_destroy_streamer_test()
 	res = pstreamer_manager_destroy_streamer(NULL, NULL);
 	assert(res);
 
-	psm = pstreamer_manager_new();
+	psm = pstreamer_manager_new(6000);
 	res = pstreamer_manager_destroy_streamer(psm, NULL);
 	assert(res);
 

@@ -17,29 +17,16 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************/
 
-#ifndef __PATH_HANDLERS__ 
-#define __PATH_HANDLERS__ 
+#ifndef __SDPFILE_H__
+#define __SDPFILE_H__
 
-#include <stdint.h>
-
-#include<router.h>
 #include<pschannel.h>
+#include<mongoose.h>
+#include<context.h>
 
 
-char * mg_uri_field(struct http_message *hm, uint8_t pos);
+void sdpfile_handler(struct mg_connection *nc, int ev, void *ev_data);
 
-void channel_index(struct mg_connection *nc, struct http_message *hm);
-
-void streamer_create(struct mg_connection *nc, struct http_message *hm);
-
-uint8_t load_path_handlers(struct router *r)
-{
-	uint8_t res = 0;
-
-	res |= router_add_route(r, "GET", "^/channels$", channel_index);
-	res |= router_add_route(r, "POST", "^/channels/[a-zA-Z0-9]+$", streamer_create);
-
-	return res;
-}
+char * sdpfile_create(const struct context * c, const struct pschannel * ch, const struct pstreamer * ps);
 
 #endif

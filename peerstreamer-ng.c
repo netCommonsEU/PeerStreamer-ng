@@ -85,8 +85,8 @@ void init(struct context *c, int argc, char **argv)
 	load_path_handlers(c->router);
 	c->tm = task_manager_new();
 	c->pb = pschannel_bucket_new();
-	c->psm = pstreamer_manager_new();
-	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps");
+	c->psm = pstreamer_manager_new(7000);
+	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
 
 	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
 	mg_mgr_init(c->mongoose_srv, c);

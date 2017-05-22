@@ -7,5 +7,7 @@
 #define MAX_QUALITY_LENGTH 10  // for future use
 #define PSID_LENGTH 16
 #define MAX_URI_LENGTH 80
+#define MAX_SDPFILENAME_LENGTH 255
+#define MAX_PATH_LENGTH 255
 
 #endif

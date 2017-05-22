@@ -30,10 +30,12 @@ struct pstreamer {
 	char id[PSID_LENGTH];  // identifier for the streamer instance
 	struct pscontext * psc;
 	time_t last_beat;
+	uint16_t base_port;
 };
 
 struct pstreamer_manager {
 	struct ord_set * streamers;
+	uint16_t next_streaming_port;
 };
 
 int8_t pstreamer_cmp(const void * v1, const void * v2)
@@ -65,12 +67,13 @@ char * pstreamer_to_json(const struct pstreamer * ps)
 	return res;
 }
 
-struct pstreamer_manager * pstreamer_manager_new()
+struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port)
 {
 	struct pstreamer_manager * psm = NULL;
 
 	psm = malloc(sizeof(struct pstreamer_manager));
 	psm->streamers = ord_set_new(1, pstreamer_cmp);
+	psm->next_streaming_port = starting_port;
 
 	return psm;
 }
@@ -101,6 +104,8 @@ const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_mana
 		strncpy(ps->source_ip, source_ip, MAX_IPADDR_LENGTH);
 		strncpy(ps->source_port, source_port, MAX_PORT_LENGTH);
 		strncpy(ps->id, id, PSID_LENGTH);
+		ps->base_port = psm->next_streaming_port;
+		psm->next_streaming_port += 4;  // we consider RTP streamers uses 4 ports
 		ptr = ord_set_find(psm->streamers, (const void *) ps);
 		if (ptr == NULL)
 		{
@@ -125,4 +130,18 @@ uint8_t pstreamer_manager_destroy_streamer(struct pstreamer_manager *psm, const 
 		res = ord_set_remove(psm->streamers, ps, 1);
 
 	return res;
+}
+
+const char * pstreamer_id(const struct pstreamer * ps)
+{
+	if (ps)
+		return ps->id;
+	return NULL;
+}
+
+uint16_t pstreamer_base_port(const struct pstreamer * ps)
+{
+	if (ps)
+		return ps->base_port;
+	return 0;
 }

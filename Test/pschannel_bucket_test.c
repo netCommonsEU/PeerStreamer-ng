@@ -29,16 +29,16 @@ void pschannel_bucket_insert_test()
 	struct pschannel_bucket * pb = NULL;
 	uint8_t res;
 
-	res = pschannel_bucket_insert(NULL, NULL, NULL, NULL, NULL);
+	res = pschannel_bucket_insert(NULL, NULL, NULL, NULL, NULL, NULL);
 	assert(res);
 
 	pb = pschannel_bucket_new();
-	res = pschannel_bucket_insert(pb, NULL, NULL, NULL, NULL);
+	res = pschannel_bucket_insert(pb, NULL, NULL, NULL, NULL, NULL);
 	assert(res);
-	res = pschannel_bucket_insert(pb, NULL, "10.0.0.1", "8000", NULL);
+	res = pschannel_bucket_insert(pb, NULL, "10.0.0.1", "8000", NULL, NULL);
 	assert(res);
 
-	res = pschannel_bucket_insert(pb, "channel1", "10.0.0.1", "8000", "1Mbps");
+	res = pschannel_bucket_insert(pb, "channel1", "10.0.0.1", "8000", "1Mbps", "localhost/channel.sdp");
 	assert(res == 0);
 
 	pschannel_bucket_destroy(&pb);
@@ -57,7 +57,7 @@ void pschannel_bucket_iter_test()
 	iter = pschannel_bucket_iter(pb, iter);
 	assert(iter == NULL);
 
-	pschannel_bucket_insert(pb, "channel1", "10.0.0.1", "8000", "1Mbps");
+	pschannel_bucket_insert(pb, "channel1", "10.0.0.1", "8000", "1Mbps", "localhost/channel.sdp");
 	iter = pschannel_bucket_iter(pb, iter);
 	assert(iter);
 	iter = pschannel_bucket_iter(pb, iter);
@@ -81,12 +81,12 @@ void pschannel_bucket_to_json_test()
 	assert(strcmp(s, "[]") == 0);
 	free(s);
 
-	pschannel_bucket_insert(pb, "channel1", "10.0.0.1", "8000", "1Mbps");
+	pschannel_bucket_insert(pb, "channel1", "10.0.0.1", "8000", "1Mbps", "localhost/channel.sdp");
 	s = pschannel_bucket_to_json(pb);
 	assert(strcmp(s, "[{\"name\":\"channel1\",\"ipaddr\":\"10.0.0.1\",\"port\":\"8000\",\"quality\":\"1Mbps\"}]") == 0);
 	free(s);
 
-	pschannel_bucket_insert(pb, "channel2", "10.0.0.1", "8001", "1Mbps");
+	pschannel_bucket_insert(pb, "channel2", "10.0.0.1", "8001", "1Mbps", "localhost/channel.sdp");
 	s = pschannel_bucket_to_json(pb);
 	assert(strcmp(s, "[{\"name\":\"channel1\",\"ipaddr\":\"10.0.0.1\",\"port\":\"8000\",\"quality\":\"1Mbps\"},{\"name\":\"channel2\",\"ipaddr\":\"10.0.0.1\",\"port\":\"8001\",\"quality\":\"1Mbps\"}]") == 0);
 	free(s);
