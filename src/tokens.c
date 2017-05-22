@@ -40,7 +40,7 @@ void tokens_destroy(char *** sv,uint32_t n)
 
 char ** tokens_create(char * s,const char delim,uint32_t * n)
 {
-	char * np =s, *wp = s;
+	char * np =s, *nnp;
 	char ** sv = NULL;
 	uint32_t i;
 
@@ -48,26 +48,28 @@ char ** tokens_create(char * s,const char delim,uint32_t * n)
 	if(s && n && strcmp(s,""))
 	{
 		*n = 0;
-		while((np = strchr(np,delim)))
+		while((nnp = strchr(np,delim)))
 		{
-			(*n)++;
-			np++;
+			if ((nnp - np) > 1)
+				(*n)++;
+			np = nnp + 1;
 		}
-		(*n)++;
+		if (strlen(np) > 0)
+			(*n)++;
 		sv = (char **) malloc(sizeof(char *) * (*n));
 
-		np = s;
-		for( i=0; i<*n; i++)
+		np = nnp = s;
+		i = 0;
+		while((nnp = strchr(np,delim)))
 		{
-			np = strchr(np,delim);
-			if(np)
+			if ((nnp - np) > 1)
 			{
-				sv[i] = substring_trim(wp,0,np-wp);
-				np++;
-				wp=np;
-			} else
-				sv[i] = substring_trim(wp,0,strlen(wp));
+				sv[i++] = substring_trim(np,0,nnp-np);
+			}
+			np = nnp+1;
 		}
+		if (strlen(np) > 0)
+			sv[i] = substring_trim(np,0,strlen(np));
 	}
 	return sv;
 }

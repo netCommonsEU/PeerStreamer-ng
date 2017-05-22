@@ -71,10 +71,40 @@ void tokens_check_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void tokens_url_test()
+{
+	char ** tokens;
+	uint32_t ntok;
+	char * uri1 = "/channels/cool";
+	char * uri2 = "/channels/cool/";
+	char * uri3 = "/channels//cool/";
+
+	tokens = tokens_create(uri1, '/', &ntok);
+	assert(ntok==2);
+	assert(tokens_check(tokens, ntok, "channels") == 0);
+	assert(tokens_check(tokens, ntok, "cool") == 1);
+	tokens_destroy(&tokens, ntok);
+
+	tokens = tokens_create(uri2, '/', &ntok);
+	assert(ntok==2);
+	assert(tokens_check(tokens, ntok, "channels") == 0);
+	assert(tokens_check(tokens, ntok, "cool") == 1);
+	tokens_destroy(&tokens, ntok);
+
+	tokens = tokens_create(uri3, '/', &ntok);
+	assert(ntok==2);
+	assert(tokens_check(tokens, ntok, "channels") == 0);
+	assert(tokens_check(tokens, ntok, "cool") == 1);
+	tokens_destroy(&tokens, ntok);
+
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 int main(int argv, char ** argc)
 {
 	tokens_create_test();
 	tokens_destroy_test();
 	tokens_check_test();
+	tokens_url_test();
 	return 0;
 }
