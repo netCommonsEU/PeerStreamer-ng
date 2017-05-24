@@ -53,14 +53,42 @@ void parse_args(struct context *c, int argc, char *const* argv)
 		}
 }
 
+void mg_request_decode(char * buff, int buff_len, const struct http_message *hm)
+{
+	size_t i = 0;
+
+	if (buff_len - i -2 > hm->method.len)
+	{
+		memmove(buff + i, hm->method.p, hm->method.len);
+		i += hm->method.len;
+	}
+	buff[i++] = ' ';
+	if (buff_len - i -2 > hm->uri.len)
+	{
+		memmove(buff + i, hm->uri.p, hm->uri.len);
+		i += hm->uri.len;
+	}
+	buff[i++] = ' ';
+	if (buff_len - i -1 > hm->query_string.len)
+	{
+		memmove(buff + i, hm->query_string.p, hm->query_string.len);
+		i += hm->query_string.len;
+	}
+	buff[i] = '\0';
+}
+
 void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 {
 	struct context *c = nc->user_data;
 	struct http_message *hm;
+	char buff[80];
 
 	switch (ev) {
 		case MG_EV_HTTP_REQUEST:
 			hm  = (struct http_message *) ev_data;
+			debug("Received a request:\n");
+			mg_request_decode(buff, 80, hm);
+			debug("\t%s\n", buff);
 			// Try to call a path handler. If it fails serve
 			// public contents
 			if(router_handle(c->router, nc, hm))

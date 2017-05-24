@@ -92,7 +92,7 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 			debug("Streamer instance created\n");
 			sdpuri = sdpfile_create(c, ch, ps);
 			mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-			mg_printf_http_chunk(nc, "{id=%s,sdpfile=%s}", id, sdpuri);
+			mg_printf_http_chunk(nc, "{\"id\":\"%s\",\"name\":\"%s\",\"sdpfile\":\"%s\"}", id, ch->name, sdpuri);
 			mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 			free(sdpuri);
 		} else {

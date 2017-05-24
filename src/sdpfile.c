@@ -118,13 +118,15 @@ char * sdpfile_create(const struct context * c, const struct pschannel * ch, con
 {
 	struct mg_connection * conn;
 	struct pssdpfile * psdp;
+	char sdpfile[MAX_SDPFILENAME_LENGTH];
 
 	psdp = malloc(sizeof(struct pssdpfile));
 	psdp->ps = ps;
 	snprintf(psdp->path, MAX_PATH_LENGTH, "%s/%s.sdp", c->http_opts.document_root, pstreamer_id(ps));
+	snprintf(sdpfile, MAX_SDPFILENAME_LENGTH, "%s.sdp", pstreamer_id(ps));
 
 	conn = mg_connect_http(c->mongoose_srv, sdpfile_handler, ch->sdpfile, NULL, NULL);
 	conn->user_data = (void *) psdp;
 
-	return strdup(psdp->path);
+	return strdup(sdpfile);
 }
