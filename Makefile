@@ -10,7 +10,7 @@ else
 CFLAGS+=-O6
 endif
 
-LIBS+=Libs/mongoose/mongoose.o 
+LIBS+=Libs/mongoose/mongoose.o Libs/GRAPES/src/libgrapes.a Libs/pstreamer/src/libpstreamer.a
 MONGOOSE_OPTS+=-DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 LDFLAGS+=-lm
 
@@ -27,6 +27,16 @@ Libs/mongoose/mongoose.o:
 	git submodule update Libs/mongoose/
 	make -C Libs/mongoose/ CFLAGS="$(CFLAGS)" MONGOOSE_OPTS="$(MONGOOSE_OPTS)"
 
+Libs/GRAPES/src/libgrapes.a:
+	git submodule init Libs/GRAPES/
+	git submodule update Libs/GRAPES/
+	make -C Libs/GRAPES/ 
+
+Libs/pstreamer/src/libpstreamer.a:
+	git submodule init Libs/pstreamer/
+	git submodule update Libs/pstreamer/
+	make -C Libs/pstreamer/ 
+
 tests:
 	make -C Test/  # CFLAGS="$(CFLAGS)"
 	Test/run_tests.sh
@@ -34,6 +44,8 @@ tests:
 clean:
 	make -C Test/ clean
 	make -C Libs/mongoose clean
+	make -C Libs/GRAPES clean
+	make -C Libs/pstreamer clean
 	rm -f *.o $(EXE) $(OBJS) $(LIBS)
 
 .PHONY: all clean

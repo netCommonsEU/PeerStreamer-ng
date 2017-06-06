@@ -4,3 +4,6 @@
 [submodule "Libs/mongoose"]
 	path = Libs/mongoose
 	url = https://ans.disi.unitn.it/redmine/mongoose.git
+[submodule "Libs/pstreamer"]
+	path = Libs/pstreamer
+	url = https://ans.disi.unitn.it/redmine/pstreamer.git
