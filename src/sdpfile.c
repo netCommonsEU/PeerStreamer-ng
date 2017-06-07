@@ -41,8 +41,8 @@ void sdpfile_dump(const char * filename, const char * sdpdesc, const struct pstr
 	uint32_t n_lines, n_records, l, r, i;
 	uint16_t audio_port, video_port;
 
-	audio_port = pstreamer_base_port(ps);
-	video_port = audio_port + 2;
+	audio_port = pstreamer_base_port(ps) + 1;
+	video_port = audio_port + 3;
 
 	debug("Saving sdpfile to %s\n", filename);
 	lines = tokens_create((char *) sdpdesc, '\n', &n_lines);

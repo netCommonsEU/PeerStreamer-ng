@@ -15,6 +15,7 @@ struct context{
 	struct mg_mgr * mongoose_srv;
 	struct pschannel_bucket * pb;
 	struct pstreamer_manager * psm;
+	char * csvfile;
 };
 
 #endif

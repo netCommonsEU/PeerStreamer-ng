@@ -141,7 +141,7 @@ int8_t pstreamer_schedule_tasks(struct pstreamer *ps, struct task_manager * tm)
 	if (ps && tm && ps->psc)
 	{
 		ps->tm = tm;
-		ps->topology_task = task_manager_new_task(tm, pstreamer_topology_task_reinit, pstreamer_topology_task_callback, ps->topology_interval, ps->psc);
+		ps->topology_task = task_manager_new_task(tm, NULL, pstreamer_topology_task_callback, ps->topology_interval, ps->psc);
 		ps->offer_task = task_manager_new_task(tm, pstreamer_offer_task_reinit, pstreamer_offer_task_callback, psinstance_offer_interval(ps->psc), ps->psc); 
 		ps->msg_task = task_manager_new_task(tm, pstreamer_msg_handling_task_reinit, pstreamer_msg_handling_task_callback, 1000, ps->psc);
 	}

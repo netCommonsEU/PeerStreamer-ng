@@ -23,6 +23,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include<stdio.h>
+#include<tokens.h>
 
 int8_t pschannel_cmp(const void *ch1,const  void *ch2)
 {
@@ -39,13 +40,18 @@ int8_t pschannel_cmp(const void *ch1,const  void *ch2)
 
 struct pschannel_bucket {
 	struct ord_set * channels;
+	char * csvfile;
 };
 
-struct pschannel_bucket * pschannel_bucket_new()
+struct pschannel_bucket * pschannel_bucket_new(const char * csvfilename)
 {
 	struct pschannel_bucket * pb;
 	pb = (struct pschannel_bucket*) malloc(sizeof(struct pschannel_bucket));
 	pb->channels = ord_set_new(10, pschannel_cmp);
+	if (csvfilename)
+		pb->csvfile = strdup(csvfilename);
+	else
+		pb->csvfile = NULL;
 	return pb;
 }
 
@@ -87,6 +93,8 @@ void pschannel_bucket_destroy(struct pschannel_bucket ** pb)
 	if(pb && *pb)
 	{
 		ord_set_destroy(&((*pb)->channels), 1);
+		if ((*pb)->csvfile)
+			free((*pb)->csvfile);
 		free(*pb);
 		*pb = NULL;
 	}
@@ -135,4 +143,36 @@ const struct pschannel * pschannel_bucket_find(const struct pschannel_bucket * p
 
 	} else
 		return NULL;
+}
+
+int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb)
+{
+	int8_t res = -1;
+	int ans;
+	FILE *fp;
+	char line[255];
+	char ** tokens;
+	uint32_t ntoks;
+	
+	if (psb && psb->csvfile && (fp = fopen(psb->csvfile, "r")))
+	{
+		ans = ftrylockfile(fp);
+		if (ans == 0)
+		{
+			ord_set_destroy(&(psb->channels), 1);
+			psb->channels = ord_set_new(10, pschannel_cmp);
+			while (fgets(line, 255, fp) != NULL)
+			{
+				tokens = tokens_create(line, ',', &ntoks);
+				if (tokens[0][0] != '#' && ntoks == 5)
+					pschannel_bucket_insert(psb, tokens[0], tokens[1], tokens[2], tokens[3], tokens[4]);
+				tokens_destroy(&tokens, ntoks);
+			}
+			res = 0;
+			funlockfile(fp);
+		} else
+			res = -2;
+		fclose(fp);
+	}
+	return res;
 }

@@ -42,10 +42,13 @@ void parse_args(struct context *c, int argc, char *const* argv)
 {
 	int o;
 
-	while ((o = getopt (argc, argv, "qp:")) != -1)
+	while ((o = getopt (argc, argv, "qp:c:")) != -1)
 		switch (o) {
 			case 'p':
 				strncpy(c->http_port, optarg, 16);
+				break;
+			case 'c':
+				c->csvfile = strdup(optarg);
 				break;
 			case 'q':
 				set_debug(0);
@@ -107,12 +110,12 @@ void init(struct context *c, int argc, char **argv)
 	c->http_opts.enable_directory_listing = "no";
 	c->http_opts.document_root = "Public/";
 	c->http_opts.index_files = "index.html,player.html";
+	c->csvfile = NULL;
 	set_debug(1);
 
 	c->router = router_create(10);
 	load_path_handlers(c->router);
 	c->tm = task_manager_new();
-	c->pb = pschannel_bucket_new();
 	c->psm = pstreamer_manager_new(7000);
 	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
 
@@ -120,6 +123,7 @@ void init(struct context *c, int argc, char **argv)
 	mg_mgr_init(c->mongoose_srv, c);
 
 	parse_args(c, argc, argv);
+	c->pb = pschannel_bucket_new(c->csvfile);
 }
 
 struct mg_mgr * launch_http_task(struct context *c)
@@ -140,6 +144,8 @@ struct mg_mgr * launch_http_task(struct context *c)
 
 void context_deinit(struct context *c)
 {
+	if (c->csvfile)
+		free(c->csvfile);
 	router_destroy(&(c->router));
 	task_manager_destroy(&(c->tm));
 	pschannel_bucket_destroy(&(c->pb));
@@ -157,6 +163,7 @@ int main(int argc, char** argv)
 
 	debug("Starting server on port %s\n", c.http_port);
 	launch_http_task(&c);
+	task_manager_new_task(c.tm, NULL, pschannel_csvfile_task_callback, 1000, (void *) c.pb);
 	while (running)
 		task_manager_poll(c.tm, 1000);
 

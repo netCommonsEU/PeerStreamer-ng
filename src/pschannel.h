@@ -33,7 +33,7 @@ struct pschannel {
 
 struct pschannel_bucket;
 
-struct pschannel_bucket * pschannel_bucket_new();
+struct pschannel_bucket * pschannel_bucket_new(const char * csvfilename);
 
 uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char * ip, char * port, char * quality, char * sdpfile);
 
@@ -44,5 +44,7 @@ void pschannel_bucket_destroy(struct pschannel_bucket ** pb);
 char * pschannel_bucket_to_json(const struct pschannel_bucket * pb);
 
 const struct pschannel * pschannel_bucket_find(const struct pschannel_bucket * psb, const char * ipaddr, const char * port);
+
+int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb);
 
 #endif

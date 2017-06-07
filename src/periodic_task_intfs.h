@@ -29,8 +29,6 @@ uint8_t mongoose_task_reinit(struct periodic_task * pt);
 
 uint8_t pstreamer_topology_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
 
-uint8_t pstreamer_topology_task_reinit(struct periodic_task * pt);
-
 uint8_t pstreamer_offer_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
 
 uint8_t pstreamer_offer_task_reinit(struct periodic_task * pt);
@@ -38,5 +36,9 @@ uint8_t pstreamer_offer_task_reinit(struct periodic_task * pt);
 uint8_t pstreamer_msg_handling_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
 
 uint8_t pstreamer_msg_handling_task_reinit(struct periodic_task * pt);
+
+uint8_t pstreamer_topology_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
+
+uint8_t pschannel_csvfile_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
 
 #endif

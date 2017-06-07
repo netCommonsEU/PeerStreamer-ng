@@ -21,6 +21,7 @@
 #include<mongoose.h>
 #include<psinstance.h>
 #include<pstreamer_event.h>
+#include<pschannel.h>
 
 void add_fd_to_fdset(void * handler, int sock, char set)
 {
@@ -44,17 +45,22 @@ void add_fd_to_fdset(void * handler, int sock, char set)
 	}
 }
 
+uint8_t pschannel_csvfile_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+{
+	struct pschannel_bucket * pb;
+
+	pb = (struct pschannel_bucket *) periodic_task_get_data(pt);
+	if (ret == 0)
+		return pschannel_bucket_loadfile(pb);
+	return 1;
+}
+
 uint8_t pstreamer_topology_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
 {
 	struct psinstance * ps;
 	ps = (struct psinstance *) periodic_task_get_data(pt);
 	if (ret == 0)
 		psinstance_topology_update(ps);
-	return 0;
-}
-
-uint8_t pstreamer_topology_task_reinit(struct periodic_task * pt)
-{
 	return 0;
 }
 

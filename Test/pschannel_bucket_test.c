@@ -19,7 +19,7 @@ void pschannel_bucket_destroy_test()
 	pschannel_bucket_destroy(NULL);
 	pschannel_bucket_destroy(&pb);
 
-	pb = pschannel_bucket_new();
+	pb = pschannel_bucket_new(NULL);
 	pschannel_bucket_destroy(&pb);
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
@@ -32,7 +32,7 @@ void pschannel_bucket_insert_test()
 	res = pschannel_bucket_insert(NULL, NULL, NULL, NULL, NULL, NULL);
 	assert(res);
 
-	pb = pschannel_bucket_new();
+	pb = pschannel_bucket_new(NULL);
 	res = pschannel_bucket_insert(pb, NULL, NULL, NULL, NULL, NULL);
 	assert(res);
 	res = pschannel_bucket_insert(pb, NULL, "10.0.0.1", "8000", NULL, NULL);
@@ -53,7 +53,7 @@ void pschannel_bucket_iter_test()
 	iter = pschannel_bucket_iter(NULL, NULL);
 	assert(iter == NULL);
 
-	pb = pschannel_bucket_new();
+	pb = pschannel_bucket_new(NULL);
 	iter = pschannel_bucket_iter(pb, iter);
 	assert(iter == NULL);
 
@@ -75,7 +75,7 @@ void pschannel_bucket_to_json_test()
 	s = pschannel_bucket_to_json(pb);
 	assert(s == NULL);
 
-	pb = pschannel_bucket_new();
+	pb = pschannel_bucket_new(NULL);
 
 	s = pschannel_bucket_to_json(pb);
 	assert(strcmp(s, "[]") == 0);
@@ -95,11 +95,47 @@ void pschannel_bucket_to_json_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void pschannel_bucket_loadfile_test()
+{
+	const char * testfile = "/tmp/channel_test_file.csv";
+	struct pschannel_bucket * psb = NULL;
+	const struct pschannel * ch;
+	int8_t res = 0;
+	FILE* fd;
+
+	res = pschannel_bucket_loadfile(psb);
+	assert(res == -1);
+
+	psb = pschannel_bucket_new(NULL);
+	res = pschannel_bucket_loadfile(psb);
+	assert(res == -1);
+	pschannel_bucket_destroy(&psb);
+
+	psb = pschannel_bucket_new("nonexisting");
+	res = pschannel_bucket_loadfile(psb);
+	assert(res == -1);
+	pschannel_bucket_destroy(&psb);
+
+	fd = fopen(testfile, "w");
+	fprintf(fd, "ch1,ip1,port1,q1,addr1\n");
+	fclose(fd);
+
+	psb = pschannel_bucket_new(testfile);
+	res = pschannel_bucket_loadfile(psb);
+	assert(res == 0);
+	ch = pschannel_bucket_find(psb, "ip1", "port1");
+	assert(ch);
+	pschannel_bucket_destroy(&psb);
+
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 int main(int argv, char ** argc)
 {
 	pschannel_bucket_destroy_test();
 	pschannel_bucket_insert_test();
 	pschannel_bucket_iter_test();
 	pschannel_bucket_to_json_test();
+	pschannel_bucket_loadfile_test();
 	return 0;
 }
