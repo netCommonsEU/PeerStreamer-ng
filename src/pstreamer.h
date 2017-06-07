@@ -44,4 +44,10 @@ uint16_t pstreamer_base_port(const struct pstreamer * ps);
 
 int8_t pstreamer_schedule_tasks(struct pstreamer *ps, struct task_manager * tm);
 
+const struct pstreamer * pstreamer_manager_get_streamer(const struct pstreamer_manager *psm, const char * id);
+
+void pstreamer_manager_remove_orphans(struct pstreamer_manager * psm, time_t interval);
+
+void pstreamer_touch(struct pstreamer *ps);
+
 #endif

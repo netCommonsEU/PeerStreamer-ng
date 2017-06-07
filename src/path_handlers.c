@@ -109,3 +109,24 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 
 	free(id);
 }
+
+void streamer_update(struct mg_connection *nc, struct http_message *hm)
+{
+	char * id;
+	const struct pstreamer * ps;
+	const struct context * c;
+
+	c = (const struct context *) nc->user_data;
+	id = mg_uri_field(hm, 1);
+
+	ps = pstreamer_manager_get_streamer(c->psm, id);
+	debug("UPDATE request for resource %s\n", id);
+	if (ps)
+	{
+		pstreamer_touch((struct pstreamer*) ps);
+		debug("\tInstance %s found and touched\n", id);
+	} else
+		debug("\tInstance %s not found\n", id);
+
+	free(id);
+}

@@ -22,6 +22,8 @@
 #include<psinstance.h>
 #include<pstreamer_event.h>
 #include<pschannel.h>
+#include<pstreamer.h>
+#include<debug.h>
 
 void add_fd_to_fdset(void * handler, int sock, char set)
 {
@@ -45,6 +47,16 @@ void add_fd_to_fdset(void * handler, int sock, char set)
 	}
 }
 
+uint8_t pstreamer_purge_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+{
+	struct pstreamer_manager * psm;
+
+	psm = (struct pstreamer_manager *) periodic_task_get_data(pt);
+	if (ret == 0)
+		pstreamer_manager_remove_orphans(psm, 10);
+	return 0;
+}
+
 uint8_t pschannel_csvfile_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
 {
 	struct pschannel_bucket * pb;
@@ -60,7 +72,10 @@ uint8_t pstreamer_topology_task_callback(struct periodic_task * pt, int ret, fd_
 	struct psinstance * ps;
 	ps = (struct psinstance *) periodic_task_get_data(pt);
 	if (ret == 0)
+	{
+		debug("Topology update\n");
 		psinstance_topology_update(ps);
+	}
 	return 0;
 }
 
@@ -69,7 +84,10 @@ uint8_t pstreamer_offer_task_callback(struct periodic_task * pt, int ret, fd_set
 	struct psinstance * ps;
 	ps = (struct psinstance *) periodic_task_get_data(pt);
 	if (ret == 0)
+	{
+		debug("Offer time\n");
 		psinstance_send_offer(ps);
+	}
 	return 0;
 }
 
@@ -87,7 +105,10 @@ uint8_t pstreamer_msg_handling_task_callback(struct periodic_task * pt, int ret,
 
 	ps = (struct psinstance *) periodic_task_get_data(pt);
 	if (ret > 0)  // we do not consider timeouts, we just want to handle data ready
+	{
+		debug("Received a message\n");
 		psinstance_handle_msg(ps);
+	}
 	return 0;
 }
 
@@ -108,6 +129,8 @@ uint8_t mongoose_task_callback(struct periodic_task * pt, int ret, fd_set * read
 
 	iface = (struct mg_iface *) periodic_task_get_data(pt);
 
+	if (ret == 0)
+		debug("Mongoose timeout\n");
 	return mongoose_select_action(iface, ret, readfds, writefds, errfds);
 }
 

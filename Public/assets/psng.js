@@ -1,6 +1,7 @@
 function response_channel(ch)
 {
 	set_state(ch.name);
+	channel = ch.id;
 	var v = document.getElementById("vlc");
 	v.playlist.playItem(vlc.playlist.add(ch.sdpfile));
 }
@@ -60,5 +61,22 @@ function refresh_channels()
 	xhttp.send();
 }
 
+function update_channel()
+{
+	if (channel.length > 0)
+	{
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				alert("Refreshed!");
+			}
+		};
+		xhttp.open("UPDATE", "/channels/" + channel, true);
+		xhttp.send();
+	}
+}
+
 refresh_channels();
 var refresh_channels_id = setInterval(refresh_channels, 5000);
+var update_channel_id = setInterval(update_channel, 3000);
+var channel = "";

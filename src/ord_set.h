@@ -38,4 +38,6 @@ const void * ord_set_find(const struct ord_set * os, const void * el);
 
 uint8_t ord_set_remove(struct ord_set * os, const void * el, uint8_t free_element);
 
+int8_t ord_set_dummy_cmp(const void * p1, const void * p2);
+
 #endif

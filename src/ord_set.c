@@ -166,3 +166,11 @@ ord_set_size ord_set_length(const struct ord_set * os)
 		return os->n_elements;
 	return 0;
 }
+
+int8_t ord_set_dummy_cmp(const void * p1, const void * p2)
+{
+	if (p1 == p2)
+		return 0;
+	return p1 < p2 ? -1 : 1;
+}
+

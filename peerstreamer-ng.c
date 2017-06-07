@@ -117,13 +117,13 @@ void init(struct context *c, int argc, char **argv)
 	load_path_handlers(c->router);
 	c->tm = task_manager_new();
 	c->psm = pstreamer_manager_new(7000);
-	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
 
 	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
 	mg_mgr_init(c->mongoose_srv, c);
 
 	parse_args(c, argc, argv);
 	c->pb = pschannel_bucket_new(c->csvfile);
+	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
 }
 
 struct mg_mgr * launch_http_task(struct context *c)
@@ -147,9 +147,9 @@ void context_deinit(struct context *c)
 	if (c->csvfile)
 		free(c->csvfile);
 	router_destroy(&(c->router));
+	pstreamer_manager_destroy(&(c->psm));  // this must be destroyed before task managers!
 	task_manager_destroy(&(c->tm));
 	pschannel_bucket_destroy(&(c->pb));
-	pstreamer_manager_destroy(&(c->psm));
 	mg_mgr_free(c->mongoose_srv);
 	free(c->mongoose_srv);
 }
@@ -164,6 +164,7 @@ int main(int argc, char** argv)
 	debug("Starting server on port %s\n", c.http_port);
 	launch_http_task(&c);
 	task_manager_new_task(c.tm, NULL, pschannel_csvfile_task_callback, 1000, (void *) c.pb);
+	task_manager_new_task(c.tm, NULL, pstreamer_purge_task_callback, 5000, (void *) c.psm);
 	while (running)
 		task_manager_poll(c.tm, 1000);
 

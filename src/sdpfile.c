@@ -103,6 +103,7 @@ void sdpfile_handler(struct mg_connection *nc, int ev, void *ev_data)
 				default:
 					debug("SDPFILE server answers: %d\n", hm->resp_code);
 			}
+			nc->flags |= MG_F_SEND_AND_CLOSE;
 			free(psdp);
 			break;
 		case MG_EV_CLOSE:

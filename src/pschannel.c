@@ -24,6 +24,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<tokens.h>
+#include<debug.h>
 
 int8_t pschannel_cmp(const void *ch1,const  void *ch2)
 {
@@ -159,6 +160,7 @@ int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb)
 		ans = ftrylockfile(fp);
 		if (ans == 0)
 		{
+			debug("Refresing channel list from file\n");
 			ord_set_destroy(&(psb->channels), 1);
 			psb->channels = ord_set_new(10, pschannel_cmp);
 			while (fgets(line, 255, fp) != NULL)

@@ -26,6 +26,7 @@
 #include<psinstance.h>
 #include<task_manager.h>
 #include<periodic_task_intfs.h>
+#include<debug.h>
 
 struct pstreamer {
 	char source_ip[MAX_IPADDR_LENGTH];
@@ -69,9 +70,12 @@ int8_t pstreamer_init(struct pstreamer * ps)
 
 int8_t pstreamer_deinit(struct pstreamer * ps)
 {
-	task_manager_destroy_task(ps->tm, &(ps->topology_task));
-	task_manager_destroy_task(ps->tm, &(ps->offer_task));
-	task_manager_destroy_task(ps->tm, &(ps->msg_task));
+	if (ps->topology_task)
+		task_manager_destroy_task(ps->tm, &(ps->topology_task));
+	if (ps->offer_task)
+		task_manager_destroy_task(ps->tm, &(ps->offer_task));
+	if (ps->msg_task)
+		task_manager_destroy_task(ps->tm, &(ps->msg_task));
 	psinstance_destroy(&(ps->psc));
 	return 0;
 }
@@ -114,6 +118,30 @@ struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port)
 	psm->initial_streaming_port = starting_port;
 
 	return psm;
+}
+
+void pstreamer_manager_remove_orphans(struct pstreamer_manager * psm, time_t interval)
+{
+	struct ord_set * orphans;
+	struct pstreamer * ps;
+	const void * iter;
+	time_t now;
+
+	now = time(NULL);
+	orphans = ord_set_new(10, ord_set_dummy_cmp);
+	ord_set_for_each(iter, psm->streamers)
+	{
+		ps = (struct pstreamer *) iter;
+		if (now - ps->last_beat > interval)
+			ord_set_insert(orphans, (void *) iter, 0);
+	}
+	ord_set_for_each(iter, orphans)
+	{
+		ps = (struct pstreamer *) iter;
+		debug("Destroying inactive pstreamer instance %s\n", ps->id);
+		pstreamer_manager_destroy_streamer(psm, ps);
+	}
+	ord_set_destroy(&orphans, 0);
 }
 
 void pstreamer_manager_destroy(struct pstreamer_manager ** psm)
@@ -169,6 +197,19 @@ uint16_t assign_streaming_ports(struct pstreamer_manager *psm)
 			base_port += 5;  // we consider RTP streamers uses 4 ports
 	}
 	return base_port;
+}
+
+const struct pstreamer * pstreamer_manager_get_streamer(const struct pstreamer_manager *psm, const char * id)
+{
+	struct pstreamer * ps = NULL;
+	const void * ptr = NULL;
+
+	ps = malloc(sizeof(struct pstreamer));
+	strncpy(ps->id, id, PSID_LENGTH);
+	ptr = ord_set_find(psm->streamers, (const void *) ps);
+
+	free(ps);
+	return (const struct pstreamer*) ptr;
 }
 
 const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id)

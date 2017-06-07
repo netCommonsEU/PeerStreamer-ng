@@ -41,4 +41,6 @@ uint8_t pstreamer_topology_task_callback(struct periodic_task * pt, int ret, fd_
 
 uint8_t pschannel_csvfile_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
 
+uint8_t pstreamer_purge_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds);
+
 #endif
