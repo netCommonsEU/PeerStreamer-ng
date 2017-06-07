@@ -3,7 +3,7 @@ OBJS=$(SRC:.c=.o)
 
 EXE=peerstreamer-ng
 
-CFLAGS+=-Isrc/ -ILibs/mongoose/
+CFLAGS+=-Isrc/ -ILibs/mongoose/ -ILibs/pstreamer/include -ILibs/GRAPES/include -LLibs/GRAPES/src  -LLibs/pstreamer/src 
 ifdef DEBUG
 CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0
 else
@@ -12,12 +12,12 @@ endif
 
 LIBS+=Libs/mongoose/mongoose.o Libs/GRAPES/src/libgrapes.a Libs/pstreamer/src/libpstreamer.a
 MONGOOSE_OPTS+=-DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
-LDFLAGS+=-lm
+LDFLAGS+=-lpstreamer -lgrapes -lm
 
 all: $(EXE)
 
 $(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
-	$(CC) peerstreamer-ng.c -o peerstreamer-ng $(OBJS) $(CFLAGS) $(LIBS) $(LDFLAGS)
+	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) Libs/mongoose/mongoose.o $(CFLAGS) $(LDFLAGS)
 
 %.o: %.c 
 	$(CC) $< -o $@ -c $(CFLAGS) 

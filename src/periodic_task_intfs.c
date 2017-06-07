@@ -17,8 +17,10 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 *******************************************************************/
 
-#include<mg_periodic_task_intfs.h>
+#include<periodic_task_intfs.h>
 #include<mongoose.h>
+#include<psinstance.h>
+#include<pstreamer_event.h>
 
 void add_fd_to_fdset(void * handler, int sock, char set)
 {
@@ -40,6 +42,57 @@ void add_fd_to_fdset(void * handler, int sock, char set)
 		default:
 			fprintf(stderr, "[ERROR] sock insertion\n");
 	}
+}
+
+uint8_t pstreamer_topology_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+{
+	struct psinstance * ps;
+	ps = (struct psinstance *) periodic_task_get_data(pt);
+	if (ret == 0)
+		psinstance_topology_update(ps);
+	return 0;
+}
+
+uint8_t pstreamer_topology_task_reinit(struct periodic_task * pt)
+{
+	return 0;
+}
+
+uint8_t pstreamer_offer_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+{
+	struct psinstance * ps;
+	ps = (struct psinstance *) periodic_task_get_data(pt);
+	if (ret == 0)
+		psinstance_send_offer(ps);
+	return 0;
+}
+
+uint8_t pstreamer_offer_task_reinit(struct periodic_task * pt)
+{
+	struct psinstance * ps;
+	ps = (struct psinstance *) periodic_task_get_data(pt);
+	periodic_task_set_remaining_time(pt, psinstance_offer_interval(ps));
+	return 0;
+}
+
+uint8_t pstreamer_msg_handling_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+{
+	struct psinstance * ps;
+
+	ps = (struct psinstance *) periodic_task_get_data(pt);
+	if (ret > 0)  // we do not consider timeouts, we just want to handle data ready
+		psinstance_handle_msg(ps);
+	return 0;
+}
+
+uint8_t pstreamer_msg_handling_task_reinit(struct periodic_task * pt)
+{
+	struct psinstance * ps;
+	ps = (struct psinstance *) periodic_task_get_data(pt);
+
+	periodic_task_flush_fdsets(pt);
+	pstreamer_register_fds(ps, add_fd_to_fdset, (void*)pt);
+	return 0;
 }
 
 

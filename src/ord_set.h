@@ -11,6 +11,9 @@
 
 #include<stdint.h>
 
+#define ord_set_for_each(iter, set)\
+	for((iter) = NULL; ((iter) = ord_set_iter((set), (iter)));)
+
 typedef uint32_t ord_set_size;
 
 typedef int8_t (*cmp_func_t)(const void *, const void *);

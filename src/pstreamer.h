@@ -23,6 +23,7 @@
 #include<ord_set.h>
 #include<stdint.h>
 #include<name_lengths.h>
+#include<task_manager.h>
 
 struct pstreamer;
 struct pstreamer_manager;
@@ -40,5 +41,7 @@ uint8_t pstreamer_manager_destroy_streamer(struct pstreamer_manager *psm, const 
 const char * pstreamer_id(const struct pstreamer * ps);
 
 uint16_t pstreamer_base_port(const struct pstreamer * ps);
+
+int8_t pstreamer_schedule_tasks(struct pstreamer *ps, struct task_manager * tm);
 
 #endif

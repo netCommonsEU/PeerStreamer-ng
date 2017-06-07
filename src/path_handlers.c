@@ -89,6 +89,7 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 		ps = pstreamer_manager_create_streamer(c->psm, ipaddr, port, id); 
 		if(ps)
 		{
+			pstreamer_schedule_tasks((struct pstreamer*)ps, c->tm);
 			debug("Streamer instance created\n");
 			sdpuri = sdpfile_create(c, ch, ps);
 			mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
