@@ -66,11 +66,6 @@ function update_channel()
 	if (channel.length > 0)
 	{
 		var xhttp = new XMLHttpRequest();
-		xhttp.onreadystatechange = function() {
-			if (this.readyState == 4 && this.status == 200) {
-				alert("Refreshed!");
-			}
-		};
 		xhttp.open("UPDATE", "/channels/" + channel, true);
 		xhttp.send();
 	}
