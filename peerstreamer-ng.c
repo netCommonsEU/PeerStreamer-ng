@@ -116,7 +116,7 @@ void init(struct context *c, int argc, char **argv)
 	c->router = router_create(10);
 	load_path_handlers(c->router);
 	c->tm = task_manager_new();
-	c->psm = pstreamer_manager_new(7000);
+	c->psm = pstreamer_manager_new(6001);
 
 	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
 	mg_mgr_init(c->mongoose_srv, c);

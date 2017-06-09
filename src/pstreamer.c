@@ -56,14 +56,16 @@ int8_t pstreamer_init(struct pstreamer * ps)
 	sprintf(config, fmt, ps->base_port, ps->base_port+1);
 	ps->psc = psinstance_create(ps->source_ip, ps->source_port, config);
 
+	ps->topology_task = NULL;
+	ps->offer_task = NULL;
+	ps->msg_task = NULL;
+	ps->tm = NULL;
+	ps->topology_interval = 400;
+
 	if (ps->psc)
-	{
-		ps->topology_task = NULL;
-		ps->offer_task = NULL;
-		ps->msg_task = NULL;
-		ps->tm = NULL;
-		ps->topology_interval = 400;
-	}
+		return 0;
+	else 
+		return -1;
 
 	return 0;
 }
