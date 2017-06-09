@@ -23,11 +23,23 @@
 
 static uint8_t debug_on;
 
+void info(char *msg, ...)
+{
+	va_list argp;
+
+	if(debug_on >= 1)
+	{
+		va_start(argp, msg);
+		vfprintf(stderr, msg, argp);
+		va_end(argp);
+	}
+}
+
 void debug(char *msg, ...)
 {
 	va_list argp;
 
-	if(debug_on)
+	if(debug_on >= 2)
 	{
 		va_start(argp, msg);
 		vfprintf(stderr, msg, argp);

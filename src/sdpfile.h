@@ -25,8 +25,6 @@
 #include<context.h>
 
 
-void sdpfile_handler(struct mg_connection *nc, int ev, void *ev_data);
-
-char * sdpfile_create(const struct context * c, const struct pschannel * ch, const struct pstreamer * ps);
+char * sdpfile_create(const struct context * c, const struct pschannel * ch, const struct pstreamer * ps, const char * rtp_dst_ip);
 
 #endif

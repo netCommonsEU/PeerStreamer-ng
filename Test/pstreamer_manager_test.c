@@ -31,21 +31,21 @@ void pstreamer_manager_create_streamer_test()
 	struct pstreamer_manager * psm = NULL;
 	const struct pstreamer * ps = NULL;
 
-	ps = pstreamer_manager_create_streamer(NULL, NULL, NULL, NULL);
+	ps = pstreamer_manager_create_streamer(NULL, NULL, NULL, NULL, NULL);
 	assert(ps == NULL);
 
 	psm = pstreamer_manager_new(6000);
 
-	ps = pstreamer_manager_create_streamer(psm, NULL, NULL, NULL);
+	ps = pstreamer_manager_create_streamer(psm, NULL, NULL, NULL, NULL);
 	assert(ps == NULL);
 
-	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42");
+	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42", "127.0.0.1");
 	assert(ps);
 
-	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "24");
+	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "24", "127.0.0.1");
 	assert(ps);
 
-	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42");
+	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42", "127.0.0.1");
 	assert(ps == NULL);
 
 	pstreamer_manager_destroy(&psm);
@@ -63,7 +63,7 @@ void pstreamer_to_json_test()
 	assert(json == NULL);
 
 	psm = pstreamer_manager_new(6000);
-	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42");
+	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42", "127.0.0.1");
 
 	json = pstreamer_to_json(ps);
 	assert(strcmp(json, "{\"id\":\"42\",\"source_ip\":\"10.0.0.1\",\"source_port\":\"6000\"}") == 0);
@@ -86,8 +86,8 @@ void pstreamer_manager_destroy_streamer_test()
 	res = pstreamer_manager_destroy_streamer(psm, NULL);
 	assert(res);
 
-	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42");
-	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "24");
+	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42", "127.0.0.1");
+	ps = pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "24", "127.0.0.1");
 
 	res = pstreamer_manager_destroy_streamer(psm, ps);
 	assert(res == 0);

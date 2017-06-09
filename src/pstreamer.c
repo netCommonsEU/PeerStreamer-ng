@@ -47,13 +47,13 @@ struct pstreamer_manager {
 	uint16_t initial_streaming_port;
 };
 
-int8_t pstreamer_init(struct pstreamer * ps)
+int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_dst_ip)
 /* we assume source_ip and source_port are valid strings */
 {
 	char config[255];
-	char * fmt = "port=%d,dechunkiser=rtp,base=%d,addr=127.0.0.1";
+	char * fmt = "port=%d,dechunkiser=rtp,base=%d,addr=%s";
 
-	sprintf(config, fmt, ps->base_port, ps->base_port+1);
+	sprintf(config, fmt, ps->base_port, ps->base_port+1, rtp_dst_ip);
 	ps->psc = psinstance_create(ps->source_ip, ps->source_port, config);
 
 	ps->topology_task = NULL;
@@ -214,12 +214,12 @@ const struct pstreamer * pstreamer_manager_get_streamer(const struct pstreamer_m
 	return (const struct pstreamer*) ptr;
 }
 
-const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id)
+const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id, const char * rtp_dst_ip)
 {
 	struct pstreamer * ps = NULL;
 	const void * ptr = NULL;
 
-	if (psm && source_ip && source_port && id)
+	if (psm && source_ip && source_port && id && rtp_dst_ip)
 	{
 		ps = malloc(sizeof(struct pstreamer));
 		strncpy(ps->source_ip, source_ip, MAX_IPADDR_LENGTH);
@@ -230,7 +230,7 @@ const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_mana
 		if (ptr == NULL)
 		{
 			pstreamer_touch(ps);
-			pstreamer_init(ps);
+			pstreamer_init(ps, rtp_dst_ip);
 			ord_set_insert(psm->streamers, ps, 0);
 		} else
 		{

@@ -2,8 +2,14 @@ function response_channel(ch)
 {
 	set_state(ch.name);
 	channel = ch.id;
-	var v = document.getElementById("vlc");
-	v.playlist.playItem(vlc.playlist.add(ch.sdpfile));
+	if (PluginDetect.getVersion("vlc"))
+	{
+		var v = document.getElementById("vlc");
+		v.playlist.playItem(vlc.playlist.add(ch.sdpfile));
+	} else {
+		var v = document.getElementById("vlc-alt");
+		v.innerHTML = "You need an RTP player in order to see this stream and it seems you have not the VLC browser plugin installed. Alternatively, you can use an external player opening this temporary URI: <strong>http://" + location.host + "/" +  ch.sdpfile + "</strong>. The streaming will terminate if you close this web page.";
+	}
 }
 
 function set_state(s)

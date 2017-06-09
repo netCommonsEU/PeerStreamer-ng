@@ -26,4 +26,6 @@ void debug(char *msg, ...);
 
 void set_debug(uint8_t set);
 
+void info(char *msg, ...);
+
 #endif

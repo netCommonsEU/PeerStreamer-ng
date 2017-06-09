@@ -32,7 +32,7 @@ struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port);
 
 void pstreamer_manager_destroy(struct pstreamer_manager ** psm);
 
-const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id);
+const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id, const char * rtp_dst_ip);
 
 char * pstreamer_to_json(const struct pstreamer * ps);
 

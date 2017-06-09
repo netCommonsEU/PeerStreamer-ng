@@ -31,9 +31,10 @@
 struct pssdpfile {
 	const struct pstreamer * ps;
 	char path[MAX_PATH_LENGTH];
+	char dst_ip[MAX_IPADDR_LENGTH];
 };
 
-void sdpfile_dump(const char * filename, const char * sdpdesc, const struct pstreamer * ps)
+void sdpfile_dump(const char * filename, const char * sdpdesc, const struct pstreamer * ps, const char * dst_ip)
 {
 	FILE * fp;
 	char ** lines;
@@ -69,6 +70,15 @@ void sdpfile_dump(const char * filename, const char * sdpdesc, const struct pstr
 				fprintf(fp, "%s ", records[i]);
 			fprintf(fp, "%s\n", records[i]);
 		}
+		else if ((r = tokens_check(records, n_records, "c=IN")) + 1 > 0)
+		{
+			for(i = 0; i < r+2; i++)
+				fprintf(fp, "%s ", records[i]);
+			fprintf(fp, "%s ", dst_ip);
+			for(i = r+3; i < n_records; i++)
+				fprintf(fp, "%s ", records[i]);
+			fprintf(fp, "\n");
+		}
 		else
 			if (lines[l])
 				fprintf(fp, "%s\n", lines[l]);
@@ -98,7 +108,7 @@ void sdpfile_handler(struct mg_connection *nc, int ev, void *ev_data)
 					sdpdesc = malloc(sizeof(char) * (hm->body.len + 1));
 					strncpy(sdpdesc, hm->body.p, hm->body.len);
 					sdpdesc[hm->body.len] = '\0';  // make sure string terminates
-					sdpfile_dump(psdp->path, sdpdesc, psdp->ps);
+					sdpfile_dump(psdp->path, sdpdesc, psdp->ps, psdp->dst_ip);
 					free(sdpdesc);
 				default:
 					debug("SDPFILE server answers: %d\n", hm->resp_code);
@@ -115,7 +125,7 @@ void sdpfile_handler(struct mg_connection *nc, int ev, void *ev_data)
 }
 
 
-char * sdpfile_create(const struct context * c, const struct pschannel * ch, const struct pstreamer * ps)
+char * sdpfile_create(const struct context * c, const struct pschannel * ch, const struct pstreamer * ps, const char * rtp_dst_ip)
 {
 	struct mg_connection * conn;
 	struct pssdpfile * psdp;
@@ -124,6 +134,7 @@ char * sdpfile_create(const struct context * c, const struct pschannel * ch, con
 	psdp = malloc(sizeof(struct pssdpfile));
 	psdp->ps = ps;
 	snprintf(psdp->path, MAX_PATH_LENGTH, "%s/%s.sdp", c->http_opts.document_root, pstreamer_id(ps));
+	snprintf(psdp->dst_ip, MAX_IPADDR_LENGTH, "%s", rtp_dst_ip);
 	snprintf(sdpfile, MAX_SDPFILENAME_LENGTH, "%s.sdp", pstreamer_id(ps));
 
 	conn = mg_connect_http(c->mongoose_srv, sdpfile_handler, ch->sdpfile, NULL, NULL);

@@ -42,7 +42,7 @@ void parse_args(struct context *c, int argc, char *const* argv)
 {
 	int o;
 
-	while ((o = getopt (argc, argv, "qp:c:")) != -1)
+	while ((o = getopt (argc, argv, "vqp:c:")) != -1)
 		switch (o) {
 			case 'p':
 				strncpy(c->http_port, optarg, 16);
@@ -52,6 +52,9 @@ void parse_args(struct context *c, int argc, char *const* argv)
 				break;
 			case 'q':
 				set_debug(0);
+				break;
+			case 'v':
+				set_debug(2);
 				break;
 		}
 }
@@ -89,9 +92,9 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 	switch (ev) {
 		case MG_EV_HTTP_REQUEST:
 			hm  = (struct http_message *) ev_data;
-			debug("Received a request:\n");
+			info("Received a request:\n");
 			mg_request_decode(buff, 80, hm);
-			debug("\t%s\n", buff);
+			info("\t%s\n", buff);
 			// Try to call a path handler. If it fails serve
 			// public contents
 			if(router_handle(c->router, nc, hm))
@@ -161,14 +164,14 @@ int main(int argc, char** argv)
 	init(&c, argc, argv);
 
 
-	debug("Starting server on port %s\n", c.http_port);
+	info("Starting server on port %s\n", c.http_port);
 	launch_http_task(&c);
 	task_manager_new_task(c.tm, NULL, pschannel_csvfile_task_callback, 1000, (void *) c.pb);
 	task_manager_new_task(c.tm, NULL, pstreamer_purge_task_callback, 5000, (void *) c.psm);
 	while (running)
 		task_manager_poll(c.tm, 1000);
 
-	debug("\nExiting..\n");
+	info("\nExiting..\n");
 	context_deinit(&c);
 	return 0;
 }

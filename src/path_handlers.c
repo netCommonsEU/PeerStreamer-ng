@@ -28,6 +28,12 @@
 #include<mongoose.h>
 #include<sdpfile.h>
 
+void mg_connection_remote_ip(char * ip, const struct mg_connection *nc)
+{
+	const struct sockaddr_in *sender;
+	sender = (struct sockaddr_in *)&(nc->sa);
+	inet_ntop(AF_INET, &(sender->sin_addr), ip, MAX_IPADDR_LENGTH);
+}
 
 char * mg_uri_field(struct http_message *hm, uint8_t pos)
 {
@@ -54,7 +60,7 @@ void channel_index(struct mg_connection *nc, struct http_message *hm)
 
 	c = (const struct context *) nc->user_data;
 
-	debug("GET request for channels\n");
+	info("GET request for channels\n");
 	channels = pschannel_bucket_to_json(c->pb);
 	debug("\t%s\n", channels);
 
@@ -69,6 +75,7 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 {
 	const struct context * c;
 	char ipaddr[MAX_IPADDR_LENGTH];
+	char rtp_dst_ip[MAX_IPADDR_LENGTH];
 	char port[MAX_PORT_LENGTH];
 	char * id, *sdpuri;
 	const struct pstreamer * ps;
@@ -79,38 +86,39 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 	mg_get_http_var(&hm->body, "port", port, MAX_PORT_LENGTH);
 
 	id = mg_uri_field(hm, 1);
+	mg_connection_remote_ip(rtp_dst_ip, nc);
 
-	debug("POST request for resource %s\n", id);
+	info("POST request for resource %s from %s\n", id, rtp_dst_ip);
 	ch = pschannel_bucket_find(c->pb, ipaddr, port);
 
 	if (ch)
 	{
 		debug("Channel: %s\n", ch->name);
-		ps = pstreamer_manager_create_streamer(c->psm, ipaddr, port, id); 
+		ps = pstreamer_manager_create_streamer(c->psm, ipaddr, port, id, rtp_dst_ip); 
 		if(ps)
 		{
 			pstreamer_schedule_tasks((struct pstreamer*)ps, c->tm);
-			debug("Streamer instance created\n");
-			sdpuri = sdpfile_create(c, ch, ps);
+			info("Streamer instance created\n");
+			sdpuri = sdpfile_create(c, ch, ps, rtp_dst_ip);
 			if (sdpuri)
 			{
 				mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 				mg_printf_http_chunk(nc, "{\"id\":\"%s\",\"name\":\"%s\",\"sdpfile\":\"%s\"}", id, ch->name, sdpuri);
 				mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 				free(sdpuri);
-				debug("SDPfile served\n");
+				info("SDPfile served\n");
 			} else {
-				debug("SDPfile not available\n");
+				info("SDPfile not available\n");
 				mg_printf(nc, "%s", "HTTP/1.1 422 Unprocessable Entity\r\nTransfer-Encoding: chunked\r\n\r\n");
 				mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 			}
 		} else {
-			debug("Streamer could not be launched\n");
+			info("Streamer could not be launched\n");
 			mg_printf(nc, "%s", "HTTP/1.1 409 Conflict\r\nTransfer-Encoding: chunked\r\n\r\n");
 			mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 		}
 	} else {
-		debug("No channel found for socket <%s:%s>\n", ipaddr, port);
+		info("No channel found for socket <%s:%s>\n", ipaddr, port);
 		mg_printf(nc, "%s", "HTTP/1.1 404 Not Found\r\nTransfer-Encoding: chunked\r\n\r\n");
 		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 	}
@@ -128,18 +136,18 @@ void streamer_update(struct mg_connection *nc, struct http_message *hm)
 	id = mg_uri_field(hm, 1);
 
 	ps = pstreamer_manager_get_streamer(c->psm, id);
-	debug("UPDATE request for resource %s\n", id);
+	info("UPDATE request for resource %s\n", id);
 	if (ps)
 	{
 		pstreamer_touch((struct pstreamer*) ps);
-		debug("\tInstance %s found and touched\n", id);
+		info("\tInstance %s found and touched\n", id);
 		json = pstreamer_to_json(ps);
 		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
 		mg_printf_http_chunk(nc, "%s", json);
 		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 		free(json);
 	} else {
-		debug("\tInstance %s not found\n", id);
+		info("\tInstance %s not found\n", id);
 		mg_printf(nc, "%s", "HTTP/1.1 404 Not Found\r\nTransfer-Encoding: chunked\r\n\r\n");
 		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 	}
