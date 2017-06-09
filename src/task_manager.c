@@ -113,7 +113,7 @@ int periodic_task_writefd_add(struct periodic_task * pt, int fd)
 int periodic_task_readfd_add(struct periodic_task * pt, int fd)
 {
 	if(pt && fd > 0)
-		return int_bucket_insert(pt->readfds, fd, 1);
+		return int_bucket_insert(pt->readfds, (uint32_t) fd, 1);
 	else
 		return -1;
 }
@@ -185,7 +185,7 @@ void task_manager_int_bucket2fd_set(const struct int_bucket *fd_int, fd_set * fd
 	fd = NULL;
 	while((fd = int_bucket_iter(fd_int, fd)))
 		{
-			FD_SET(*fd, fds);
+			FD_SET((int)*fd, fds);
 			if((*max_fd) == INVALID_SOCKET || *fd - (*max_fd) > 0)
 				*max_fd = *fd;
 		}
@@ -209,8 +209,10 @@ uint8_t periodic_task_triggerable(const struct periodic_task *pt, fd_set * read_
 	uint8_t triggerable = 0;
 
 	while (!triggerable && (iter = int_bucket_iter(pt->readfds, iter)))
-		if (FD_ISSET(*iter, read_set))
+	{
+		if (FD_ISSET((int) *iter, read_set))
 			triggerable = 1;
+	}
 	while (!triggerable && (iter = int_bucket_iter(pt->writefds, iter)))
 		if (FD_ISSET(*iter, write_set))
 			triggerable = 1;

@@ -42,7 +42,7 @@ void sdpfile_dump(const char * filename, const char * sdpdesc, const struct pstr
 	uint16_t audio_port, video_port;
 
 	audio_port = pstreamer_base_port(ps) + 1;
-	video_port = audio_port + 3;
+	video_port = audio_port + 2;
 
 	debug("Saving sdpfile to %s\n", filename);
 	lines = tokens_create((char *) sdpdesc, '\n', &n_lines);
@@ -127,7 +127,10 @@ char * sdpfile_create(const struct context * c, const struct pschannel * ch, con
 	snprintf(sdpfile, MAX_SDPFILENAME_LENGTH, "%s.sdp", pstreamer_id(ps));
 
 	conn = mg_connect_http(c->mongoose_srv, sdpfile_handler, ch->sdpfile, NULL, NULL);
-	conn->user_data = (void *) psdp;
-
-	return strdup(sdpfile);
+	if (conn)
+	{
+		conn->user_data = (void *) psdp;
+		return strdup(sdpfile);
+	} else
+		return NULL;
 }

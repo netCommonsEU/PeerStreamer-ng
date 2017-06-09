@@ -109,6 +109,8 @@ uint8_t pstreamer_msg_handling_task_callback(struct periodic_task * pt, int ret,
 		debug("Received a message\n");
 		psinstance_handle_msg(ps);
 	}
+	if (ret == 0)
+		debug("PStreamer message handling timeout\n");
 	return 0;
 }
 

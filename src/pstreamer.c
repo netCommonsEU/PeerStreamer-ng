@@ -51,7 +51,7 @@ int8_t pstreamer_init(struct pstreamer * ps)
 /* we assume source_ip and source_port are valid strings */
 {
 	char config[255];
-	char * fmt = "port=%d,dechunkiser=rtp,base=%d";
+	char * fmt = "port=%d,dechunkiser=rtp,base=%d,addr=127.0.0.1";
 
 	sprintf(config, fmt, ps->base_port, ps->base_port+1);
 	ps->psc = psinstance_create(ps->source_ip, ps->source_port, config);
