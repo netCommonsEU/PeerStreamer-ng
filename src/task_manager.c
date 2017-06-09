@@ -186,7 +186,7 @@ void task_manager_int_bucket2fd_set(const struct int_bucket *fd_int, fd_set * fd
 	while((fd = int_bucket_iter(fd_int, fd)))
 		{
 			FD_SET((int)*fd, fds);
-			if((*max_fd) == INVALID_SOCKET || *fd - (*max_fd) > 0)
+			if((*max_fd) == INVALID_SOCKET || ((int)*fd) - ((int)(*max_fd)) > 0)
 				*max_fd = *fd;
 		}
 }
