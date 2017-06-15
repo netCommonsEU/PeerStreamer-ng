@@ -16,6 +16,7 @@ struct context{
 	struct pschannel_bucket * pb;
 	struct pstreamer_manager * psm;
 	char * csvfile;
+	char * streamer_opts;
 };
 
 #endif

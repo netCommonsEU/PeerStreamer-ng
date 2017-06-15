@@ -50,4 +50,6 @@ void pstreamer_manager_remove_orphans(struct pstreamer_manager * psm, time_t int
 
 void pstreamer_touch(struct pstreamer *ps);
 
+int8_t pstreamer_manager_set_streamer_options(struct pstreamer_manager *psm, const char * opts);
+
 #endif

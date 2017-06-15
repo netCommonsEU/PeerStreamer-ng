@@ -42,13 +42,16 @@ void parse_args(struct context *c, int argc, char *const* argv)
 {
 	int o;
 
-	while ((o = getopt (argc, argv, "vqp:c:")) != -1)
+	while ((o = getopt (argc, argv, "vqp:c:s:")) != -1)
 		switch (o) {
 			case 'p':
 				strncpy(c->http_port, optarg, 16);
 				break;
 			case 'c':
 				c->csvfile = strdup(optarg);
+				break;
+			case 's':
+				c->streamer_opts = strdup(optarg);
 				break;
 			case 'q':
 				set_debug(0);
@@ -114,6 +117,7 @@ void init(struct context *c, int argc, char **argv)
 	c->http_opts.document_root = "Public/";
 	c->http_opts.index_files = "index.html,player.html";
 	c->csvfile = NULL;
+	c->streamer_opts = NULL;
 	set_debug(1);
 
 	c->router = router_create(10);
@@ -125,6 +129,7 @@ void init(struct context *c, int argc, char **argv)
 	mg_mgr_init(c->mongoose_srv, c);
 
 	parse_args(c, argc, argv);
+	pstreamer_manager_set_streamer_options(c->psm, c->streamer_opts);
 	c->pb = pschannel_bucket_new(c->csvfile);
 	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
 }
@@ -149,6 +154,8 @@ void context_deinit(struct context *c)
 {
 	if (c->csvfile)
 		free(c->csvfile);
+	if (c->streamer_opts)
+		free(c->streamer_opts);
 	router_destroy(&(c->router));
 	pstreamer_manager_destroy(&(c->psm));  // this must be destroyed before task managers!
 	task_manager_destroy(&(c->tm));

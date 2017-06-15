@@ -28,6 +28,8 @@
 #include<periodic_task_intfs.h>
 #include<debug.h>
 
+#define MAX_PSINSTANCE_CONFIG_LENGTH 255
+
 struct pstreamer {
 	char source_ip[MAX_IPADDR_LENGTH];
 	uint16_t source_port;
@@ -45,15 +47,19 @@ struct pstreamer {
 struct pstreamer_manager {
 	struct ord_set * streamers;
 	uint16_t initial_streaming_port;
+	char * streamer_opts;
 };
 
-int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_dst_ip)
+int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_dst_ip, const char * opts)
 /* we assume source_ip and source_port are valid strings */
 {
-	char config[255];
+	char config[MAX_PSINSTANCE_CONFIG_LENGTH];
 	char * fmt = "port=%d,dechunkiser=rtp,base=%d,addr=%s";
+	int count;
 
-	sprintf(config, fmt, ps->base_port, ps->base_port+1, rtp_dst_ip);
+	count = snprintf(config, MAX_PSINSTANCE_CONFIG_LENGTH, fmt, ps->base_port, ps->base_port+1, rtp_dst_ip);
+	if (opts && (size_t)(MAX_PSINSTANCE_CONFIG_LENGTH - count) > strlen(opts))
+		snprintf(config + count, MAX_PSINSTANCE_CONFIG_LENGTH - count, ",%s", opts);
 	ps->psc = psinstance_create(ps->source_ip, ps->source_port, config);
 
 	ps->topology_task = NULL;
@@ -118,6 +124,7 @@ struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port)
 	psm = malloc(sizeof(struct pstreamer_manager));
 	psm->streamers = ord_set_new(1, pstreamer_cmp);
 	psm->initial_streaming_port = starting_port;
+	psm->streamer_opts = NULL;
 
 	return psm;
 }
@@ -156,6 +163,11 @@ void pstreamer_manager_destroy(struct pstreamer_manager ** psm)
 			pstreamer_deinit((struct pstreamer *)ps);
 
 		ord_set_destroy(&((*psm)->streamers), 1);
+		if((*psm)->streamer_opts)
+		{
+			free((*psm)->streamer_opts);
+			(*psm)->streamer_opts = NULL;
+		}
 		free(*psm);
 		*psm = NULL;
 	}
@@ -230,7 +242,7 @@ const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_mana
 		if (ptr == NULL)
 		{
 			pstreamer_touch(ps);
-			pstreamer_init(ps, rtp_dst_ip);
+			pstreamer_init(ps, rtp_dst_ip, psm->streamer_opts);
 			ord_set_insert(psm->streamers, ps, 0);
 		} else
 		{
@@ -267,4 +279,22 @@ uint16_t pstreamer_base_port(const struct pstreamer * ps)
 	if (ps)
 		return ps->base_port;
 	return 0;
+}
+
+int8_t pstreamer_manager_set_streamer_options(struct pstreamer_manager *psm, const char * opts)
+{
+	int8_t res = -1;
+	
+	if (psm && opts)
+	{
+		if(psm->streamer_opts)
+		{
+			free(psm->streamer_opts);
+			psm->streamer_opts = NULL;
+		}
+		psm->streamer_opts = strdup(opts);
+		res = 0;
+	}
+
+	return res;
 }

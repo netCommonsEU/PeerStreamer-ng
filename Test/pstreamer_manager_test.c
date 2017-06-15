@@ -97,11 +97,33 @@ void pstreamer_manager_destroy_streamer_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void pstreamer_manager_set_streamer_options_test()
+{
+	struct pstreamer_manager * psm = NULL;
+	int8_t res;
+
+	res = pstreamer_manager_set_streamer_options(psm, NULL);
+	assert(res == -1);
+
+	psm = pstreamer_manager_new(6000);
+
+	res = pstreamer_manager_set_streamer_options(psm, NULL);
+	assert(res == -1);
+
+	res = pstreamer_manager_set_streamer_options(psm, "iface=lo");
+	assert(res == 0);
+
+	pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42", "127.0.0.1");
+	pstreamer_manager_destroy(&psm);
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 int main(int argv, char ** argc)
 {
 	pstreamer_manager_destroy_test();
 	pstreamer_manager_create_streamer_test();
 	pstreamer_to_json_test();
 	pstreamer_manager_destroy_streamer_test();
+	pstreamer_manager_set_streamer_options_test();
 	return 0;
 }
