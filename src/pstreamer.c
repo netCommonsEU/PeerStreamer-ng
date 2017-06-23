@@ -123,7 +123,9 @@ struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port)
 
 	psm = malloc(sizeof(struct pstreamer_manager));
 	psm->streamers = ord_set_new(1, pstreamer_cmp);
-	psm->initial_streaming_port = starting_port;
+	/* VLC players assume RTP port numbers are even numbers, we allocate RTP ports starting from starting_port + 1
+	 * (as the first one is the pstreamer port). So starting_port must be an odd number */
+	psm->initial_streaming_port = (starting_port % 2 == 1) ? starting_port : starting_port + 1;
 	psm->streamer_opts = NULL;
 
 	return psm;
@@ -208,7 +210,9 @@ uint16_t assign_streaming_ports(struct pstreamer_manager *psm)
 				found = 1;
 		}
 		if (found)
-			base_port += 5;  // we consider RTP streamers uses 4 ports
+			base_port += 6;  /* we allocate 5 port numbers per each streamer; the first is the pstreamer port, the following 4 are the RTP ports (two
+					    for audio and two for video). We add the sixth one for compatibility with the VLC players which expect the RTP base
+					    port numbers to be even (base_port is kept odd) */
 	}
 	return base_port;
 }
