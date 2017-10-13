@@ -155,3 +155,20 @@ uint8_t mongoose_task_reinit(struct periodic_task * pt)
 
 	return 0;
 }
+
+uint8_t pstreamer_net_helper_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+{
+	struct psinstance * ps;
+	timeout timeout_ms;
+
+	ps = (struct psinstance *) periodic_task_get_data(pt);
+	if (ret == 0)  
+	{
+		timeout_ms = psinstance_network_periodic(ps);
+		periodic_task_set_remaining_time(pt, timeout_ms);
+	}
+	else
+		debug("Net helper task weird behaviour\n");
+	return 0;
+}
+

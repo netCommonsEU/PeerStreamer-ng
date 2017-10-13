@@ -22,6 +22,7 @@ void psinstance_topology_test()
 	ps2 = psinstance_create("127.0.0.1", 6001, "iface=lo,port=6000");
 	assert(ps2);  // psampler sent a topology packet
 
+	psinstance_network_periodic(ps2);
 	event = psinstance_handle_msg(ps1);
 	assert(event == 1);
 
@@ -45,6 +46,9 @@ void p2p_topology_test()
 	ps2 = psinstance_create("127.0.0.1", 6001, "iface=lo,port=6000");
 	assert(ps2);
 	// fprintf(stderr, "PS2 (psample) sent something to 127.0.0.1:6001\n");
+
+	task_manager_new_task(tm, NULL, pstreamer_net_helper_task_callback, 100, ps2);
+	task_manager_new_task(tm, NULL, pstreamer_net_helper_task_callback, 100, ps2);
 
 	task_manager_new_task(tm, pstreamer_msg_handling_task_reinit, pstreamer_msg_handling_task_callback, 100, ps2);
 	event = task_manager_poll(tm, 500);

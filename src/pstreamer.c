@@ -40,6 +40,7 @@ struct pstreamer {
 	struct periodic_task * topology_task;
 	struct periodic_task * offer_task;
 	struct periodic_task * msg_task;
+	struct periodic_task * net_helper_task;
 	struct task_manager * tm;
 	timeout topology_interval;
 };
@@ -65,6 +66,7 @@ int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_dst_ip, const char
 	ps->topology_task = NULL;
 	ps->offer_task = NULL;
 	ps->msg_task = NULL;
+	ps->net_helper_task = NULL;
 	ps->tm = NULL;
 	ps->topology_interval = 400;
 
@@ -84,6 +86,8 @@ int8_t pstreamer_deinit(struct pstreamer * ps)
 		task_manager_destroy_task(ps->tm, &(ps->offer_task));
 	if (ps->msg_task)
 		task_manager_destroy_task(ps->tm, &(ps->msg_task));
+	if (ps->net_helper_task)
+		task_manager_destroy_task(ps->tm, &(ps->net_helper_task));
 	psinstance_destroy(&(ps->psc));
 	return 0;
 }
@@ -188,6 +192,7 @@ int8_t pstreamer_schedule_tasks(struct pstreamer *ps, struct task_manager * tm)
 		ps->topology_task = task_manager_new_task(tm, NULL, pstreamer_topology_task_callback, ps->topology_interval, ps->psc);
 		ps->offer_task = task_manager_new_task(tm, pstreamer_offer_task_reinit, pstreamer_offer_task_callback, psinstance_offer_interval(ps->psc), ps->psc); 
 		ps->msg_task = task_manager_new_task(tm, pstreamer_msg_handling_task_reinit, pstreamer_msg_handling_task_callback, 1000, ps->psc);
+		ps->net_helper_task = task_manager_new_task(tm, NULL, pstreamer_net_helper_task_callback, 10, ps->psc);
 	}
 	return 0;
 }
