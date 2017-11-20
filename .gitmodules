@@ -7,3 +7,6 @@
 [submodule "Libs/pstreamer"]
 	path = Libs/pstreamer
 	url = https://ans.disi.unitn.it/redmine/pstreamer.git
+[submodule "Libs/janus-gateway"]
+	path = Libs/janus-gateway
+	url = ssh://git@ans.disi.unitn.it:6022/janus-gateway.git
