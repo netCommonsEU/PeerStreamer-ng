@@ -37,24 +37,25 @@ Libs/pstreamer/src/libpstreamer.a:
 	git submodule update Libs/pstreamer/
 	make -C Libs/pstreamer/ 
 
-Libs/janus-gateway/janus:
+Tools/janus:
 	git submodule init Libs/janus-gateway/
 	git submodule update Libs/janus-gateway/
-	Libs/janus-gateway/autogen.sh
-	cd $(PWD)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(PWD)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(PWD)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(PWD)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins  --disable-all-transports --disable-all-handlers --enable-all-js-modules --enable-rest #--enable-libsrtp2
-	make -C Libs/janus-gateway/ 
+	cd $(PWD)/Libs/janus-gateway/ && ./autogen.sh
+	cd $(PWD)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(PWD)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(PWD)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(PWD)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-unix-sockets --disable-turn-rest-api --enable-static --prefix=$(PWD)/Tools/janus #--enable-libsrtp2
+	make -C Libs/janus-gateway/ install
 
 tests:
 	make -C Test/  # CFLAGS="$(CFLAGS)"
 	Test/run_tests.sh
 
 clean:
+	rm -rf Tools/janus
+	rm -f *.o $(EXE) $(OBJS) $(LIBS)
 	make -C Test/ clean
 	make -C Libs/mongoose clean
 	make -C Libs/GRAPES clean
 	make -C Libs/pstreamer clean
-	make -C Libs/janus-gateway superclean
-	rm -f *.o $(EXE) $(OBJS) $(LIBS)
+	make -C Libs/janus-gateway distclean
 
 .PHONY: all clean
 

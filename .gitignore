@@ -3,3 +3,5 @@
 *.test
 peerstreamer-ng
 *.sdp
+*.sample
+Tools/janus
