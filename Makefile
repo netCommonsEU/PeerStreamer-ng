@@ -41,7 +41,7 @@ Tools/janus:
 	git submodule init Libs/janus-gateway/
 	git submodule update Libs/janus-gateway/
 	cd $(PWD)/Libs/janus-gateway/ && ./autogen.sh
-	cd $(PWD)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(PWD)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(PWD)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(PWD)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-unix-sockets --disable-turn-rest-api --enable-static --prefix=$(PWD)/Tools/janus #--enable-libsrtp2
+	cd $(PWD)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(PWD)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(PWD)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(PWD)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-rest --disable-turn-rest-api --enable-static --prefix=$(PWD)/Tools/janus --enable-plugin-echotest  #--enable-libsrtp2
 	make -C Libs/janus-gateway/ install
 
 tests:
