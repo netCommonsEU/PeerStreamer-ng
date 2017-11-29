@@ -5,9 +5,9 @@ TARGET_SRC += $(wildcard ../src/*.c)
 TARGET_OBJS=$(TARGET_SRC:.c=.o)
 
 LIBS+=../Libs/mongoose/mongoose.o ../Libs/GRAPES/src/libgrapes.a ../Libs/pstreamer/src/libpstreamer.a
-LDFLAGS+=-lpstreamer -lgrapes -lm
-CFLAGS += -g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0 -I../Libs/mongoose/  -I../src -I../Libs/pstreamer/include -I../Libs/GRAPES/include
-CFLAGS+=-L../Libs/GRAPES/src  -L../Libs/pstreamer/src 
+LDFLAGS+=-lpstreamer -lgrapes -lm -lpthread -ldl -lavformat -lavcodec -lswresample -lavutil -lm -lz
+CFLAGS += -g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0 -I../Libs/mongoose/  -I../src -I../Libs/pstreamer/include -I../Libs/GRAPES/include -I../Libs/ffmpeg/
+CFLAGS+=-L../Libs/GRAPES/src  -L../Libs/pstreamer/src  -L../Libs/ffmpeg/libavutil -L../Libs/ffmpeg/libavformat -L../Libs/ffmpeg/libavcodec -L../Libs/ffmpeg/libswresample
 
 all: $(LIBS) $(TARGET_SRC) $(TARGET_OBJS) $(OBJS)
 
