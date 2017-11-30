@@ -73,7 +73,7 @@ uint8_t pstreamer_topology_task_callback(struct periodic_task * pt, int ret, fd_
 	ps = (struct psinstance *) periodic_task_get_data(pt);
 	if (ret == 0)
 	{
-		debug("Topology update\n");
+		//debug("Topology update\n");
 		psinstance_topology_update(ps);
 	}
 	return 0;
@@ -109,8 +109,8 @@ uint8_t pstreamer_msg_handling_task_callback(struct periodic_task * pt, int ret,
 		debug("Received a message\n");
 		psinstance_handle_msg(ps);
 	}
-	if (ret == 0)
-		debug("PStreamer message handling timeout\n");
+	//if (ret == 0)
+	//	debug("PStreamer message handling timeout\n");
 	return 0;
 }
 
@@ -131,8 +131,8 @@ uint8_t mongoose_task_callback(struct periodic_task * pt, int ret, fd_set * read
 
 	iface = (struct mg_iface *) periodic_task_get_data(pt);
 
-	if (ret == 0)
-		debug("Mongoose timeout\n");
+	//if (ret == 0)
+	//	debug("Mongoose timeout\n");
 	return mongoose_select_action(iface, ret, readfds, writefds, errfds);
 }
 

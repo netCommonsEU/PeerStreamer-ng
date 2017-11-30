@@ -42,12 +42,14 @@ struct pstreamer {
 	struct periodic_task * msg_task;
 	struct task_manager * tm;
 	timeout topology_interval;
+	uint64_t janus_streaming_id;
 };
 
 struct pstreamer_manager {
 	struct ord_set * streamers;
 	uint16_t initial_streaming_port;
 	char * streamer_opts;
+	struct janus_instance const * janus;
 };
 
 int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_dst_ip, const char * opts)
@@ -67,6 +69,7 @@ int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_dst_ip, const char
 	ps->msg_task = NULL;
 	ps->tm = NULL;
 	ps->topology_interval = 400;
+	ps->janus_streaming_id = 0;
 
 	if (ps->psc)
 		return 0;
@@ -104,7 +107,7 @@ int8_t pstreamer_cmp(const void * v1, const void * v2)
 
 char * pstreamer_to_json(const struct pstreamer * ps)
 {
-	char fmt[] = "{\"id\":\"%s\",\"source_ip\":\"%s\",\"source_port\":\"%d\"}";
+	char fmt[] = "{\"id\":\"%s\",\"source_ip\":\"%s\",\"source_port\":\"%d\",\"janus_streaming_id\":\"%"PRId64"\"}";
 	size_t reslength;
 	char * res = NULL;
 
@@ -112,12 +115,12 @@ char * pstreamer_to_json(const struct pstreamer * ps)
 	{
 		reslength = strlen(fmt) - 2*3 + PSID_LENGTH + MAX_IPADDR_LENGTH + MAX_PORT_LENGTH + 1;
 		res = malloc(reslength * sizeof(char));
-		sprintf(res, fmt, ps->id, ps->source_ip, ps->source_port);
+		sprintf(res, fmt, ps->id, ps->source_ip, ps->source_port, ps->janus_streaming_id);
 	}
 	return res;
 }
 
-struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port)
+struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port, const struct janus_instance *janus)
 {
 	struct pstreamer_manager * psm = NULL;
 
@@ -127,6 +130,7 @@ struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port)
 	 * (as the first one is the pstreamer port). So starting_port must be an odd number */
 	psm->initial_streaming_port = (starting_port % 2 == 1) ? starting_port : starting_port + 1;
 	psm->streamer_opts = NULL;
+	psm->janus = janus;
 
 	return psm;
 }
@@ -162,7 +166,11 @@ void pstreamer_manager_destroy(struct pstreamer_manager ** psm)
 	if (psm && *psm)
 	{
 		ord_set_for_each(ps, (*psm)->streamers)
+		{
+			if ((*psm)->janus)
+				janus_instance_destroy_streaming_point((*psm)->janus, ((struct pstreamer*)ps)->janus_streaming_id);
 			pstreamer_deinit((struct pstreamer *)ps);
+		}
 
 		ord_set_destroy(&((*psm)->streamers), 1);
 		if((*psm)->streamer_opts)
@@ -230,7 +238,7 @@ const struct pstreamer * pstreamer_manager_get_streamer(const struct pstreamer_m
 	return (const struct pstreamer*) ptr;
 }
 
-const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id, const char * rtp_dst_ip)
+const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id, const char * rtp_dst_ip, struct streamer_creation_callback * scc)
 {
 	struct pstreamer * ps = NULL;
 	const void * ptr = NULL;
@@ -246,6 +254,15 @@ const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_mana
 		if (ptr == NULL)
 		{
 			pstreamer_touch(ps);
+			streamer_creation_set_pstreamer_ref(scc, ps);
+			if (psm->janus)
+			{
+				debug("calling janus upon notification of perstreamer creation\n");
+				janus_instance_create_streaming_point(psm->janus, &(ps->janus_streaming_id), ps->base_port+1, ps->base_port+3, scc);
+			}
+			else
+				if (scc)
+					streamer_creation_callback_trigger(scc, 0);
 			pstreamer_init(ps, rtp_dst_ip, psm->streamer_opts);
 			ord_set_insert(psm->streamers, ps, 0);
 		} else
@@ -264,6 +281,8 @@ uint8_t pstreamer_manager_destroy_streamer(struct pstreamer_manager *psm, const 
 
 	if (psm && ps)
 	{
+		if(psm->janus)
+			janus_instance_destroy_streaming_point(psm->janus, ps->janus_streaming_id);
 		pstreamer_deinit((struct pstreamer *)ps);
 		res = ord_set_remove(psm->streamers, ps, 1);
 	}

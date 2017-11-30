@@ -123,10 +123,13 @@ void init(struct context *c, int argc, char **argv)
 	c->router = router_create(10);
 	load_path_handlers(c->router);
 	c->tm = task_manager_new();
-	c->psm = pstreamer_manager_new(6001);
 
 	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
 	mg_mgr_init(c->mongoose_srv, c);
+
+	c->janus = janus_instance_create(c->mongoose_srv, c->tm, NULL);
+	janus_instance_launch(c->janus);
+	c->psm = pstreamer_manager_new(6001, c->janus);
 
 	parse_args(c, argc, argv);
 	pstreamer_manager_set_streamer_options(c->psm, c->streamer_opts);
@@ -158,6 +161,8 @@ void context_deinit(struct context *c)
 		free(c->streamer_opts);
 	router_destroy(&(c->router));
 	pstreamer_manager_destroy(&(c->psm));  // this must be destroyed before task managers!
+	sleep(1); //  let janus get the http notications for interrupting streaming sessions
+	janus_instance_destroy(&(c->janus));  // this has to be destroyed after pstreamer_manager and before task_manager
 	task_manager_destroy(&(c->tm));
 	pschannel_bucket_destroy(&(c->pb));
 	mg_mgr_free(c->mongoose_srv);

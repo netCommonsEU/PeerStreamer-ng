@@ -26,7 +26,7 @@
 #include<pschannel.h>
 #include<context.h>
 #include<mongoose.h>
-#include<sdpfile.h>
+#include<streamer_creation_callback.h>
 
 void mg_connection_remote_ip(char * ip, const struct mg_connection *nc)
 {
@@ -71,15 +71,46 @@ void channel_index(struct mg_connection *nc, struct http_message *hm)
 	free(channels);
 }
 
+int8_t streamer_creation_handler(struct mg_connection *nc, const struct pstreamer * ps, int8_t ret)
+{
+	char * json = NULL;
+	int8_t res = -1;
+
+	info("Inside creation handler\n");
+	if (ps)
+		json = pstreamer_to_json(ps);
+
+	if (ret == 0 && json)
+	{
+		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+		mg_printf_http_chunk(nc, json);
+		res = 0;
+		info("Stream created and served\n");
+	} else {
+		mg_printf(nc, "%s", "HTTP/1.1 500 Internal server error\r\nTransfer-Encoding: chunked\r\n\r\n");
+		// destroy ps?
+		info("Stream cannot be correctly served\n");
+		if (ret)
+			debug(json);
+		else
+			debug("PS does not exist");
+	}
+	if (json)
+		free(json);
+	mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+
+	return res;
+}
+
 void streamer_create(struct mg_connection *nc, struct http_message *hm)
 {
 	const struct context * c;
 	char ipaddr[MAX_IPADDR_LENGTH];
 	char rtp_dst_ip[MAX_IPADDR_LENGTH];
 	char port[MAX_PORT_LENGTH];
-	char * id, *sdpuri;
-	const struct pstreamer * ps;
-	const struct pschannel * ch;
+	char * id;
+	const struct pstreamer * ps = NULL;
+	const struct pschannel * ch = NULL;
 
 	c = (const struct context *) nc->user_data;
 	mg_get_http_var(&hm->body, "ipaddr", ipaddr, MAX_IPADDR_LENGTH);
@@ -94,24 +125,11 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 	if (ch)
 	{
 		debug("Channel: %s\n", ch->name);
-		ps = pstreamer_manager_create_streamer(c->psm, ipaddr, port, id, rtp_dst_ip); 
+		ps = pstreamer_manager_create_streamer(c->psm, ipaddr, port, id, rtp_dst_ip, streamer_creation_callback_new(nc, streamer_creation_handler)); 
 		if(ps)
 		{
 			pstreamer_schedule_tasks((struct pstreamer*)ps, c->tm);
 			info("Streamer instance created\n");
-			sdpuri = sdpfile_create(c, ch, ps, rtp_dst_ip);
-			if (sdpuri)
-			{
-				mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
-				mg_printf_http_chunk(nc, "{\"id\":\"%s\",\"name\":\"%s\",\"sdpfile\":\"%s\"}", id, ch->name, sdpuri);
-				mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
-				free(sdpuri);
-				info("SDPfile served\n");
-			} else {
-				info("SDPfile not available\n");
-				mg_printf(nc, "%s", "HTTP/1.1 422 Unprocessable Entity\r\nTransfer-Encoding: chunked\r\n\r\n");
-				mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
-			}
 		} else {
 			info("Streamer could not be launched\n");
 			mg_printf(nc, "%s", "HTTP/1.1 409 Conflict\r\nTransfer-Encoding: chunked\r\n\r\n");

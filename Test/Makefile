@@ -9,7 +9,10 @@ LDFLAGS+=-lpstreamer -lgrapes -lm
 CFLAGS += -g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0 -I../Libs/mongoose/  -I../src -I../Libs/pstreamer/include -I../Libs/GRAPES/include
 CFLAGS+=-L../Libs/GRAPES/src  -L../Libs/pstreamer/src 
 
-all: $(LIBS) $(TARGET_SRC) $(TARGET_OBJS) $(OBJS)
+all: $(LIBS) $(TARGET_SRC) $(TARGET_OBJS) $(OBJS) ../Tools/janus
+
+../Tools/janus:
+	make -C ../ Tools/janus
 
 Libs/mongoose/mongoose.o:
 	git submodule init Libs/mongoose/

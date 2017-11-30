@@ -24,15 +24,19 @@
 #include<stdint.h>
 #include<name_lengths.h>
 #include<task_manager.h>
+#include<janus_instance.h>
+#include<streamer_creation_callback.h>
 
 struct pstreamer;
 struct pstreamer_manager;
+struct janus_instance;
+struct streamer_creation_callback;
 
-struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port);
+struct pstreamer_manager * pstreamer_manager_new(uint16_t starting_port, const struct janus_instance *janus);
 
 void pstreamer_manager_destroy(struct pstreamer_manager ** psm);
 
-const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id, const char * rtp_dst_ip);
+const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_manager * psm, const char * source_ip, const char * source_port, const char * id, const char * rtp_dst_ip, struct streamer_creation_callback * scc);
 
 char * pstreamer_to_json(const struct pstreamer * ps);
 
