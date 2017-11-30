@@ -64,7 +64,7 @@ void channel_index(struct mg_connection *nc, struct http_message *hm)
 	channels = pschannel_bucket_to_json(c->pb);
 	debug("\t%s\n", channels);
 
-	mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+	mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");
 	mg_printf_http_chunk(nc, "%s", channels);
 	mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 
@@ -82,7 +82,7 @@ int8_t streamer_creation_handler(struct mg_connection *nc, const struct pstreame
 
 	if (ret == 0 && json)
 	{
-		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");
 		mg_printf_http_chunk(nc, json);
 		res = 0;
 		info("Stream created and served\n");
@@ -160,7 +160,7 @@ void streamer_update(struct mg_connection *nc, struct http_message *hm)
 		pstreamer_touch((struct pstreamer*) ps);
 		info("\tInstance %s found and touched\n", id);
 		json = pstreamer_to_json(ps);
-		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
+		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");
 		mg_printf_http_chunk(nc, "%s", json);
 		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 		free(json);

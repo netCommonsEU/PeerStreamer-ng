@@ -366,7 +366,7 @@ int8_t janus_instance_create_streaming_point(struct janus_instance const * janus
 	char * uri;
 	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"type\":\"rtp\",\
 				  \"audio\":true,\"audioport\":%"PRId16",\"audiopt\":111,\"audiortpmap\":\"opus/48000/2\",\
-				  \"video\":true,\"videoport\":%"PRId16",\"videopt\": 100,\"videortpmap\":\"VP8/90000\"}}";
+				  \"video\":true,\"videoport\":%"PRId16",\"videopt\":100,\"videortpmap\":\"VP8/90000\"}}";
 	char buff[280];
 	void ** data;
 
