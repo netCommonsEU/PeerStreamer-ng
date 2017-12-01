@@ -1,7 +1,7 @@
 function response_channel(ch)
 {
 	channel = ch.id;
-	set_state(ch.janus_streaming_id);
+	set_state(ch.name);
 	startStream(ch.janus_streaming_id);
 }
 

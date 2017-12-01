@@ -321,3 +321,22 @@ int8_t pstreamer_manager_set_streamer_options(struct pstreamer_manager *psm, con
 
 	return res;
 }
+
+const char * pstreamer_source_ipaddr(const struct pstreamer *ps)
+{
+	if (ps)
+		return ps->source_ip;
+	return NULL;
+}
+
+const char * pstreamer_source_port(const struct pstreamer *ps)
+{
+	static char buff[6];
+
+	if (ps)
+	{
+		sprintf(buff, "%"PRId16"", ps->source_port);
+		return buff;
+	}
+	return NULL;
+}

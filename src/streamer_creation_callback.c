@@ -22,6 +22,7 @@
 struct streamer_creation_callback {
 	streamer_creation_handler_t callback;	
 	const struct pstreamer * ps;
+	const struct pschannel_bucket * psb;
 	struct mg_connection *nc;
 };
 
@@ -35,16 +36,17 @@ int8_t streamer_creation_set_pstreamer_ref(struct streamer_creation_callback * s
 	return -1;
 }
 
-struct streamer_creation_callback * streamer_creation_callback_new(struct mg_connection *nc, streamer_creation_handler_t handler)
+struct streamer_creation_callback * streamer_creation_callback_new(struct mg_connection *nc, const struct pschannel_bucket * psb, streamer_creation_handler_t handler)
 {
 	struct streamer_creation_callback * scc = NULL;
 
-	if (nc && handler)
+	if (nc && handler && psb)
 	{
 		scc = malloc(sizeof(struct streamer_creation_callback));
 		scc->ps = NULL;
 		scc->callback = handler;
 		scc->nc = nc;
+		scc->psb = psb;
 	}
 	return scc;
 }
@@ -53,7 +55,7 @@ int8_t streamer_creation_callback_trigger(struct streamer_creation_callback * sc
 {
 	int8_t res = -1;
 	if (scc)
-		res = scc->callback(scc->nc, scc->ps, ret);
+		res = scc->callback(scc->nc, scc->psb, scc->ps, ret);
 	return res;
 }
 

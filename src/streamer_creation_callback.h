@@ -21,15 +21,16 @@
 #define __STREAMER_CREATION_CALLBACK_H__
 
 #include<pstreamer.h>
+#include<pschannel.h>
 #include<stdint.h>
 #include<mongoose.h>
 
 struct pstreamer;
 struct streamer_creation_callback;
 
-typedef int8_t (*streamer_creation_handler_t)(struct mg_connection *nc, const struct pstreamer *ps, int8_t ret);
+typedef int8_t (*streamer_creation_handler_t)(struct mg_connection *nc, const struct pschannel_bucket * psb,  const struct pstreamer *ps, int8_t ret);
 
-struct streamer_creation_callback * streamer_creation_callback_new(struct mg_connection *nc, streamer_creation_handler_t handler);
+struct streamer_creation_callback * streamer_creation_callback_new(struct mg_connection *nc, const struct pschannel_bucket * psb, streamer_creation_handler_t handler);
  
 int8_t streamer_creation_set_pstreamer_ref(struct streamer_creation_callback * scc, const struct pstreamer *ps);
 

@@ -71,19 +71,27 @@ void channel_index(struct mg_connection *nc, struct http_message *hm)
 	free(channels);
 }
 
-int8_t streamer_creation_handler(struct mg_connection *nc, const struct pstreamer * ps, int8_t ret)
+int8_t streamer_creation_handler(struct mg_connection *nc, const struct pschannel_bucket *psb, const struct pstreamer * ps, int8_t ret)
 {
 	char * json = NULL;
 	int8_t res = -1;
+	const struct pschannel * ch = NULL;
 
 	info("Inside creation handler\n");
 	if (ps)
+	{
+		ch = pschannel_bucket_find(psb, pstreamer_source_ipaddr(ps), pstreamer_source_port(ps));
 		json = pstreamer_to_json(ps);
+		if (ch)
+			json[strlen(json)-1] = '\0';
+	}
 
 	if (ret == 0 && json)
 	{
 		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");
 		mg_printf_http_chunk(nc, json);
+		if (ch)
+			mg_printf_http_chunk(nc, ",\"name\":\"%s\"}", ch->name);
 		res = 0;
 		info("Stream created and served\n");
 	} else {
@@ -125,7 +133,7 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 	if (ch)
 	{
 		debug("Channel: %s\n", ch->name);
-		ps = pstreamer_manager_create_streamer(c->psm, ipaddr, port, id, rtp_dst_ip, streamer_creation_callback_new(nc, streamer_creation_handler)); 
+		ps = pstreamer_manager_create_streamer(c->psm, ipaddr, port, id, rtp_dst_ip, streamer_creation_callback_new(nc, c->pb, streamer_creation_handler)); 
 		if(ps)
 		{
 			pstreamer_schedule_tasks((struct pstreamer*)ps, c->tm);
