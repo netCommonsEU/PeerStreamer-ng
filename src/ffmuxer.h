@@ -24,8 +24,9 @@ struct ffmuxer_context;
  * ffmuxer_finish() and all the resourced can be freed with ffmuxer_close()
  */
 
-/* Initialize avformat */
+/* Initialize/Deinitialize avformat */
 void ffmuxer_init();
+void ffmuxer_deinit();
 
 /* Open and initialize the input stream */
 void *ffmuxer_open(const char *in_name,

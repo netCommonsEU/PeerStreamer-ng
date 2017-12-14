@@ -54,6 +54,11 @@ void ffmuxer_init()
 	avformat_network_init();
 }
 
+void ffmuxer_deinit()
+{
+	avformat_network_deinit();
+}
+
 void *ffmuxer_open(const char *in_name,
 		   int debug,
 		   void *info,
@@ -352,8 +357,6 @@ void ffmuxer_close(struct ffmuxer_context **ctx)
 
 	av_free((*ctx)->stream_mapping);
 	(*ctx)->stream_mapping = NULL;
-
-	avformat_network_deinit();
 
 	av_free(*ctx);
 

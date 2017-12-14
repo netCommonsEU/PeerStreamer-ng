@@ -64,6 +64,7 @@ void ffmuxer_init_test()
 	assert(ctx != NULL);
 
 	ffmuxer_close(&ctx);
+	ffmuxer_deinit();
 
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
