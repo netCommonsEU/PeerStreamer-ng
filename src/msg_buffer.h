@@ -114,7 +114,7 @@ void msg_buffer_set_ths_size(struct msg_buffer *msgb,
 			     uint32_t th1_size,
 			     uint32_t th2_size);
 /* set the timeout (us) for the initial buffering */
-void msg_buffer_set_initial_buffering_to_us(struct msg_buffer *msgb,
+void msg_buffer_set_start_buffering_to_us(struct msg_buffer *msgb,
 					    uint32_t to_us);
 /* set the size (bytes) of the initial buffering
  *

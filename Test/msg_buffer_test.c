@@ -17,7 +17,7 @@ static void msg_buffer_configure_ths_and_tos(struct msg_buffer *msgb,
 {
 	msg_buffer_set_ths_to(msgb, th1_to_us, th2_to_us);
 	msg_buffer_set_ths_size(msgb, th1_size, th2_size);
-	msg_buffer_set_initial_buffering_to_us(msgb, start_to_us);
+	msg_buffer_set_start_buffering_to_us(msgb, start_to_us);
 	msg_buffer_set_start_buf_size_th(msgb, start_size);
 	msg_buffer_set_flush_to_us(msgb, flush_to_us);
 }

@@ -61,7 +61,7 @@ static int msg_buffer_timeval_subtract(struct timeval *result,
 static int msg_buffer_increase_n_slots(struct msg_buffer *msgb)
 {
 	uint32_t new_nslots = msgb->nslots << 1;
-	int i;
+	uint32_t i;
 	int32_t next_slot_copy = msgb->next_slot_pop;
 
 	struct msg_buffer_slot * new_slots = (struct msg_buffer_slot *)
@@ -568,7 +568,7 @@ void msg_buffer_set_ths_size(struct msg_buffer *msgb,
 	}
 }
 
-void msg_buffer_set_initial_buffering_to_us(struct msg_buffer *msgb,
+void msg_buffer_set_start_buffering_to_us(struct msg_buffer *msgb,
 					    uint32_t to_us)
 {
 	if (msgb) {
@@ -619,4 +619,6 @@ uint32_t msg_buffer_get_nslots(struct msg_buffer *msgb)
 	if (msgb) {
 		return msgb->nslots;
 	}
+
+	return 0;
 }
