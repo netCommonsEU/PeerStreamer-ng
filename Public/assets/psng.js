@@ -1,15 +1,29 @@
 function response_channel(ch)
 {
+	// TODO: check if browser supports video tag and video/mp4 format
 	set_state(ch.name);
 	channel = ch.id;
-	if (PluginDetect.getVersion("vlc"))
-	{
-		var v = document.getElementById("vlc");
-		v.playlist.playItem(vlc.playlist.add(ch.sdpfile));
-	} else {
-		var v = document.getElementById("vlc-alt");
-		v.innerHTML = "You need an RTP player in order to see this stream and it seems you have not the VLC browser plugin installed. Alternatively, you can use an external player opening this temporary URI: <strong>http://" + location.host + "/" +  ch.sdpfile + "</strong>. The streaming will terminate if you close this web page.";
+	var p = document.getElementById("video-player");
+	var videlem = document.createElement("video");
+	var sourceMP4 = document.createElement("source");
+
+	videlem.controls = true;
+	videlem.autoplay = true;
+	videlem.width = "720";
+	videlem.height = "480";
+
+	if (videlem.canPlayType("video/mp4")) {
+		sourceMP4.type = "video/mp4";
+		// sourceMP4.src = "channels/" + channel + ".mp4"
+		sourceMP4.src = "channels/" + channel
+		videlem.appendChild(sourceMP4);
+
+		p.appendChild(videlem);
 	}
+
+	var d = document.getElementById("video-player-alt");
+	d.innerHTML = "Alternatively, you can use an external player opening this temporary URI: <strong>http://" + location.host + "/" +  ch.sdpfile + "</strong>. The streaming will terminate if you close this web page.";
+
 }
 
 function set_state(s)

@@ -24,6 +24,7 @@
 #include<stdint.h>
 #include<name_lengths.h>
 #include<task_manager.h>
+#include<mongoose.h>
 
 struct pstreamer;
 struct pstreamer_manager;
@@ -51,5 +52,8 @@ void pstreamer_manager_remove_orphans(struct pstreamer_manager * psm, time_t int
 void pstreamer_touch(struct pstreamer *ps);
 
 int8_t pstreamer_manager_set_streamer_options(struct pstreamer_manager *psm, const char * opts);
+
+void pstreamer_set_ffmuxer_http_connection(const struct pstreamer *ps,
+					   struct mg_connection *nc);
 
 #endif

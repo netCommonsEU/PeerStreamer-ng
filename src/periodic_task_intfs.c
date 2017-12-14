@@ -124,6 +124,18 @@ uint8_t pstreamer_msg_handling_task_reinit(struct periodic_task * pt)
 	return 0;
 }
 
+uint8_t pstreamer_muxer_task_callback(struct periodic_task * pt, int ret,
+				      fd_set * readfds,
+				      fd_set * writefds,
+				      fd_set * errfds)
+{
+	return 0;
+}
+
+uint8_t pstreamer_muxer_task_reinit(struct periodic_task * pt)
+{
+	return 0;
+}
 
 uint8_t mongoose_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
 {

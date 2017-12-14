@@ -34,6 +34,8 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm);
 
 void streamer_update(struct mg_connection *nc, struct http_message *hm);
 
+void video_request(struct mg_connection *nc, struct http_message *hm);
+
 uint8_t load_path_handlers(struct router *r)
 {
 	uint8_t res = 0;
@@ -41,6 +43,7 @@ uint8_t load_path_handlers(struct router *r)
 	res |= router_add_route(r, "GET", "^/channels$", channel_index);
 	res |= router_add_route(r, "POST", "^/channels/[a-zA-Z0-9]+$", streamer_create);
 	res |= router_add_route(r, "UPDATE", "^/channels/[a-zA-Z0-9]+$", streamer_update);
+	res |= router_add_route(r, "GET", "^/channels/[a-zA-Z0-9]+\\.mp4$", video_request);
 
 	return res;
 }

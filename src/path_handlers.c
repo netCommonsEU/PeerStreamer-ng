@@ -75,7 +75,7 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 {
 	const struct context * c;
 	char ipaddr[MAX_IPADDR_LENGTH];
-	char rtp_dst_ip[MAX_IPADDR_LENGTH];
+	char rtp_dst_ip[MAX_IPADDR_LENGTH] = "127.0.0.1";
 	char port[MAX_PORT_LENGTH];
 	char * id, *sdpuri;
 	const struct pstreamer * ps;
@@ -86,7 +86,6 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 	mg_get_http_var(&hm->body, "port", port, MAX_PORT_LENGTH);
 
 	id = mg_uri_field(hm, 1);
-	mg_connection_remote_ip(rtp_dst_ip, nc);
 
 	info("POST request for resource %s from %s\n", id, rtp_dst_ip);
 	ch = pschannel_bucket_find(c->pb, ipaddr, port);
@@ -153,4 +152,20 @@ void streamer_update(struct mg_connection *nc, struct http_message *hm)
 	}
 
 	free(id);
+}
+
+void video_request(struct mg_connection *nc, struct http_message *hm)
+{
+	char *id;
+	const struct pstreamer * ps;
+	const struct context * c;
+
+	c = (const struct context *) nc->user_data;
+	id = mg_uri_field(hm, 1);
+
+	ps = pstreamer_manager_get_streamer(c->psm, id);
+
+	info("\tVideo request for resource %s\n", id);
+
+	pstreamer_set_ffmuxer_http_connection(ps, nc);
 }

@@ -6,7 +6,6 @@
 	<!-- Twitter Bootstrap -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-	<script src="/assets/PluginDetect_VLC.js"></script>
 	<script src="/assets/psng.js"></script>
 
 </head>
@@ -45,20 +44,12 @@
 			<div class="row center-block">
 				<h2 id="player-title" class="text-center">&lt;Pick a channel from the list&gt;</h2>
 			</div>
-			<div id="vlc-plugin" class="row text-center" >
-				<embed pluginspage="http://www.videolan.org"
-					type="application/x-vlc-plugin"
-					version="VideoLAN.VLCPlugin.2"
-					width="720" volume="50"
-					height="480"
-					name="vlc" id="vlc"
-					autoplay="true" allowfullscreen="true" 
-					target="channel.sdp"/>
+			<div id="video-player" class="row text-center" >
 			</div>
 			<div class="row center-block">
 				<div class="col-md-3"></div>
 				<div class="col-md-6">
-					<p id="vlc-alt"></p>
+					<p id="video-player-alt"></p>
 				</div>
 				<div class="col-md-3"></div>
 			</div>
