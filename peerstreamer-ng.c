@@ -27,6 +27,7 @@
 #include<pschannel.h>
 #include<periodic_task_intfs.h>
 #include<pstreamer.h>
+#include<ffmuxer.h>
 
 #include<mongoose.h>
 
@@ -175,10 +176,12 @@ int main(int argc, char** argv)
 	launch_http_task(&c);
 	task_manager_new_task(c.tm, NULL, pschannel_csvfile_task_callback, 1000, (void *) c.pb);
 	task_manager_new_task(c.tm, NULL, pstreamer_purge_task_callback, 5000, (void *) c.psm);
+	ffmuxer_init();
 	while (running)
 		task_manager_poll(c.tm, 1000);
 
 	info("\nExiting..\n");
 	context_deinit(&c);
+	ffmuxer_deinit();
 	return 0;
 }
