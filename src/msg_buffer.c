@@ -5,7 +5,7 @@
 
 
 struct msg_buffer_slot {
-	uint8_t *buf;
+	char *buf;
 	uint32_t size;
 	int busy;
 };
@@ -106,8 +106,10 @@ static int msg_buffer_increase_n_slots(struct msg_buffer *msgb)
 	return 0;
 }
 
-static void msg_buffer_check_start_buf_to(struct msg_buffer *msgb)
+static double msg_buffer_check_start_buf_to(struct msg_buffer *msgb)
 {
+	double time_perc = 0;
+
 	if (msgb->buffer_started && (msgb->start_buf_to_us > 0)) {
 		struct timeval tv_now, tv_diff;
 		gettimeofday(&tv_now, NULL);
@@ -120,9 +122,16 @@ static void msg_buffer_check_start_buf_to(struct msg_buffer *msgb)
 				    "RTP_BUFFER (%s): initial buffering TO\n",
 				    msgb->buf_id);
 			}
+			time_perc = 100.0;
 			msgb->start_buf_complete = 1;
+		} else {
+			time_perc = (((tv_diff.tv_usec +
+				       1000000 * tv_diff.tv_sec) * 1.0) /
+				     msgb->start_buf_to_us) * 100;
 		}
 	}
+
+	return time_perc;
 }
 
 struct msg_buffer *msg_buffer_init(int debug, char *id)
@@ -221,10 +230,10 @@ void msg_buffer_destroy(struct msg_buffer **msgb)
 	}
 }
 
-int msg_buffer_push(struct msg_buffer *msgb, uint8_t *buf, uint32_t size)
+int msg_buffer_push(struct msg_buffer *msgb, char *buf, uint32_t size)
 {
 	int res = 0;
-	uint8_t *new_buf = NULL;
+	char *new_buf = NULL;
 
 	/* If all slots are busy, allocate new ones */
 	if ((msgb->busy_slots > 0) &&
@@ -238,7 +247,7 @@ int msg_buffer_push(struct msg_buffer *msgb, uint8_t *buf, uint32_t size)
 	}
 
 	/* Copy the new buffer into the next slot */
-	new_buf = (uint8_t *) malloc(size);
+	new_buf = (char *) malloc(size);
 	if (!new_buf) {
 		fprintf(stderr, "RTP_BUFFER ERROR (%s): buffer push failed\n",
 			msgb->buf_id);
@@ -292,7 +301,7 @@ int msg_buffer_push(struct msg_buffer *msgb, uint8_t *buf, uint32_t size)
 	return res;
 }
 
-int msg_buffer_pop(struct msg_buffer *msgb, uint8_t **buf)
+int msg_buffer_pop(struct msg_buffer *msgb, char **buf)
 {
 	int size = 0;
 
@@ -497,7 +506,7 @@ int msg_buffer_parse_start(struct msg_buffer *msgb)
 	return 0;
 }
 
-int msg_buffer_parse_next(struct msg_buffer *msgb, uint8_t **buf)
+int msg_buffer_parse_next(struct msg_buffer *msgb, char **buf)
 {
 	int size = 0;
 
@@ -621,4 +630,38 @@ uint32_t msg_buffer_get_nslots(struct msg_buffer *msgb)
 	}
 
 	return 0;
+}
+
+void msg_buffer_get_last_pop(struct msg_buffer *msgb, struct timeval *tv)
+{
+	if (msgb) {
+		tv->tv_usec = msgb->last_pop.tv_usec;
+		tv->tv_sec = msgb->last_pop.tv_sec;
+	}
+
+	tv->tv_usec = 0;
+	tv->tv_sec = 0;
+}
+
+double msg_buffer_get_start_buffering_perc(struct msg_buffer *msgb)
+{
+	double cur_perc_size = 0;
+	double cur_perc_time = 0;
+	double cur_perc = 0;
+	uint32_t cur_buf_size, start_buf_size_th;
+
+	if (msgb) {
+		cur_buf_size = msg_buffer_get_current_size(msgb);
+		start_buf_size_th = msg_buffer_get_start_buf_size(msgb);
+		cur_perc_size = (((1.0 * cur_buf_size) /
+				  start_buf_size_th) * 100);
+		if (cur_perc_size > 100) {
+			cur_perc_size = 100;
+		}
+		cur_perc_time = msg_buffer_check_start_buf_to(msgb);
+		cur_perc = cur_perc_time > cur_perc_size ?
+			cur_perc_time : cur_perc_size;
+	}
+
+	return cur_perc;
 }

@@ -129,11 +129,31 @@ uint8_t pstreamer_muxer_task_callback(struct periodic_task * pt, int ret,
 				      fd_set * writefds,
 				      fd_set * errfds)
 {
-	return 0;
+	struct pstreamer * ps;
+	int res = 0;
+	ps = (struct pstreamer *) periodic_task_get_data(pt);
+
+	res = pstreamer_handle_ffmuxer(ps);
+	return res;
 }
 
 uint8_t pstreamer_muxer_task_reinit(struct periodic_task * pt)
 {
+	struct pstreamer * ps;
+	ps = (struct pstreamer *) periodic_task_get_data(pt);
+	timeout timeout_ms;
+
+	periodic_task_flush_fdsets(pt);
+	pstreamer_register_ffmuxer_rtp_fds(ps, add_fd_to_fdset, (void*)pt);
+	timeout_ms = periodic_task_get_remaining_time(pt);
+
+	if (timeout_ms == 0) {
+		periodic_task_reset_timeout(pt);
+	} else {
+		periodic_task_set_remaining_time(pt,
+				pstreamer_get_ffmuxer_http_timeout(ps));
+	}
+
 	return 0;
 }
 

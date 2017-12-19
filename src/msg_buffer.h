@@ -56,7 +56,7 @@ struct msg_buffer *msg_buffer_init(int debug, char *id);
 void msg_buffer_destroy(struct msg_buffer **msgb);
 
 /* Push a new message in the msg_buffer */
-int msg_buffer_push(struct msg_buffer *msgb, uint8_t *buf, uint32_t size);
+int msg_buffer_push(struct msg_buffer *msgb, char *buf, uint32_t size);
 /* Check the status of the buffer.
  *
  * Return:
@@ -70,7 +70,7 @@ int msg_buffer_get_status(struct msg_buffer *msgb, struct timeval *tv);
 /* Pop a message from the buffer.
  * The caller has the responsibility to free buf.
  */
-int msg_buffer_pop(struct msg_buffer *msgb, uint8_t **buf);
+int msg_buffer_pop(struct msg_buffer *msgb, char **buf);
 
 /* The following three functions are used to parse the content of msg_buffer
  * (starting from next_slot_pop) without actually removing the slots from the
@@ -89,7 +89,7 @@ int msg_buffer_pop(struct msg_buffer *msgb, uint8_t **buf);
 
 /* Return -1 if the msg_buffer is empty, 0 otherwise */
 int msg_buffer_parse_start(struct msg_buffer *msgb);
-int msg_buffer_parse_next(struct msg_buffer *msgb, uint8_t **buf);
+int msg_buffer_parse_next(struct msg_buffer *msgb, char **buf);
 void msg_buffer_parse_stop(struct msg_buffer *msgb);
 
 /* Reinitialize the bootstrap of the buffer.
@@ -133,5 +133,10 @@ void msg_buffer_set_flush_to_us(struct msg_buffer *msgb, uint32_t to_us);
 int msg_buffer_is_flushing(struct msg_buffer *msgb);
 /* Return the number of slots in the buffer */
 uint32_t msg_buffer_get_nslots(struct msg_buffer *msgb);
+
+/* Return the time of the last pop from the buffer */
+void msg_buffer_get_last_pop(struct msg_buffer *msgb, struct timeval *tv);
+/* Return the initial buffering percentage */
+double msg_buffer_get_start_buffering_perc(struct msg_buffer *msgb);
 
 #endif // MSG_BUFFER

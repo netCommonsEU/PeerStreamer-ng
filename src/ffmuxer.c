@@ -52,6 +52,7 @@ void ffmuxer_init()
 {
 	av_register_all();
 	avformat_network_init();
+	av_log_set_level(AV_LOG_QUIET);
 }
 
 void ffmuxer_deinit()
@@ -154,7 +155,8 @@ int ffmuxer_get_stream_info(struct ffmuxer_context *ctx)
 
 	if (res < 0) {
 		if (ctx->debug) {
-		fprintf(stderr, "Failed to retrieve input stream information");
+			fprintf(stderr,
+				"Failed to retrieve input stream information");
 		}
 
 		return res;
@@ -257,11 +259,11 @@ int ffmuxer_output_stream_init(struct ffmuxer_context *ctx)
 	return 0;
 }
 
-int ffmuxer_get_buff(struct ffmuxer_context *ctx, unsigned char **buff)
+int ffmuxer_get_buff(struct ffmuxer_context *ctx, char **buff)
 {
 	int len, res;
 
-	len = avio_close_dyn_buf(ctx->ofmt_ctx->pb, buff);
+	len = avio_close_dyn_buf(ctx->ofmt_ctx->pb, (unsigned char **) buff);
 	res = avio_open_dyn_buf(&ctx->ofmt_ctx->pb);
 
 	if (res < 0) {

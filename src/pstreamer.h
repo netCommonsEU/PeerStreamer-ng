@@ -24,6 +24,7 @@
 #include<stdint.h>
 #include<name_lengths.h>
 #include<task_manager.h>
+#include<pstreamer_event.h>
 #include<mongoose.h>
 
 struct pstreamer;
@@ -53,7 +54,18 @@ void pstreamer_touch(struct pstreamer *ps);
 
 int8_t pstreamer_manager_set_streamer_options(struct pstreamer_manager *psm, const char * opts);
 
+void pstreamer_check_closed_connection(struct pstreamer_manager *psm,
+				       struct mg_connection *nc);
+
 void pstreamer_set_ffmuxer_http_connection(const struct pstreamer *ps,
 					   struct mg_connection *nc);
+
+int pstreamer_register_ffmuxer_rtp_fds(const struct pstreamer * ps,
+			       fd_register_f func, void *handler);
+timeout pstreamer_get_ffmuxer_http_timeout(const struct pstreamer *ps);
+int pstreamer_handle_ffmuxer(struct pstreamer *ps);
+
+void pstreamer_set_ffmuxer_http_root(const struct pstreamer *ps,
+				     const char *root);
 
 #endif

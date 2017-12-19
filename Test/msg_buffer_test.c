@@ -40,12 +40,12 @@ void msg_buffer_single_push_pop_test()
 	struct msg_buffer *msgb;
 	int i, res;
 #define B1_SIZE 128
-	uint8_t b1[B1_SIZE] = {0, };
-	uint8_t *b1_check = NULL;
+	char b1[B1_SIZE] = {0, };
+	char *b1_check = NULL;
 	int b1_size_check;
 
 	for (i = 0; i < B1_SIZE; i++) {
-		b1[i] = (uint8_t) rand();
+		b1[i] = (char) rand();
 	}
 
 	msgb = msg_buffer_init(0, "test");
@@ -99,22 +99,22 @@ void msg_buffer_push_pop_test()
 #define B2_SIZE 256
 #define B3_SIZE 512
 
-	uint8_t b1[B1_SIZE] = {0, };
-	uint8_t b2[B2_SIZE] = {0, };
-	uint8_t b3[B3_SIZE] = {0, };
-	uint8_t *b_check = NULL;
+	char b1[B1_SIZE] = {0, };
+	char b2[B2_SIZE] = {0, };
+	char b3[B3_SIZE] = {0, };
+	char *b_check = NULL;
 	int b_size_check;
 
 	for (i = 0; i < B1_SIZE; i++) {
-		b1[i] = (uint8_t) rand();
+		b1[i] = (char) rand();
 	}
 
 	for (i = 0; i < B2_SIZE; i++) {
-		b2[i] = (uint8_t) rand();
+		b2[i] = (char) rand();
 	}
 
 	for (i = 0; i < B3_SIZE; i++) {
-		b3[i] = (uint8_t) rand();
+		b3[i] = (char) rand();
 	}
 
 	msgb = msg_buffer_init(0, "test");
@@ -210,7 +210,7 @@ void msg_buffer_start_buffering_size_th_test()
 #define START_SIZE (0x100000)
 #define BN	   (8)
 #define B_SIZE	   (START_SIZE / BN)
-	uint8_t b[B_SIZE] = {0, };
+	char b[B_SIZE] = {0, };
 
 	msgb = msg_buffer_init(0, "test");
 	assert(msgb != NULL);
@@ -257,7 +257,7 @@ void msg_buffer_start_buffering_to_test()
 #define START_TO_US (50000)
 #define BN	    (8)
 #define B_SIZE	    (START_SIZE / BN)
-	uint8_t b[B_SIZE] = {0, };
+	char b[B_SIZE] = {0, };
 
 	msgb = msg_buffer_init(0, "test");
 	assert(msgb != NULL);
@@ -299,8 +299,8 @@ void msg_buffer_full_buffer_test()
 	struct msg_buffer *msgb;
 	int res;
 	uint32_t nslots, nslots_check, i;
-	uint8_t *b = NULL;
-	uint8_t *b_check = NULL;
+	char *b = NULL;
+	char *b_check = NULL;
 	uint32_t b_check_size;
 
 	msgb = msg_buffer_init(0, "test");
@@ -312,7 +312,7 @@ void msg_buffer_full_buffer_test()
 	assert(b != NULL);
 
 	for (i = 0; i < nslots; i++) {
-		b[i] = (uint8_t) rand();
+		b[i] = (char) rand();
 	}
 
 	msg_buffer_configure_ths_and_tos(msgb,
@@ -359,8 +359,8 @@ void msg_buffer_increase_nslots_test()
 	struct msg_buffer *msgb;
 	int res;
 	uint32_t nslots, new_nslots, i;
-	uint8_t *b = NULL;
-	uint8_t *b_check = NULL;
+	char *b = NULL;
+	char *b_check = NULL;
 	uint32_t b_check_size;
 
 	msgb = msg_buffer_init(0, "test");
@@ -423,8 +423,8 @@ void msg_buffer_flush_test()
 #define FLUSH_TO_US (50000)
 #define BN	    (8)
 #define B_SIZE	    (START_SIZE / BN)
-	uint8_t b[B_SIZE] = {0, };
-	uint8_t *b_check = NULL;
+	char b[B_SIZE] = {0, };
+	char *b_check = NULL;
 
 	msgb = msg_buffer_init(0, "test");
 	assert(msgb != NULL);

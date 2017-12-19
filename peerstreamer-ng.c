@@ -104,6 +104,9 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 			if(router_handle(c->router, nc, hm))
 				mg_serve_http(nc, hm, c->http_opts);
 			break;
+		case MG_EV_CLOSE:
+			handle_close_connection(nc);
+			break;
 		default:
 			break;
 	}

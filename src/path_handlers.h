@@ -36,6 +36,8 @@ void streamer_update(struct mg_connection *nc, struct http_message *hm);
 
 void video_request(struct mg_connection *nc, struct http_message *hm);
 
+void handle_close_connection(struct mg_connection *nc);
+
 uint8_t load_path_handlers(struct router *r)
 {
 	uint8_t res = 0;

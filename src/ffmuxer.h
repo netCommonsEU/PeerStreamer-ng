@@ -51,7 +51,7 @@ void ffmuxer_close(struct ffmuxer_context **ctx);
 
 /* The following three functions must be called in loop for muxing the input
  * stream into the output stream */
-int ffmuxer_get_buff(struct ffmuxer_context *ctx, unsigned char **buff);
+int ffmuxer_get_buff(struct ffmuxer_context *ctx, char **buff);
 int ffmuxer_read(struct ffmuxer_context *ctx, void **v);
 int ffmuxer_write(struct ffmuxer_context *ctx, void *p);
 

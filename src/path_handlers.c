@@ -97,8 +97,10 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 		if(ps)
 		{
 			pstreamer_schedule_tasks((struct pstreamer*)ps, c->tm);
-			info("Streamer instance created\n");
+			info("Streamer instance created (%s)\n", id);
 			sdpuri = sdpfile_create(c, ch, ps, rtp_dst_ip);
+			pstreamer_set_ffmuxer_http_root(ps,
+					c->http_opts.document_root);
 			if (sdpuri)
 			{
 				mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n");
@@ -156,16 +158,36 @@ void streamer_update(struct mg_connection *nc, struct http_message *hm)
 
 void video_request(struct mg_connection *nc, struct http_message *hm)
 {
-	char *id;
+	char *video_id;
+	char id[MAX_PATH_LENGTH] = {0,};
 	const struct pstreamer * ps;
 	const struct context * c;
 
 	c = (const struct context *) nc->user_data;
-	id = mg_uri_field(hm, 1);
+	video_id = mg_uri_field(hm, 1);
+	strncpy(id, video_id, strlen(video_id) - strlen(".mp4"));
+	id[strlen(video_id) - strlen(".mp4")] = '\0';
 
 	ps = pstreamer_manager_get_streamer(c->psm, id);
 
-	info("\tVideo request for resource %s\n", id);
+	if (!ps) {
+		return;
+	}
+
+	info("\tVideo request for resource %s (ps %s)\n", video_id, id);
+
+	mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\n"
+		  "Content-Type: video/mp4\r\n"
+		  "Connection: keep-alive\r\n"
+		  "Transfer-Encoding: chunked\r\n\r\n");
 
 	pstreamer_set_ffmuxer_http_connection(ps, nc);
+}
+
+void handle_close_connection(struct mg_connection *nc)
+{
+	const struct context * c;
+
+	c = (const struct context *) nc->user_data;
+	pstreamer_check_closed_connection(c->psm, nc);
 }
