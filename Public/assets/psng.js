@@ -4,6 +4,13 @@ function response_channel(ch)
 	set_state(ch.name);
 	channel = ch.id;
 	var p = document.getElementById("video-player");
+	var videlem = document.getElementById("video");
+
+	if (videlem) {
+		videlem.outerHTML = "";
+		delete videlem;
+	}
+
 	var videlem = document.createElement("video");
 	var sourceMP4 = document.createElement("source");
 
@@ -11,19 +18,16 @@ function response_channel(ch)
 	videlem.autoplay = true;
 	videlem.width = "720";
 	videlem.height = "480";
+	videlem.id = "video";
 
 	if (videlem.canPlayType("video/mp4")) {
 		sourceMP4.type = "video/mp4";
-		// sourceMP4.src = "channels/" + channel + ".mp4"
-		sourceMP4.src = "channels/" + channel
+		sourceMP4.src = "channels/" + channel + ".mp4"
+		// sourceMP4.src = "channels/" + channel
 		videlem.appendChild(sourceMP4);
 
 		p.appendChild(videlem);
 	}
-
-	var d = document.getElementById("video-player-alt");
-	d.innerHTML = "Alternatively, you can use an external player opening this temporary URI: <strong>http://" + location.host + "/" +  ch.sdpfile + "</strong>. The streaming will terminate if you close this web page.";
-
 }
 
 function set_state(s)
