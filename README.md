@@ -1,4 +1,4 @@
-# PeerStreamer-ng (ffmpeg based_)
+# PeerStreamer-ng (ffmpeg based)
 
 PeerStreamer-ng [1] is P2P rel-time streaming platform.  It is specifically
 design for mesh networks and it is meant to be purely decentralized.
