@@ -60,4 +60,12 @@ const char * pstreamer_source_port(const struct pstreamer *ps);
 
 int8_t pstreamer_manager_set_streamer_options(struct pstreamer_manager *psm, const char * opts);
 
+uint8_t pstreamer_is_source(const struct pstreamer * ps);
+
+char * pstreamer_manager_sources_to_json(const struct pstreamer_manager *psm);
+
+const struct pstreamer * pstreamer_manager_create_source_streamer(struct pstreamer_manager * psm, const char * id, const char * rtp_src_ip, struct streamer_creation_callback * scc);
+
+void pstreamer_source_touch(const struct pstreamer_manager *psm, struct pstreamer *ps, uint64_t janus_id);
+
 #endif

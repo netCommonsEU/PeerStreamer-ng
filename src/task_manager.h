@@ -24,7 +24,7 @@
 #include<sys/select.h>
 #include<mongoose.h>
 
-typedef uint16_t timeout;
+typedef uint16_t timeout; // milliseconds
 
 struct periodic_task;
 

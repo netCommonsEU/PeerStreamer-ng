@@ -29,10 +29,12 @@
 char * mg_uri_field(struct http_message *hm, uint8_t pos);
 
 void channel_index(struct mg_connection *nc, struct http_message *hm);
-
 void streamer_create(struct mg_connection *nc, struct http_message *hm);
-
 void streamer_update(struct mg_connection *nc, struct http_message *hm);
+
+void source_index(struct mg_connection *nc, struct http_message *hm);
+void source_streamer_create(struct mg_connection *nc, struct http_message *hm);
+void source_streamer_update(struct mg_connection *nc, struct http_message *hm);
 
 uint8_t load_path_handlers(struct router *r)
 {
@@ -41,6 +43,10 @@ uint8_t load_path_handlers(struct router *r)
 	res |= router_add_route(r, "GET", "^/channels$", channel_index);
 	res |= router_add_route(r, "POST", "^/channels/[a-zA-Z0-9]+$", streamer_create);
 	res |= router_add_route(r, "UPDATE", "^/channels/[a-zA-Z0-9]+$", streamer_update);
+
+	res |= router_add_route(r, "GET", "^/sources$", source_index);
+	res |= router_add_route(r, "POST", "^/sources/[a-zA-Z0-9]+$", source_streamer_create);
+	res |= router_add_route(r, "UPDATE", "^/sources/[a-zA-Z0-9]+$", source_streamer_update);
 
 	return res;
 }

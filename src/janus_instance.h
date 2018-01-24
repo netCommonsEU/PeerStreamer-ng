@@ -39,4 +39,10 @@ int8_t janus_instance_create_streaming_point(struct janus_instance const * janus
 
 int8_t janus_instance_destroy_streaming_point(struct janus_instance const * janus, uint64_t mp_id);
 
+int8_t janus_instance_create_videoroom(struct janus_instance const * janus, const char * room_id, struct streamer_creation_callback *scc);
+
+int8_t janus_instance_destroy_videoroom(struct janus_instance const * janus, const char * room_id);
+
+int8_t janus_instance_forward_rtp(struct janus_instance const * janus, const char * room_id, uint64_t participant_id, const char * rtp_ip, uint16_t audio_port, uint16_t video_port);
+
 #endif

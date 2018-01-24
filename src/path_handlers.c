@@ -28,13 +28,6 @@
 #include<mongoose.h>
 #include<streamer_creation_callback.h>
 
-void mg_connection_remote_ip(char * ip, const struct mg_connection *nc)
-{
-	const struct sockaddr_in *sender;
-	sender = (struct sockaddr_in *)&(nc->sa);
-	inet_ntop(AF_INET, &(sender->sin_addr), ip, MAX_IPADDR_LENGTH);
-}
-
 char * mg_uri_field(struct http_message *hm, uint8_t pos)
 {
 	char * uri;
@@ -69,6 +62,37 @@ void channel_index(struct mg_connection *nc, struct http_message *hm)
 	mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 
 	free(channels);
+}
+
+int8_t source_streamer_creation_handler(struct mg_connection *nc, const struct pschannel_bucket *psb, const struct pstreamer * ps, int8_t ret)
+{
+	char * json = NULL;
+	int8_t res = -1;
+
+	info("Inside source creation handler\n");
+	if (ps)
+		json = pstreamer_to_json(ps);
+
+	if (ret == 0 && json)
+	{
+		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");
+		mg_printf_http_chunk(nc, json);
+		res = 0;
+		info("Source room created and served\n");
+	} else {
+		mg_printf(nc, "%s", "HTTP/1.1 500 Internal server error\r\nTransfer-Encoding: chunked\r\n\r\n");
+		// destroy ps?
+		info("Stream room cannot be correctly created\n");
+		if (ret)
+			debug(json);
+		else
+			debug("PS does not exist");
+	}
+	if (json)
+		free(json);
+	mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+
+	return res;
 }
 
 int8_t streamer_creation_handler(struct mg_connection *nc, const struct pschannel_bucket *psb, const struct pstreamer * ps, int8_t ret)
@@ -125,7 +149,7 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 	mg_get_http_var(&hm->body, "port", port, MAX_PORT_LENGTH);
 
 	id = mg_uri_field(hm, 1);
-	mg_connection_remote_ip(rtp_dst_ip, nc);
+	mg_conn_addr_to_str(nc, rtp_dst_ip, MAX_IPADDR_LENGTH, MG_SOCK_STRINGIFY_IP|MG_SOCK_STRINGIFY_REMOTE);
 
 	info("POST request for resource %s from %s\n", id, rtp_dst_ip);
 	ch = pschannel_bucket_find(c->pb, ipaddr, port);
@@ -180,3 +204,82 @@ void streamer_update(struct mg_connection *nc, struct http_message *hm)
 
 	free(id);
 }
+
+void source_index(struct mg_connection *nc, struct http_message *hm)
+{
+	char * channels;
+	const struct context * c;
+
+	c = (const struct context *) nc->user_data;
+
+	info("GET request for source\n");
+	channels = pstreamer_manager_sources_to_json(c->psm);
+	debug("\t%s\n", channels);
+
+	mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");
+	mg_printf_http_chunk(nc, "%s", channels);
+	mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+
+	free(channels);
+}
+
+void source_streamer_create(struct mg_connection *nc, struct http_message *hm)
+{
+	const struct context * c;
+	char rtp_source_ip[MAX_IPADDR_LENGTH];
+	char * id;
+	const struct pstreamer * ps = NULL;
+	const struct pschannel * ch = NULL;
+
+	c = (const struct context *) nc->user_data;
+
+	id = mg_uri_field(hm, 1);
+	mg_conn_addr_to_str(nc, rtp_source_ip, MAX_IPADDR_LENGTH, MG_SOCK_STRINGIFY_IP);
+
+	info("POST request for source resource %s from %s\n", id, rtp_source_ip);
+
+	ps = pstreamer_manager_create_source_streamer(c->psm, id, rtp_source_ip, streamer_creation_callback_new(nc, c->pb, source_streamer_creation_handler)); 
+	if(ps)
+	{
+		pstreamer_schedule_tasks((struct pstreamer*)ps, c->tm);
+		info("Source streamer instance created\n");
+	} else {
+		info("Source streamer could not be launched\n");
+		mg_printf(nc, "%s", "HTTP/1.1 409 Conflict\r\nTransfer-Encoding: chunked\r\n\r\n");
+		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+	}
+
+	free(id);
+}
+
+void source_streamer_update(struct mg_connection *nc, struct http_message *hm)
+{
+	char * id, * json;
+	char janus_user_id[MAX_JANUS_USERID_LENGTH+1];
+	const struct pstreamer * ps;
+	const struct context * c;
+
+	c = (const struct context *) nc->user_data;
+	id = mg_uri_field(hm, 1);
+
+	ps = pstreamer_manager_get_streamer(c->psm, id);
+	info("UPDATE request for source resource %s\n", id);
+	if (ps)
+	{
+		mg_get_http_var(&hm->body, "participant_id", janus_user_id, MAX_JANUS_USERID_LENGTH);
+
+		pstreamer_source_touch(c->psm, (struct pstreamer*) ps, atoll(janus_user_id));
+		info("\tSource instance %s found and touched\n", id);
+		json = pstreamer_to_json(ps);
+		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");
+		mg_printf_http_chunk(nc, "%s", json);
+		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+		free(json);
+	} else {
+		info("\tInstance %s not found\n", id);
+		mg_printf(nc, "%s", "HTTP/1.1 404 Not Found\r\nTransfer-Encoding: chunked\r\n\r\n");
+		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
+	}
+	free(id);
+}
+

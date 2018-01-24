@@ -110,7 +110,9 @@ void janus_instance_create_streaming_point_test()
 
 int main(int argv, char ** argc)
 {
-	sprintf(janus_conf, "janus_executable=%s/../Tools/janus/bin/janus", dirname(argc[0]));
+	char wdir[200];
+	strncpy(wdir, dirname(argc[0]), 200);
+	sprintf(janus_conf, "janus_executable=%s/../Tools/janus/bin/janus,janus_param=--configs-folder=%s/../Tools/janus_conf", wdir, wdir);
 
 	janus_instance_create_test();
 	janus_instance_launch_test();

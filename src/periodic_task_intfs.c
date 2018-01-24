@@ -155,3 +155,15 @@ uint8_t mongoose_task_reinit(struct periodic_task * pt)
 
 	return 0;
 }
+
+uint8_t pstreamer_inject_task_callback(struct periodic_task * pt, int ret, fd_set * readfds, fd_set * writefds, fd_set * errfds)
+{
+	struct psinstance * ps;
+	ps = (struct psinstance *) periodic_task_get_data(pt);
+	if (ret == 0)
+	{
+		debug("Chunk seeding time\n");
+		psinstance_inject_chunk(ps);
+	}
+	return 0;
+}

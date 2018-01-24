@@ -14,7 +14,7 @@ LIBS+=Libs/mongoose/mongoose.o Libs/GRAPES/src/libgrapes.a Libs/pstreamer/src/li
 MONGOOSE_OPTS+=-DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 LDFLAGS+=-lpstreamer -lgrapes -lm
 
-all: $(EXE) Tools/janus
+all: $(EXE) Tools/janus/bin/janus
 
 $(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
 	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) Libs/mongoose/mongoose.o $(CFLAGS) $(LDFLAGS)
@@ -37,11 +37,11 @@ Libs/pstreamer/src/libpstreamer.a:
 	git submodule update Libs/pstreamer/
 	make -C Libs/pstreamer/ 
 
-Tools/janus:
+Tools/janus/bin/janus:
 	git submodule init Libs/janus-gateway/
 	git submodule update Libs/janus-gateway/
 	cd $(PWD)/Libs/janus-gateway/ && ./autogen.sh
-	cd $(PWD)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(PWD)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(PWD)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(PWD)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-rest --disable-turn-rest-api --enable-static --prefix=$(PWD)/Tools/janus --enable-plugin-streaming #--enable-libsrtp2
+	cd $(PWD)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(PWD)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(PWD)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(PWD)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-rest --disable-turn-rest-api --enable-static --prefix=$(PWD)/Tools/janus --enable-plugin-streaming --enable-plugin-videoroom #--enable-libsrtp2
 	make -C Libs/janus-gateway/ install
 
 tests:
