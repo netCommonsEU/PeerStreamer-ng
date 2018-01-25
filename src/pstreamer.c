@@ -29,8 +29,9 @@
 #include<debug.h>
 
 #define MAX_PSINSTANCE_CONFIG_LENGTH 255
-#define STREAMER_PEER_CONF "port=%d,dechunkiser=rtp,base=%d,addr=%s"
-#define STREAMER_SOURCE_CONF "port=%d,chunkiser=rtp,base=%d,addr=%s,max_delay_ms=50"
+#define STREAMER_PEER_CONF "port=%d,dechunkiser=rtp,audio=%d,video=%d,addr=%s"
+#define STREAMER_SOURCE_CONF "port=%d,chunkiser=rtp,audio=%d,video=%d,addr=%s,max_delay_ms=5,chunk_size=20"
+//#define STREAMER_SOURCE_CONF "port=%d,chunkiser=rtp,base=%d,addr=%s,max_delay_ms=5,chunk_size=200,rfc3551=1"
 
 struct pstreamer {
 	char source_ip[MAX_IPADDR_LENGTH];
@@ -61,7 +62,7 @@ int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_ip, const char * f
 	char config[MAX_PSINSTANCE_CONFIG_LENGTH];
 	int count;
 
-	count = snprintf(config, MAX_PSINSTANCE_CONFIG_LENGTH, fmt, ps->base_port, ps->base_port+1, rtp_ip);
+	count = snprintf(config, MAX_PSINSTANCE_CONFIG_LENGTH, fmt, ps->base_port, ps->base_port+1, ps->base_port+3, rtp_ip);
 	if (opts && (size_t)(MAX_PSINSTANCE_CONFIG_LENGTH - count) > strlen(opts))
 		snprintf(config + count, MAX_PSINSTANCE_CONFIG_LENGTH - count, ",%s", opts);
 	ps->psc = psinstance_create(ps->source_ip, ps->source_port, config);

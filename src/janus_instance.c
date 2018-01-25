@@ -465,7 +465,7 @@ int8_t janus_instance_create_streaming_point(struct janus_instance const * janus
 	char * uri;
 	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"type\":\"rtp\",\
 				  \"audio\":true,\"audioport\":%"PRId16",\"audiopt\":111,\"audiortpmap\":\"opus/48000/2\",\
-				  \"video\":true,\"videoport\":%"PRId16",\"videopt\":100,\"videortpmap\":\"VP8/90000\"}}";
+				  \"video\":true,\"videoport\":%"PRId16",\"videopt\":98,\"videortpmap\":\"VP8/90000\"}}";
 	char buff[280];
 	void ** data;
 
@@ -523,7 +523,7 @@ int8_t janus_instance_create_videoroom(struct janus_instance const * janus, cons
 	struct mg_connection * conn;
 	int8_t res = -1;
 	char * uri;
-	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"room\":%s,\"publishers\":1,\"bitrate\":128000,\"record\":false,\"description\":\"Room %s\",\"fir_freq\":100}}";
+	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"room\":%s,\"publishers\":1,\"bitrate\":128000,\"record\":false,\"description\":\"Room %s\",\"fir_freq\":100,\"audiocodec\":\"opus\",\"videocodec\":\"vp8\"}}";
 
 	char buff[280];
 	void ** data;

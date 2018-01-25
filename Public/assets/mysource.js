@@ -64,7 +64,7 @@ function publishOwnFeed(useAudio) {
 			success: function(jsep) {
 				Janus.debug("Got publisher SDP!");
 				Janus.debug(jsep);
-				var publish = { "request": "configure", "audio": useAudio, "video": true };
+				var publish = { "request": "configure", "audio": useAudio, "video": true, "audiocodec": "opus", "videocodec": "vp8" };
 				// You can force a specific codec to use when publishing by using the
 				// audiocodec and videocodec properties, for instance:
 				// 		publish["audiocodec"] = "opus"
@@ -160,7 +160,7 @@ function createJanus() {
 }
 
 function startStreaming() {
-	var register = { "request": "join", "room": myroom, "ptype": "publisher", "display": description, "id": myid };
+	var register = { "request": "joinandconfigure", "bitrate": 128000, "room": myroom, "ptype": "publisher", "display": description, "id": myid };
 	janus_plugin.send({"message": register});
 
 	var xhttp = new XMLHttpRequest();
