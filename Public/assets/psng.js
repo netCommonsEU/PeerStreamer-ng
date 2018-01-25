@@ -71,7 +71,9 @@ function update_channel()
 	}
 }
 
-refresh_channels();
-var refresh_channels_id = setInterval(refresh_channels, 5000);
-var update_channel_id = setInterval(update_channel, 3000);
-var channel = "";
+function update_source()
+{
+   var xhttp = new XMLHttpRequest();
+   xhttp.open("UPDATE", "/sources/" + myroom, true);
+   xhttp.send();
+}

@@ -263,12 +263,19 @@ void source_streamer_update(struct mg_connection *nc, struct http_message *hm)
 	id = mg_uri_field(hm, 1);
 
 	ps = pstreamer_manager_get_streamer(c->psm, id);
+	janus_user_id[0] = '\0';
 	info("UPDATE request for source resource %s\n", id);
 	if (ps)
 	{
 		mg_get_http_var(&hm->body, "participant_id", janus_user_id, MAX_JANUS_USERID_LENGTH);
 
-		pstreamer_source_touch(c->psm, (struct pstreamer*) ps, atoll(janus_user_id));
+		if (strlen(janus_user_id) > 0)
+		{
+			info("\tFound Participant ID: %s\n", janus_user_id);
+			pstreamer_source_touch(c->psm, (struct pstreamer*) ps, atoll(janus_user_id));
+		} else
+			pstreamer_touch((struct pstreamer*) ps);
+
 		info("\tSource instance %s found and touched\n", id);
 		json = pstreamer_to_json(ps);
 		mg_printf(nc, "%s", "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\nContent-type: application/json\r\n\r\n");

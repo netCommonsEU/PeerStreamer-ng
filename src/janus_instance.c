@@ -132,7 +132,7 @@ void janus_instance_destroy(struct janus_instance ** ji)
 	if (ji && (*ji))
 	{
 		if ((*ji)->janus_pid != INVALID_PID)
-			kill((*ji)->janus_pid, SIGTERM);
+			kill((*ji)->janus_pid, SIGHUP);
 			
 		if ((*ji)->heartbeat)
 			task_manager_destroy_task((*ji)->tm, &((*ji)->heartbeat));
@@ -349,7 +349,7 @@ int8_t janus_instance_launch(struct janus_instance * ji)
 				}
 				else // the child
 				{
-					fd = creat(ji->logfile, 'w');
+					fd = creat(ji->logfile, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 					dup2(fd, 1);   // make stdout go to file
 					dup2(fd, 2);   // make stderr go to file - you may choose to not do this
 					close(fd);
@@ -523,7 +523,7 @@ int8_t janus_instance_create_videoroom(struct janus_instance const * janus, cons
 	struct mg_connection * conn;
 	int8_t res = -1;
 	char * uri;
-	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"room\":%s}}";
+	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"room\":%s,\"publishers\":1,\"bitrate\":128000,\"record\":false,\"description\":\"Room %s\",\"fir_freq\":100}}";
 
 	char buff[280];
 	void ** data;
@@ -533,7 +533,7 @@ int8_t janus_instance_create_videoroom(struct janus_instance const * janus, cons
 		uri = janus_instance_videoroom_handle_path(janus);
 		if (uri)
 		{
-			sprintf(buff, fmt, room_id);
+			sprintf(buff, fmt, room_id, room_id);
 		   debug("Conctating Janus to create a new video room\n");	
 			conn = mg_connect_http(janus->mongoose_srv, janus_instance_videoroom_creation_handler, uri, NULL, buff);
 			if (conn)
@@ -581,7 +581,7 @@ int8_t janus_instance_forward_rtp(struct janus_instance const * janus, const cha
 	struct mg_connection * conn;
 	int8_t res = -1;
 	char * uri;
-	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"rtp_forward\",\"room\":%s,\"publisher_id\":%"PRId64", \"host\": %s,\"audio_port\":%"PRId16",\"video_port\":%"PRId16",\"audio_pt\":111,\"video_pt\":98}}";
+	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"rtp_forward\",\"room\":%s,\"publisher_id\":%"PRId64", \"host\": \"%s\",\"audio_port\":%"PRId16",\"video_port\":%"PRId16",\"audio_pt\":111,\"video_pt\":98}}";
 
 	char buff[280];
 
@@ -591,7 +591,7 @@ int8_t janus_instance_forward_rtp(struct janus_instance const * janus, const cha
 		if (uri)
 		{
 			sprintf(buff, fmt, room_id, participant_id, rtp_dest, audio_port, video_port);
-		   debug("Conctating Janus to create a new video room\n");	
+		    debug("Conctating Janus to create a new video room\n");	
 			conn = mg_connect_http(janus->mongoose_srv, janus_instance_generic_handler, uri, NULL, buff);
 			if (conn)
 				res = 0;
