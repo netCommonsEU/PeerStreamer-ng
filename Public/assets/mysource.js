@@ -128,7 +128,7 @@ function createJanus() {
 									var videoTracks = stream.getVideoTracks();
 									if(videoTracks === null || videoTracks === undefined || videoTracks.length === 0) {
 										// No webcam
-										$('#myvideo').append(
+										$('#plugin').append(
 											'<div class="no-video-container">' +
 												'<i class="fa fa-video-camera fa-5 no-video-icon" style="height: 100%;"></i>' +
 												'<span class="no-video-text" style="font-size: 16px;">No webcam available</span>' +
@@ -167,10 +167,7 @@ function startStreaming() {
 	xhttp.onreadystatechange = function() {
 		if (this.readyState == 4 && this.status == 200) {
 			set_state("Streaming " + description);
-			var btn = document.getElementById("submit");
-			btn.onclick = function(){	
-				alert("Already streaming");
-			};
+			$('#creation_form').hide();
 		}
 		if (this.readyState == 4 && this.status != 200) {
 			set_state("&lt;An error occurred with the streaming process&gt;");

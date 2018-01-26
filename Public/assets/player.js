@@ -125,6 +125,7 @@ function createJanus() {
 										if(spinner !== null && spinner !== undefined)
 											spinner.stop();
 										spinner = null;
+										$('#waitingvideo').hide();
 										var videoTracks = stream.getVideoTracks();
 										if(videoTracks === null || videoTracks === undefined || videoTracks.length === 0)
 											return;
