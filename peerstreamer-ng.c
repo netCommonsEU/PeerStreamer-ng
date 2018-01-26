@@ -133,7 +133,7 @@ void init(struct context *c, int argc, char **argv)
 
 	parse_args(c, argc, argv);
 	pstreamer_manager_set_streamer_options(c->psm, c->streamer_opts);
-	c->pb = pschannel_bucket_new(c->csvfile);
+	c->pb = pschannel_bucket_new(c->csvfile, c->psm);
 	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
 }
 
@@ -178,7 +178,7 @@ int main(int argc, char** argv)
 
 	info("Starting server on port %s\n", c.http_port);
 	launch_http_task(&c);
-	task_manager_new_task(c.tm, NULL, pschannel_csvfile_task_callback, 1000, (void *) c.pb);
+	task_manager_new_task(c.tm, NULL, pschannel_populate_task_callback, 1000, (void *) c.pb);
 	task_manager_new_task(c.tm, NULL, pstreamer_purge_task_callback, 5000, (void *) c.psm);
 	while (running)
 		task_manager_poll(c.tm, 1000);

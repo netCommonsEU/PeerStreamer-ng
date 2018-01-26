@@ -256,6 +256,7 @@ void source_streamer_update(struct mg_connection *nc, struct http_message *hm)
 {
 	char * id, * json;
 	char janus_user_id[MAX_JANUS_USERID_LENGTH+1];
+	char channel_name[MAX_NAME_LENGTH+1];
 	const struct pstreamer * ps;
 	const struct context * c;
 
@@ -268,10 +269,12 @@ void source_streamer_update(struct mg_connection *nc, struct http_message *hm)
 	if (ps)
 	{
 		mg_get_http_var(&hm->body, "participant_id", janus_user_id, MAX_JANUS_USERID_LENGTH);
+		mg_get_http_var(&hm->body, "channel_name", channel_name, MAX_NAME_LENGTH);
 
 		if (strlen(janus_user_id) > 0)
 		{
 			info("\tFound Participant ID: %s\n", janus_user_id);
+			pstreamer_set_display_name((struct pstreamer*) ps, channel_name);
 			pstreamer_source_touch(c->psm, (struct pstreamer*) ps, atoll(janus_user_id));
 		} else
 			pstreamer_touch((struct pstreamer*) ps);

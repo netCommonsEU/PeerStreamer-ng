@@ -68,4 +68,10 @@ const struct pstreamer * pstreamer_manager_create_source_streamer(struct pstream
 
 void pstreamer_source_touch(const struct pstreamer_manager *psm, struct pstreamer *ps, uint64_t janus_id);
 
+const struct pstreamer * pstreamer_manager_source_iter(const struct pstreamer_manager *psm, const struct pstreamer * ps);
+
+const char * pstreamer_get_display_name(const struct pstreamer * ps);
+
+void pstreamer_set_display_name(struct pstreamer *ps, const char * name);
+
 #endif

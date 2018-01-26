@@ -42,13 +42,15 @@ int8_t pschannel_cmp(const void *ch1,const  void *ch2)
 struct pschannel_bucket {
 	struct ord_set * channels;
 	char * csvfile;
+	const struct pstreamer_manager * psm;
 };
 
-struct pschannel_bucket * pschannel_bucket_new(const char * csvfilename)
+struct pschannel_bucket * pschannel_bucket_new(const char * csvfilename, const struct pstreamer_manager * psm)
 {
 	struct pschannel_bucket * pb;
 	pb = (struct pschannel_bucket*) malloc(sizeof(struct pschannel_bucket));
 	pb->channels = ord_set_new(10, pschannel_cmp);
+	pb->psm = psm;
 	if (csvfilename)
 		pb->csvfile = strdup(csvfilename);
 	else
@@ -56,7 +58,7 @@ struct pschannel_bucket * pschannel_bucket_new(const char * csvfilename)
 	return pb;
 }
 
-uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char * ip, char * port, char * quality, char * sdpfile)
+uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, const char * name, const char * ip, const char * port, const char * quality, const char * sdpfile)
 {
 	struct pschannel * ch;
 	void * res;
@@ -146,6 +148,17 @@ const struct pschannel * pschannel_bucket_find(const struct pschannel_bucket * p
 		return NULL;
 }
 
+int8_t pschannel_bucket_reset(struct pschannel_bucket * psb)
+{
+	if (psb)
+	{
+		ord_set_destroy(&(psb->channels), 1);
+		psb->channels = ord_set_new(10, pschannel_cmp);
+		return 0;
+	}
+	return 1;
+}
+
 int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb)
 {
 	int8_t res = -1;
@@ -161,8 +174,6 @@ int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb)
 		if (ans == 0)
 		{
 			debug("Refresing channel list from file\n");
-			ord_set_destroy(&(psb->channels), 1);
-			psb->channels = ord_set_new(10, pschannel_cmp);
 			while (fgets(line, 255, fp) != NULL)
 			{
 				tokens = tokens_create(line, ',', &ntoks);
@@ -175,6 +186,21 @@ int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb)
 		} else
 			res = -2;
 		fclose(fp);
+	}
+	return res;
+}
+
+int8_t pschannel_bucket_load_local_streams(struct pschannel_bucket * pb)
+{
+	int8_t res = -1;
+	const struct pstreamer * ps = NULL;
+
+	if (pb && pb->psm)
+	{
+		while (ps = pstreamer_manager_source_iter(pb->psm, ps))
+			if (pstreamer_get_display_name(ps))
+				pschannel_bucket_insert(pb, pstreamer_get_display_name(ps), pstreamer_source_ipaddr(ps), pstreamer_source_port(ps), "good", "nosdpfile");
+		res = 0;
 	}
 	return res;
 }

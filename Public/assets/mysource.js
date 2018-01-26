@@ -176,7 +176,7 @@ function startStreaming() {
 
 	xhttp.open("UPDATE", "/sources/" + myroom, true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	var params = "participant_id=" + encodeURIComponent(myid);
+	var params = "participant_id=" + encodeURIComponent(myid) + "&channel_name=" + encodeURIComponent(description);
 	xhttp.send(params);
 }
 

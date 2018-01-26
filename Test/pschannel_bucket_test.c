@@ -10,6 +10,7 @@
 #include<string.h>
 
 #include"pschannel.h"
+#include"pstreamer.h"
 
 
 void pschannel_bucket_destroy_test()
@@ -19,7 +20,7 @@ void pschannel_bucket_destroy_test()
 	pschannel_bucket_destroy(NULL);
 	pschannel_bucket_destroy(&pb);
 
-	pb = pschannel_bucket_new(NULL);
+	pb = pschannel_bucket_new(NULL, NULL);
 	pschannel_bucket_destroy(&pb);
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
@@ -32,7 +33,7 @@ void pschannel_bucket_insert_test()
 	res = pschannel_bucket_insert(NULL, NULL, NULL, NULL, NULL, NULL);
 	assert(res);
 
-	pb = pschannel_bucket_new(NULL);
+	pb = pschannel_bucket_new(NULL, NULL);
 	res = pschannel_bucket_insert(pb, NULL, NULL, NULL, NULL, NULL);
 	assert(res);
 	res = pschannel_bucket_insert(pb, NULL, "10.0.0.1", "8000", NULL, NULL);
@@ -53,7 +54,7 @@ void pschannel_bucket_iter_test()
 	iter = pschannel_bucket_iter(NULL, NULL);
 	assert(iter == NULL);
 
-	pb = pschannel_bucket_new(NULL);
+	pb = pschannel_bucket_new(NULL, NULL);
 	iter = pschannel_bucket_iter(pb, iter);
 	assert(iter == NULL);
 
@@ -75,7 +76,7 @@ void pschannel_bucket_to_json_test()
 	s = pschannel_bucket_to_json(pb);
 	assert(s == NULL);
 
-	pb = pschannel_bucket_new(NULL);
+	pb = pschannel_bucket_new(NULL, NULL);
 
 	s = pschannel_bucket_to_json(pb);
 	assert(strcmp(s, "[]") == 0);
@@ -106,12 +107,12 @@ void pschannel_bucket_loadfile_test()
 	res = pschannel_bucket_loadfile(psb);
 	assert(res == -1);
 
-	psb = pschannel_bucket_new(NULL);
+	psb = pschannel_bucket_new(NULL, NULL);
 	res = pschannel_bucket_loadfile(psb);
 	assert(res == -1);
 	pschannel_bucket_destroy(&psb);
 
-	psb = pschannel_bucket_new("nonexisting");
+	psb = pschannel_bucket_new("nonexisting", NULL);
 	res = pschannel_bucket_loadfile(psb);
 	assert(res == -1);
 	pschannel_bucket_destroy(&psb);
@@ -120,13 +121,50 @@ void pschannel_bucket_loadfile_test()
 	fprintf(fd, "ch1,ip1,port1,q1,addr1\n");
 	fclose(fd);
 
-	psb = pschannel_bucket_new(testfile);
+	psb = pschannel_bucket_new(testfile, NULL);
 	res = pschannel_bucket_loadfile(psb);
 	assert(res == 0);
 	ch = pschannel_bucket_find(psb, "ip1", "port1");
 	assert(ch);
 	pschannel_bucket_destroy(&psb);
 
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
+void pschannel_load_local_streams_test()
+{
+	struct pstreamer_manager * psm;
+	struct pschannel_bucket * pb = NULL;
+	const struct pschannel * iter = NULL;
+	struct pstreamer * source;
+
+	assert(pschannel_bucket_load_local_streams(pb));
+
+	psm = pstreamer_manager_new(6000, NULL);
+	pb = pschannel_bucket_new(NULL, psm);
+
+	// empty bucket	
+	assert(pschannel_bucket_load_local_streams(pb) == 0);
+	iter = pschannel_bucket_iter(pb, NULL);
+	assert(iter == NULL);
+
+	// one local source, without display name
+	pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42", "127.0.0.1", NULL);
+	source = (struct pstreamer *) pstreamer_manager_create_source_streamer(psm, "room1", "127.0.0.1", NULL);
+	assert(pschannel_bucket_load_local_streams(pb) == 0);
+	iter = pschannel_bucket_iter(pb, NULL);
+	assert(iter == NULL);
+
+	pstreamer_set_display_name(source, "Channel1");
+	assert(pschannel_bucket_load_local_streams(pb) == 0);
+	iter = pschannel_bucket_iter(pb, NULL);
+	assert(iter != NULL);
+	assert(strcmp(((struct pschannel *)iter)->name, "Channel1") == 0);
+	iter = pschannel_bucket_iter(pb, iter);
+	assert(iter == NULL);
+
+	pstreamer_manager_destroy(&psm);
+	pschannel_bucket_destroy(&pb);
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
@@ -137,5 +175,6 @@ int main(int argv, char ** argc)
 	pschannel_bucket_iter_test();
 	pschannel_bucket_to_json_test();
 	pschannel_bucket_loadfile_test();
+	pschannel_load_local_streams_test();
 	return 0;
 }

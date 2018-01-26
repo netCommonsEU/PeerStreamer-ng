@@ -201,6 +201,48 @@ void pstreamer_manager_sources_to_json_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void pstreamer_source_iter_test()
+{
+	struct pstreamer_manager * psm = NULL;
+	const struct pstreamer * ps = NULL;
+
+
+	assert(pstreamer_manager_source_iter(psm, ps) == NULL);
+
+	psm = pstreamer_manager_new(6000, NULL);
+
+	// empty bucket
+	ps = NULL;
+	assert(pstreamer_manager_source_iter(psm, ps) == NULL);
+
+	// one normal peer
+	ps = NULL;
+	pstreamer_manager_create_streamer(psm, "10.0.0.1", "6000", "42", "127.0.0.1", NULL);
+	assert(pstreamer_manager_source_iter(psm, ps) == NULL);
+
+	// one source
+	ps = NULL;
+	pstreamer_manager_create_source_streamer(psm, "room1", "127.0.0.1", NULL);
+	ps = pstreamer_manager_source_iter(psm, ps);
+	assert(ps);
+	assert(strcmp(pstreamer_source_ipaddr(ps), "127.0.0.1") == 0);
+	ps = pstreamer_manager_source_iter(psm, ps);
+	assert(ps == NULL);
+
+	// two sources
+	ps = NULL;
+	pstreamer_manager_create_source_streamer(psm, "room2", "127.0.0.2", NULL);
+	ps = pstreamer_manager_source_iter(psm, ps);
+	assert(ps);
+	ps = pstreamer_manager_source_iter(psm, ps);
+	assert(ps);
+	ps = pstreamer_manager_source_iter(psm, ps);
+	assert(ps == NULL);
+
+	pstreamer_manager_destroy(&psm);
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 int main(int argv, char ** argc)
 {
 	pstreamer_manager_destroy_test();
@@ -212,5 +254,6 @@ int main(int argv, char ** argc)
 	pstreamer_manager_create_source_streamer_test();
 	pstreamer_is_source_test();
 	pstreamer_manager_sources_to_json_test();
+	pstreamer_source_iter_test();
 	return 0;
 }

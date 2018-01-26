@@ -22,6 +22,7 @@
 
 #include<stdint.h>
 #include<name_lengths.h>
+#include<pstreamer.h>
 
 struct pschannel {
 	char name[MAX_NAME_LENGTH];
@@ -32,10 +33,11 @@ struct pschannel {
 };
 
 struct pschannel_bucket;
+struct pstreamer_manager;
 
-struct pschannel_bucket * pschannel_bucket_new(const char * csvfilename);
+struct pschannel_bucket * pschannel_bucket_new(const char * csvfilename, const struct pstreamer_manager * psm);
 
-uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, char * name, char * ip, char * port, char * quality, char * sdpfile);
+uint8_t pschannel_bucket_insert(struct pschannel_bucket * pb, const char * name, const char * ip, const char * port, const char * quality, const char * sdpfile);
 
 const struct pschannel * pschannel_bucket_iter(const struct pschannel_bucket * pb, const struct pschannel * iter);
 
@@ -46,5 +48,9 @@ char * pschannel_bucket_to_json(const struct pschannel_bucket * pb);
 const struct pschannel * pschannel_bucket_find(const struct pschannel_bucket * psb, const char * ipaddr, const char * port);
 
 int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb);
+
+int8_t pschannel_bucket_load_local_streams(struct pschannel_bucket * pb);
+
+int8_t pschannel_bucket_reset(struct pschannel_bucket * psb);
 
 #endif

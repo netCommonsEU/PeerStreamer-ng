@@ -27,6 +27,7 @@
 
 struct pstreamer;
 struct streamer_creation_callback;
+struct pschannel_bucket;
 
 typedef int8_t (*streamer_creation_handler_t)(struct mg_connection *nc, const struct pschannel_bucket * psb,  const struct pstreamer *ps, int8_t ret);
 

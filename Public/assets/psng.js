@@ -26,7 +26,7 @@ function request_channel(ch)
 	var id = Math.random().toString(36).substr(2, 8);
 	xhttp.open("POST", "/channels/" + id, true);
 	xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	var params = "ipaddr=" + encodeURIComponent(ch.ipaddr) + "&port=" + encodeURIComponent(ch.port)
+	var params = "ipaddr=" + encodeURIComponent(ch.ipaddr) + "&port=" + encodeURIComponent(ch.port);
 	xhttp.send(params);
 }
 

@@ -47,6 +47,7 @@ struct pstreamer {
 	struct task_manager * tm;
 	timeout topology_interval;
 	uint64_t janus_streaming_id;
+	char * display_name;
 };
 
 struct pstreamer_manager {
@@ -74,6 +75,7 @@ int8_t pstreamer_init(struct pstreamer * ps, const char * rtp_ip, const char * f
 	ps->tm = NULL;
 	ps->topology_interval = 400;
 	ps->janus_streaming_id = 0;
+	ps->display_name = NULL;
 
 	if (ps->psc)
 		return 0;
@@ -93,6 +95,8 @@ int8_t pstreamer_deinit(struct pstreamer * ps)
 		task_manager_destroy_task(ps->tm, &(ps->inject_task));
 	if (ps->msg_task)
 		task_manager_destroy_task(ps->tm, &(ps->msg_task));
+	if (ps->display_name)
+		free(ps->display_name);
 	psinstance_destroy(&(ps->psc));
 	return 0;
 }
@@ -174,10 +178,12 @@ void pstreamer_manager_destroy(struct pstreamer_manager ** psm)
 		ord_set_for_each(ps, (*psm)->streamers)
 		{
 			if ((*psm)->janus)
+			{
 				if (pstreamer_is_source(ps))
 					janus_instance_destroy_videoroom((*psm)->janus, ((struct pstreamer*)ps)->id);
 				else
 					janus_instance_destroy_streaming_point((*psm)->janus, ((struct pstreamer*)ps)->janus_streaming_id);
+			}
 			pstreamer_deinit((struct pstreamer *)ps);
 		}
 
@@ -206,7 +212,7 @@ int8_t pstreamer_schedule_tasks(struct pstreamer *ps, struct task_manager * tm)
 		ps->offer_task = task_manager_new_task(tm, pstreamer_offer_task_reinit, pstreamer_offer_task_callback, psinstance_offer_interval(ps->psc), ps->psc); 
 		ps->msg_task = task_manager_new_task(tm, pstreamer_msg_handling_task_reinit, pstreamer_msg_handling_task_callback, 1000, ps->psc);
 		if (pstreamer_is_source(ps))
-			ps->inject_task = task_manager_new_task(tm, NULL, pstreamer_inject_task_callback, 25, ps->psc); 
+			ps->inject_task = task_manager_new_task(tm, NULL, pstreamer_inject_task_callback, 3, ps->psc);
 	}
 	return 0;
 }
@@ -346,7 +352,10 @@ const char * pstreamer_source_port(const struct pstreamer *ps)
 
 	if (ps)
 	{
-		sprintf(buff, "%"PRId16"", ps->source_port);
+		if (pstreamer_is_source(ps))
+			sprintf(buff, "%"PRId16"", ps->base_port);
+		else
+			sprintf(buff, "%"PRId16"", ps->source_port);
 		return buff;
 	}
 	return NULL;
@@ -355,6 +364,19 @@ const char * pstreamer_source_port(const struct pstreamer *ps)
 uint8_t pstreamer_is_source(const struct pstreamer * ps)
 {
 	return ps && (ps->source_port == 0) ? 1 : 0;
+}
+
+const struct pstreamer * pstreamer_manager_source_iter(const struct pstreamer_manager *psm, const struct pstreamer * ps)
+{
+	struct pstreamer * res = (struct pstreamer *) ps;
+
+	if (psm)
+	{
+		do
+			res = (struct pstreamer*) ord_set_iter(psm->streamers, (const void *)res);
+		while (res && !pstreamer_is_source(res));
+	}
+	return res;
 }
 
 char * pstreamer_manager_sources_to_json(const struct pstreamer_manager *psm)
@@ -441,4 +463,21 @@ void pstreamer_source_touch(const struct pstreamer_manager *psm, struct pstreame
 			ps->janus_streaming_id = janus_id;
 		}
 	}
+}
+
+void pstreamer_set_display_name(struct pstreamer *ps, const char * name)
+{
+	if (ps && name)
+	{
+		if (ps->display_name)
+			free(ps->display_name);
+		ps->display_name = strdup(name);
+	}
+}
+
+const char * pstreamer_get_display_name(const struct pstreamer * ps)
+{
+	if (ps)
+		return ps->display_name;
+	return NULL;
 }
