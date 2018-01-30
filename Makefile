@@ -35,7 +35,7 @@ Libs/GRAPES/src/libgrapes.a:
 Libs/pstreamer/src/libpstreamer.a:
 	git submodule init Libs/pstreamer/
 	git submodule update Libs/pstreamer/
-	make -C Libs/pstreamer/ 
+	GRAPES=$(PWD)/Libs/GRAPES make -C Libs/pstreamer/ 
 
 tests:
 	make -C Test/  # CFLAGS="$(CFLAGS)"
