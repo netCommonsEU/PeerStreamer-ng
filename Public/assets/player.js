@@ -172,7 +172,6 @@ function createJanus() {
 						});
 					},
 					destroyed: function() {
-						window.location.reload();
 					}
 				});
 	}});

@@ -45,7 +45,6 @@ function handleMessage(msg){
 			// The room has been destroyed
 			Janus.warn("The room has been destroyed!");
 			bootbox.alert("The room has been destroyed", function() {
-				window.location.reload();
 			});
 		}
 	}
@@ -153,7 +152,6 @@ function createJanus() {
 						});
 					},
 					destroyed: function() {
-						window.location.reload();
 					}
 				});
 	}});
