@@ -168,6 +168,37 @@ void pschannel_load_local_streams_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void pschannel_bucket_save2file_test()
+{
+	struct pschannel_bucket * psb = NULL;
+	const struct pschannel * ch;
+	int8_t res = 0;
+
+	res = pschannel_bucket_save2file(psb);
+	assert(res);
+
+	psb = pschannel_bucket_new(NULL, NULL);
+	res = pschannel_bucket_save2file(psb);
+	assert(res);
+	pschannel_bucket_destroy(&psb);
+
+	psb = pschannel_bucket_new("/tmp/channel_test_file.csv", NULL);
+	pschannel_bucket_insert(psb, "local_channel", "10.0.0.1", "8000", "1Mbps", "localhost/channel.sdp");
+	res = pschannel_bucket_save2file(psb);
+	assert(res == 0);
+	pschannel_bucket_destroy(&psb);
+
+	psb = pschannel_bucket_new("/tmp/channel_test_file_out.csv", NULL);
+	res = pschannel_bucket_loadfile(psb);
+	assert(res == 0);
+	ch = pschannel_bucket_find(psb, "10.0.0.1", "8000");
+	assert(ch);
+	assert(res == 0);
+	pschannel_bucket_destroy(&psb);
+
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 int main(int argv, char ** argc)
 {
 	pschannel_bucket_destroy_test();
@@ -176,5 +207,6 @@ int main(int argv, char ** argc)
 	pschannel_bucket_to_json_test();
 	pschannel_bucket_loadfile_test();
 	pschannel_load_local_streams_test();
+	pschannel_bucket_save2file_test();
 	return 0;
 }

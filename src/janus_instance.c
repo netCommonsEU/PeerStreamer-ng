@@ -523,7 +523,7 @@ int8_t janus_instance_create_videoroom(struct janus_instance const * janus, cons
 	struct mg_connection * conn;
 	int8_t res = -1;
 	char * uri;
-	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"room\":%s,\"publishers\":1,\"bitrate\":128000,\"record\":false,\"description\":\"Room %s\",\"fir_freq\":100,\"audiocodec\":\"opus\",\"videocodec\":\"vp8\"}}";
+	char * fmt = "{\"transaction\":\"random_str\",\"janus\":\"message\",\"body\":{\"request\":\"create\",\"room\":%s,\"publishers\":1,\"bitrate\":128000,\"record\":false,\"description\":\"Room %s\",\"fir_freq\":5,\"audiocodec\":\"opus\",\"videocodec\":\"vp8\"}}";
 
 	char buff[280];
 	void ** data;

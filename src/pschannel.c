@@ -190,6 +190,38 @@ int8_t pschannel_bucket_loadfile(struct pschannel_bucket * psb)
 	return res;
 }
 
+int8_t pschannel_bucket_save2file(struct pschannel_bucket * psb)
+{
+	int8_t res = -1;
+	FILE *fp;
+	char sdpfile_out[MAX_SDPFILENAME_LENGTH+4];
+	char ** tokens;
+	uint32_t ntoks;
+	const struct pschannel * iter = NULL;
+	
+	if (psb && psb->csvfile)
+	{
+		tokens = tokens_create(psb->csvfile, '.', &ntoks);
+		snprintf(sdpfile_out, MAX_SDPFILENAME_LENGTH, "%s_out.csv", tokens[0]);
+		tokens_destroy(&tokens, ntoks);
+
+		if ((fp = fopen(sdpfile_out, "w")))
+		{
+			if (ftrylockfile(fp) == 0)
+			{
+				debug("Dumping channel list to file\n");
+				for(iter = NULL; (iter = pschannel_bucket_iter(psb, iter));)
+					fprintf(fp, "%s,%s,%s,%s,%s\n", iter->name, iter->ipaddr, iter->port,
+							iter->quality, iter->sdpfile);
+				funlockfile(fp);
+				res = 0;
+			}
+			fclose(fp);
+		}
+	}
+	return res;
+}
+
 int8_t pschannel_bucket_load_local_streams(struct pschannel_bucket * pb)
 {
 	int8_t res = -1;
@@ -197,7 +229,7 @@ int8_t pschannel_bucket_load_local_streams(struct pschannel_bucket * pb)
 
 	if (pb && pb->psm)
 	{
-		while (ps = pstreamer_manager_source_iter(pb->psm, ps))
+		while ((ps = pstreamer_manager_source_iter(pb->psm, ps)))
 			if (pstreamer_get_display_name(ps))
 				pschannel_bucket_insert(pb, pstreamer_get_display_name(ps), pstreamer_source_ipaddr(ps), pstreamer_source_port(ps), "good", "nosdpfile");
 		res = 0;

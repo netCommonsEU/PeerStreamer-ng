@@ -65,8 +65,9 @@ uint8_t pschannel_populate_task_callback(struct periodic_task * pt, int ret, fd_
 	if (ret == 0)
 	{
 		pschannel_bucket_reset(pb);
-		pschannel_bucket_loadfile(pb);
 		pschannel_bucket_load_local_streams(pb);
+		pschannel_bucket_save2file(pb);
+		pschannel_bucket_loadfile(pb);
 	}
 	return 1;
 }

@@ -53,4 +53,6 @@ int8_t pschannel_bucket_load_local_streams(struct pschannel_bucket * pb);
 
 int8_t pschannel_bucket_reset(struct pschannel_bucket * psb);
 
+int8_t pschannel_bucket_save2file(struct pschannel_bucket * psb);
+
 #endif
