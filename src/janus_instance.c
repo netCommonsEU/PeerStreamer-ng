@@ -23,6 +23,7 @@
 #include<debug.h>
 #include<unistd.h>
 #include<tokens.h>
+#include<name_lengths.h>
 #include<grapes_config.h>
 #include <sys/prctl.h>  // for process sync
 
@@ -102,6 +103,7 @@ char * janus_instance_session_path(const struct janus_instance * janus)
 struct janus_instance * janus_instance_create(struct mg_mgr *mongoose_srv, struct task_manager *tm, const char *config)
 {
 	struct janus_instance * ji = NULL;
+	char * ptr = NULL;
 	struct tag* tags;
 
 	if (mongoose_srv && tm)
@@ -111,7 +113,10 @@ struct janus_instance * janus_instance_create(struct mg_mgr *mongoose_srv, struc
 		ji = malloc(sizeof(struct janus_instance));
 		ji->endpoint = strdup(grapes_config_value_str_default(tags, "janus_endpoint", "127.0.0.1:8088/janus"));
 		ji->executable = strdup(grapes_config_value_str_default(tags, "janus_executable", "Tools/janus/bin/janus"));
-		ji->conf_param = strdup(grapes_config_value_str_default(tags, "janus_param", "--configs-folder=Tools/janus_conf"));
+		ji->conf_param = strdup(grapes_config_value_str_default(tags, "janus_param", "--configs-folder:Tools/janus_conf"));
+		while ((ptr = strchr(ji->conf_param, ':')))
+			*ptr='=';
+
 		ji->logfile = strdup(grapes_config_value_str_default(tags, "janus_logfile", "janus.log"));
 		ji->janus_pid = INVALID_PID;
 		ji->management_session = 0;
@@ -599,6 +604,25 @@ int8_t janus_instance_forward_rtp(struct janus_instance const * janus, const cha
 			   debug("Aaargh, no connection!\n");	
 			free(uri);
 		}
+	}
+	return res;
+}
+
+const char * janus_instance_ipaddr(const struct janus_instance * janus)
+{
+	static char res[MAX_IPADDR_LENGTH];
+    char *ptr;
+	res[0] = '\0';
+
+	if (janus && janus->endpoint)
+	{
+		ptr = strchr(janus->endpoint, ':');
+		if (ptr)
+		{
+			strncpy(res, janus->endpoint, ptr - janus->endpoint);
+			res[janus->endpoint - ptr] = '\0';
+		} else
+			strncpy(res, janus->endpoint, MAX_IPADDR_LENGTH);
 	}
 	return res;
 }

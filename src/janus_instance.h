@@ -45,4 +45,6 @@ int8_t janus_instance_destroy_videoroom(struct janus_instance const * janus, con
 
 int8_t janus_instance_forward_rtp(struct janus_instance const * janus, const char * room_id, uint64_t participant_id, const char * rtp_ip, uint16_t audio_port, uint16_t video_port);
 
+const char * janus_instance_ipaddr(const struct janus_instance * janus);
+
 #endif

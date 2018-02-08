@@ -108,14 +108,40 @@ void janus_instance_create_streaming_point_test()
 	fprintf(stderr,"%s successfully passed!\n",__func__);
 }
 
+void janus_instance_ipaddr_test()
+{
+	struct janus_instance * janus = NULL;
+	struct task_manager * tm;
+	struct mg_mgr * srv;
+	const char *res;
+
+	res = janus_instance_ipaddr(janus);	
+	assert(strlen(res) == 0);
+
+	tm = task_manager_new();
+	srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
+	mg_mgr_init(srv, NULL);
+	janus = janus_instance_create(srv, tm, janus_conf);
+	res = janus_instance_ipaddr(janus);	
+	assert(strlen(res));
+	assert(strcmp(res, "127.0.0.1") == 0);
+
+	janus_instance_destroy(&janus);
+	task_manager_destroy(&tm);
+	mg_mgr_free(srv);
+	free(srv);
+	fprintf(stderr,"%s successfully passed!\n",__func__);
+}
+
 int main(int argv, char ** argc)
 {
 	char wdir[200];
 	strncpy(wdir, dirname(argc[0]), 200);
-	sprintf(janus_conf, "janus_executable=%s/../Tools/janus/bin/janus,janus_param=--configs-folder=%s/../Tools/janus_conf", wdir, wdir);
+	sprintf(janus_conf, "janus_executable=%s/../Tools/janus/bin/janus", wdir);
 
 	janus_instance_create_test();
 	janus_instance_launch_test();
 	janus_instance_create_streaming_point_test();
+	janus_instance_ipaddr_test();
 	return 0;
 }

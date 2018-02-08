@@ -14,9 +14,9 @@ all: $(LIBS) $(TARGET_SRC) $(TARGET_OBJS) $(OBJS) ../Tools/janus/bin/janus
 ../Tools/janus/bin/janus:
 	make -C ../ Tools/janus/bin/janus
 
-Libs/mongoose/mongoose.o:
-	git submodule init Libs/mongoose/
-	git submodule update Libs/mongoose/
+../Libs/mongoose/mongoose.o:
+	git submodule init ../Libs/mongoose/
+	git submodule update ../Libs/mongoose/
 	$(CC) -c -o ../Libs/mongoose/mongoose.o ../Libs/mongoose/mongoose.c $(CFLAGS) -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 
 ../Libs/GRAPES/src/libgrapes.a:

@@ -149,9 +149,9 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 	mg_get_http_var(&hm->body, "port", port, MAX_PORT_LENGTH);
 
 	id = mg_uri_field(hm, 1);
-	mg_conn_addr_to_str(nc, rtp_dst_ip, MAX_IPADDR_LENGTH, MG_SOCK_STRINGIFY_IP|MG_SOCK_STRINGIFY_REMOTE);
+	strncpy(rtp_dst_ip, janus_instance_ipaddr(c->janus), MAX_IPADDR_LENGTH);
 
-	info("POST request for resource %s from %s\n", id, rtp_dst_ip);
+	info("POST request for resource %s to %s\n", id, rtp_dst_ip);
 	ch = pschannel_bucket_find(c->pb, ipaddr, port);
 
 	if (ch)
@@ -229,14 +229,13 @@ void source_streamer_create(struct mg_connection *nc, struct http_message *hm)
 	char rtp_source_ip[MAX_IPADDR_LENGTH];
 	char * id;
 	const struct pstreamer * ps = NULL;
-	const struct pschannel * ch = NULL;
 
 	c = (const struct context *) nc->user_data;
 
 	id = mg_uri_field(hm, 1);
-	mg_conn_addr_to_str(nc, rtp_source_ip, MAX_IPADDR_LENGTH, MG_SOCK_STRINGIFY_IP);
+	mg_conn_addr_to_str(nc, rtp_source_ip, MAX_IPADDR_LENGTH, MG_SOCK_STRINGIFY_IP); // PeerStreamer-ng ipaddr, shared with the psistances
 
-	info("POST request for source resource %s from %s\n", id, rtp_source_ip);
+	info("POST request for source resource %s to %s\n", id, rtp_source_ip);
 
 	ps = pstreamer_manager_create_source_streamer(c->psm, id, rtp_source_ip, streamer_creation_callback_new(nc, c->pb, source_streamer_creation_handler)); 
 	if(ps)
