@@ -2,17 +2,19 @@ SRC=$(wildcard src/*.c)
 OBJS=$(SRC:.c=.o)
 
 EXE=peerstreamer-ng
+GRAPES=Libs/GRAPES
+NET_HELPER=Libs/pstreamer/Lib/net_helper
 
-CFLAGS+=-Isrc/ -ILibs/mongoose/ -ILibs/pstreamer/include -ILibs/GRAPES/include -LLibs/GRAPES/src  -LLibs/pstreamer/src 
+CFLAGS+=-Isrc/ -ILibs/mongoose/ -ILibs/pstreamer/include -I$(NET_HELPER)/include -I$(GRAPES)/include -L$(GRAPES)/src -L$(NET_HELPER)/  -LLibs/pstreamer/src 
 ifdef DEBUG
 CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0
 else
 CFLAGS+=-O6
 endif
 
-LIBS+=Libs/mongoose/mongoose.o Libs/GRAPES/src/libgrapes.a Libs/pstreamer/src/libpstreamer.a
+LIBS+=Libs/mongoose/mongoose.o $(GRAPES)/src/libgrapes.a Libs/pstreamer/src/libpstreamer.a
 MONGOOSE_OPTS+=-DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
-LDFLAGS+=-lpstreamer -lgrapes -lm
+LDFLAGS+=  -lpstreamer -lgrapes -lnethelper -lm
 
 all: $(EXE) Tools/janus/bin/janus
 
@@ -27,15 +29,15 @@ Libs/mongoose/mongoose.o:
 	git submodule update Libs/mongoose/
 	make -C Libs/mongoose/ CFLAGS="$(CFLAGS)" MONGOOSE_OPTS="$(MONGOOSE_OPTS)"
 
-Libs/GRAPES/src/libgrapes.a:
-	git submodule init Libs/GRAPES/
-	git submodule update Libs/GRAPES/
-	make -C Libs/GRAPES/ 
+$(GRAPES)/src/libgrapes.a:
+	git submodule init $(GRAPES)/
+	git submodule update $(GRAPES)/
+	make -C $(GRAPES)/ 
 
 Libs/pstreamer/src/libpstreamer.a:
 	git submodule init Libs/pstreamer/
 	git submodule update Libs/pstreamer/
-	make -C Libs/pstreamer/ 
+	NET_HELPER=$(PWD)/$(NET_HELPER) GRAPES=$(PWD)/$(GRAPES) make -C Libs/pstreamer/ 
 
 Tools/janus/bin/janus:
 	git submodule init Libs/janus-gateway/
@@ -45,7 +47,7 @@ Tools/janus/bin/janus:
 	make -C Libs/janus-gateway/ install
 
 tests:
-	make -C Test/  # CFLAGS="$(CFLAGS)"
+	NET_HELPER=$(PWD)/$(NET_HELPER) GRAPES=$(PWD)/$(GRAPES) make -C Test/  # CFLAGS="$(CFLAGS)"
 	Test/run_tests.sh
 
 clean:
@@ -53,7 +55,7 @@ clean:
 	rm -f *.o $(EXE) $(OBJS) $(LIBS)
 	make -C Test/ clean
 	make -C Libs/mongoose clean
-	make -C Libs/GRAPES clean
+	make -C $(GRAPES) clean
 	make -C Libs/pstreamer clean
 	make -C Libs/janus-gateway distclean
 
