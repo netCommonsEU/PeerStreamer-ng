@@ -56,7 +56,7 @@ clean:
 	make -C Test/ clean
 	make -C Libs/mongoose clean
 	make -C $(GRAPES) clean
-	make -C Libs/pstreamer clean
+	NET_HELPER=$(PWD)/$(NET_HELPER) make -C Libs/pstreamer clean
 	make -C Libs/janus-gateway distclean
 
 .PHONY: all clean
