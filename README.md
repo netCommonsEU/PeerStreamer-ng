@@ -1,6 +1,6 @@
 # PeerStreamer-ng
-PeerStreamer-ng [1] is P2P rel-time streaming platform.
-It is specifically design for mesh networks and it is meant to be purely decentralized.
+PeerStreamer-ng [1] is P2P real-time streaming platform.
+It is specifically designed for mesh networks and it is meant to be purely decentralized.
 
 ## Documentation
 You can find documentation on usage and development on the official wiki:
