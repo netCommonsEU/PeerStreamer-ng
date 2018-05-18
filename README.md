@@ -1,6 +1,6 @@
 # PeerStreamer-ng
-PeerStreamer-ng [1] is P2P rel-time streaming platform.
-It is specifically design for mesh networks and it is meant to be purely decentralized.
+PeerStreamer-ng [1] is P2P real-time streaming platform.
+It is specifically designed for mesh networks and it is meant to be purely decentralized.
 
 ## Documentation
 You can find documentation on usage and development on the official wiki:
@@ -9,9 +9,9 @@ https://ans.disi.unitn.it/redmine/projects/peerstreamer-ng/wiki
 ## Compilation
 You need to install [Janus dependencies](https://github.com/meetecho/janus-gateway), on ubuntu:
 ```
-sudo apt install libmicrohttpd-dev libjansson-dev libnice-dev 
-	libssl-dev libsrtp-dev libsofia-sip-ua-dev libglib2.0-dev 
-	libopus-dev libogg-dev libcurl4-openssl-dev pkg-config gengetopt 
+sudo apt install libmicrohttpd-dev libjansson-dev libnice-dev \
+	libssl-dev libsrtp-dev libsofia-sip-ua-dev libglib2.0-dev \
+	libopus-dev libogg-dev libcurl4-openssl-dev pkg-config gengetopt \
 	libtool automake
 ```
 

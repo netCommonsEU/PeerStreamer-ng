@@ -1,12 +1,12 @@
 [submodule "Libs/GRAPES"]
 	path = Libs/GRAPES
-	url = https://ans.disi.unitn.it/redmine/grapes.git
+	url = https://github.com/netCommonsEU/GRAPES.git
 [submodule "Libs/mongoose"]
 	path = Libs/mongoose
-	url = https://ans.disi.unitn.it/redmine/mongoose.git
+	url = https://github.com/netCommonsEU/mongoose.git
 [submodule "Libs/pstreamer"]
 	path = Libs/pstreamer
-	url = https://ans.disi.unitn.it/redmine/pstreamer.git
+	url = https://github.com/netCommonsEU/PeerStreamer-engine.git
 [submodule "Libs/janus-gateway"]
 	path = Libs/janus-gateway
-	url = https://ans.disi.unitn.it/redmine/janus-gateway.git
+	url = https://github.com/netCommonsEU/janus-gateway.git
