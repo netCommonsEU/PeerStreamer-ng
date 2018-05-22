@@ -197,9 +197,9 @@ void periodic_task_trigger(struct periodic_task * pt, int event, fd_set * read_s
 	{
 		if(pt->callback)
 			pt->callback(pt, event, read_set, write_set, err_set);
+		pt->time_to_expire = pt->to;
 		if(pt->reinit)
 			pt->reinit(pt);
-		pt->time_to_expire = pt->to;
 	}
 }
 
