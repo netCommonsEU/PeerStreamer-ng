@@ -47,8 +47,7 @@ void p2p_topology_test()
 	assert(ps2);
 	// fprintf(stderr, "PS2 (psample) sent something to 127.0.0.1:6001\n");
 
-	task_manager_new_task(tm, NULL, pstreamer_net_helper_task_callback, 100, ps2);
-	task_manager_new_task(tm, NULL, pstreamer_net_helper_task_callback, 100, ps2);
+	task_manager_new_task(tm, pstreamer_net_helper_task_reinit, NULL, 100, ps2);
 
 	task_manager_new_task(tm, pstreamer_msg_handling_task_reinit, pstreamer_msg_handling_task_callback, 100, ps2);
 	event = task_manager_poll(tm, 500);
