@@ -10,6 +10,7 @@ var myid;
 var myroom;
 var description;
 var opaqueId = "streamingtest-"+Janus.randomString(12);
+var video_type = 'lowres';  // options include: "hires", "screen", "stdres"
 var bitrate = 128000;
 
 $(document).ready(function() {
@@ -56,7 +57,7 @@ function publishOwnFeed(useAudio) {
 	janus_plugin.createOffer(
 		{
 			// Add data:true here if you want to publish datachannels as well
-			media: { audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true },	// Publishers are sendonly
+			media: { video: video_type, audioRecv: false, videoRecv: false, audioSend: useAudio, videoSend: true },	// Publishers are sendonly
 			// If you want to test simulcasting (Chrome and Firefox only), then
 			// pass a ?simulcast=true when opening this demo page: it will turn
 			// the following 'simulcast' property to pass to janus.js to true
@@ -200,6 +201,13 @@ function requestRoomCreation() {
 			var btn = document.getElementById("submit");
 			btn.onclick = function(){	
 				description = document.getElementById("description").value;
+				video_type = 'lowres';
+				startStreaming();
+			};
+			var btn = document.getElementById("submit-window");
+			btn.onclick = function(){	
+				description = document.getElementById("description").value;
+				video_type = 'window';
 				startStreaming();
 			};
 		}
