@@ -8,7 +8,7 @@ EXE=peerstreamer-ng
 GRAPES=$(current_dir)/Libs/GRAPES
 NET_HELPER=$(current_dir)/Libs/pstreamer/Lib/net_helper
 
-CFLAGS+=-I$(current_dir)/src/ -I$(current_dir)/Libs/mongoose/ -I$(current_dir)/Libs/pstreamer/include -I$(NET_HELPER)/include -I$(GRAPES)/include -L$(GRAPES)/src -L$(NET_HELPER)/  -L$(current_dir)/Libs/pstreamer/src 
+CFLAGS+=-I$(current_dir)/src/ -I$(current_dir)/Libs/mongoose/ -I$(current_dir)/Libs/pstreamer/include -I$(NET_HELPER)/include -I$(GRAPES)/include -L$(GRAPES)/src -L$(NET_HELPER)/  -L$(current_dir)/Libs/pstreamer/src  -DMG_ENABLE_SSL
 ifdef DEBUG
 CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0
 else
@@ -16,13 +16,13 @@ CFLAGS+=-O6
 endif
 
 LIBS+=$(current_dir)/Libs/mongoose/mongoose.o $(GRAPES)/src/libgrapes.a $(current_dir)/Libs/pstreamer/src/libpstreamer.a
-MONGOOSE_OPTS+=-DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
-LDFLAGS+=  -lpstreamer -lgrapes -lnethelper -lm
+MONGOOSE_OPTS+=-DMG_SSL_IF=MG_SSL_OPENSSL -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
+LDFLAGS+=  -lpstreamer -lgrapes -lnethelper -lm -lssl -lcrypto
 
 all: $(EXE) $(current_dir)/Tools/janus/bin/janus
 
 $(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
-	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) $(current_dir)/Libs/mongoose/mongoose.o $(CFLAGS) $(LDFLAGS)
+	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) $(current_dir)/Libs/mongoose/mongoose.o $(CFLAGS) $(MONGOOSE_OPTS) $(LDFLAGS)
 
 %.o: %.c 
 	$(CC) $< -o $@ -c $(CFLAGS) 

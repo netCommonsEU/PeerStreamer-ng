@@ -12,7 +12,7 @@ You need to install [Janus dependencies](https://github.com/meetecho/janus-gatew
 sudo apt install libmicrohttpd-dev libjansson-dev libnice-dev \
 	libssl-dev libsrtp-dev libsofia-sip-ua-dev libglib2.0-dev \
 	libopus-dev libogg-dev libcurl4-openssl-dev pkg-config gengetopt \
-	libtool automake
+	libtool automake libssl-dev
 ```
 
 After that, you can get the executable by running:

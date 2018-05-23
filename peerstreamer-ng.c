@@ -140,8 +140,13 @@ void init(struct context *c, int argc, char **argv)
 struct mg_mgr * launch_http_task(struct context *c)
 {
 	struct mg_connection *nc;
+	struct mg_bind_opts bind_opts;
+	
+	memset(&bind_opts, 0, sizeof(bind_opts));
+	bind_opts.ssl_cert = "Tools/janus/share/janus/certs/mycert.pem";
+	bind_opts.ssl_key = "Tools/janus/share/janus/certs/mycert.key";
+	nc = mg_bind_opt(c->mongoose_srv, c->http_port, ev_handler, bind_opts);
 
-	nc = mg_bind(c->mongoose_srv, c->http_port, ev_handler);
 	nc->user_data = c;
 	if (nc == NULL) {
 		fprintf(stderr, "Error starting server on port %s\n", c->http_port);

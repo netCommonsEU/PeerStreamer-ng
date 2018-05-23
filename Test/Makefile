@@ -8,7 +8,7 @@ GRAPES?=$(PWD)/../Libs/GRAPES
 NET_HELPER?=$(PWD)/../Libs/pstreamer/Lib/net_helper
 
 LIBS+=../Libs/mongoose/mongoose.o $(GRAPES)/src/libgrapes.a ../Libs/pstreamer/src/libpstreamer.a
-LDFLAGS+=-lpstreamer -lgrapes -lnethelper -lm
+LDFLAGS+=-lpstreamer -lgrapes -lnethelper -lm -lssl -lcrypto
 CFLAGS += -g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0 -I../Libs/mongoose/  -I../src -I../Libs/pstreamer/include -I$(GRAPES)/include -I$(NET_HELPER)/include
 CFLAGS+=-L$(GRAPES)/src  -L../Libs/pstreamer/src -L$(NET_HELPER)
 
@@ -20,7 +20,7 @@ all: $(LIBS) $(TARGET_SRC) $(TARGET_OBJS) $(OBJS) ../Tools/janus/bin/janus
 ../Libs/mongoose/mongoose.o:
 	git submodule init ../Libs/mongoose/
 	git submodule update ../Libs/mongoose/
-	$(CC) -c -o ../Libs/mongoose/mongoose.o ../Libs/mongoose/mongoose.c $(CFLAGS) -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
+	$(CC) -c -o ../Libs/mongoose/mongoose.o ../Libs/mongoose/mongoose.c $(CFLAGS) -DMG_ENABLE_SSL -DMG_SSL_IF=MG_SSL_IF_OPENSSL -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 
 $(GRAPES)/src/libgrapes.a:
 	git submodule init $(GRAPES)/
