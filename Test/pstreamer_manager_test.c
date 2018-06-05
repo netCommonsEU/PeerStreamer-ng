@@ -211,6 +211,8 @@ void pstreamer_source_iter_test()
 
 	psm = pstreamer_manager_new(6000, NULL);
 
+	pstreamer_manager_set_streamer_options(psm, "iface=lo");
+
 	// empty bucket
 	ps = NULL;
 	assert(pstreamer_manager_source_iter(psm, ps) == NULL);

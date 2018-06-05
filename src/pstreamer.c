@@ -346,9 +346,19 @@ int8_t pstreamer_manager_set_streamer_options(struct pstreamer_manager *psm, con
 
 const char * pstreamer_source_ipaddr(const struct pstreamer *ps)
 {
+	static char ip[MAX_IPADDR_LENGTH];
+	const char *res = NULL;
+
 	if (ps)
-		return ps->source_ip;
-	return NULL;
+	{
+		if (pstreamer_is_source(ps))
+		{
+			psinstance_ip_address(ps->psc, ip, MAX_IPADDR_LENGTH);
+			res = ip;
+		} else
+			res = ps->source_ip;
+	}
+	return res;
 }
 
 const char * pstreamer_source_port(const struct pstreamer *ps)
@@ -358,7 +368,7 @@ const char * pstreamer_source_port(const struct pstreamer *ps)
 	if (ps)
 	{
 		if (pstreamer_is_source(ps))
-			sprintf(buff, "%"PRId16"", ps->base_port);
+			sprintf(buff, "%"PRId16"", psinstance_port(ps->psc));
 		else
 			sprintf(buff, "%"PRId16"", ps->source_port);
 		return buff;
