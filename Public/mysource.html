@@ -51,11 +51,22 @@
 
 	<div class="row center-block">
 		<div class="row center-block">
-			<h2 id="player-title" class="text-center">&lt;Prova&gt;</h2>
+			<h2 id="player-title" class="text-center">&lt;Loading..&gt;</h2>
 		</div>
 		<div class="row text-center" id="creation_form">
-			<input type=text id="description" value="My Channel"/>
-			<input type=button id="submit" value="Create channel"/>
+			<div class="row text-center">
+				<input type=text id="description" value="My Channel"/>
+				<input type=button id="submit" value="Create channel"/>
+			</div>
+			<div class="row text-center">
+				<label for="radios">Quality: </label>
+				<form id="bitrate_radios">
+					<input type="radio" name="bitrate_radio" value="128000" checked> 128K
+					<input type="radio" name="bitrate_radio" value="256000"> 256K
+					<input type="radio" name="bitrate_radio" value="512000"> 512K
+					<input type="radio" name="bitrate_radio" value="1024000"> 1M
+				</form>
+			</div>
 		</div>
 		<div id="plugin" class="row text-center" >
 						<div class="panel-body" id="stream"></div>

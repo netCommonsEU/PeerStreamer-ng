@@ -10,6 +10,7 @@ var myid;
 var myroom;
 var description;
 var opaqueId = "streamingtest-"+Janus.randomString(12);
+var bitrate = 128000;
 
 $(document).ready(function() {
 	// Initialize the library (all console debuggers enabled)
@@ -158,7 +159,20 @@ function createJanus() {
 }
 
 function startStreaming() {
-	var register = { "request": "joinandconfigure", "bitrate": 128000, "room": myroom, "ptype": "publisher", "display": description, "id": myid };
+	var radios = document.getElementsByName('bitrate_radio');
+	var i=0;
+	while(i < radios.length)
+	{
+		if (radios[i].checked)
+		{
+			bitrate = Number(radios[i].value);
+			description = description + "@" + (bitrate/1000).toString() + "K";
+			i = radios.length;
+		}
+		i++;
+	}
+
+	var register = { "request": "joinandconfigure", "bitrate": bitrate, "room": myroom, "ptype": "publisher", "display": description, "id": myid };
 	janus_plugin.send({"message": register});
 
 	var xhttp = new XMLHttpRequest();
