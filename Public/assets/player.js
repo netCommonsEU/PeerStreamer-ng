@@ -19,6 +19,7 @@ $(document).ready(function() {
 
 function startStream(selectedStream) {
 	stopStream();
+	$('#remotevideo').remove();
 	Janus.log("Selected video id #" + selectedStream);
 	if(selectedStream === undefined || selectedStream === null) {
 		bootbox.alert("Select a stream from the list");
@@ -125,7 +126,7 @@ function createJanus() {
 										if(spinner !== null && spinner !== undefined)
 											spinner.stop();
 										spinner = null;
-										$('#waitingvideo').hide();
+										$('#waitingvideo').remove();
 										var videoTracks = stream.getVideoTracks();
 										if(videoTracks === null || videoTracks === undefined || videoTracks.length === 0)
 											return;
