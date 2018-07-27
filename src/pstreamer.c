@@ -288,6 +288,8 @@ const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_mana
 			ord_set_insert(psm->streamers, ps, 0);
 		} else
 		{
+			if (scc)
+				free(scc);
 			free(ps);
 			ps = NULL;
 		}
