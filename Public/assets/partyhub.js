@@ -8,6 +8,15 @@ else
 
 var local_nickname = "";
 var room_name = "";
+var channels = [];
+
+function id2nickname(id) {
+	return id.split(":")[0];
+}
+
+function id2roomname(id) {
+	return id.split(":")[1];
+}
 
 function join_room() 
 {
@@ -33,7 +42,9 @@ function init_room()
 		var janus_session = new Janus({
 			server: server,
 			success: function() {
-				janus_session.attach(publisher_obj)},
+				janus_session.attach(publisher_obj);
+				setInterval(fetch_channels, 3000);
+			},
 			error: generic_error,
 			destroyed: function () {}
 		});
@@ -83,7 +94,7 @@ publisher_obj = {
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {
 			if (this.readyState == 4 && this.status == 200) {
-				Janus.log("Streaming ");
+				Janus.debug("Streaming ");
 			}
 			if (this.readyState == 4 && this.status != 200) {
 				generic_error("An error occurred with the streaming process");
@@ -163,3 +174,261 @@ publisher_obj = {
 	},
 
 };
+
+function RemoteFeed(id, ipaddr, port) {
+	var streamer = null;
+
+	var janus_session = new Janus({
+		server: server,
+		success: function() {
+			streamer = new Streamer(id, ipaddr, port);
+			janus_session.attach(streamer)},
+		error: generic_error,
+		destroyed: function () {}
+	});
+
+	this.id = function () {
+		return streamer.id;
+	}
+
+	this.streamer = streamer;
+	
+	return this;
+};
+
+function RemoteObjs () {
+	var feeds = new Set();
+
+	this.add_streamer = function (id, ipaddr, port) {
+		Janus.debug("Adding streamer " + id);
+		obj = new RemoteFeed(id, ipaddr, port);
+		feeds.add(obj);
+	};
+
+	this.del_streamer = function(id) {
+		Janus.debug("Removing streamer " + id);
+		obj = this.get_streamer_by_id(id);
+		if (obj != null)
+		{
+			feeds.streamer.stop_stream();
+			feeds.delete(obj);
+		}
+	};
+
+	this.get_streamer_by_id = function(id) {
+		feeds.forEach(function(feed) {
+			if (feed.id() == id)
+			{
+				return feed.obj;
+			}
+		});
+		return null;
+	};
+
+	return this;
+};
+
+function Streamer(id, ipaddr, port) {
+	var id = id;
+	var plugin = "janus.plugin.streaming";
+	var opaqueID = Janus.randomString(12);
+	var handle = null;
+	var keep_alive_task = null;
+	var ipaddr = ipaddr;
+	var port = port;
+	var rfid = null;
+
+	this.plugin = plugin;
+	this.opaqueID = opaqueID;
+
+	this.success = function(plugin_handle) {
+		handle = plugin_handle;
+		Janus.log("Plugin attached");
+		stream = this;
+
+		var xhttp = new XMLHttpRequest();
+		xhttp.onreadystatechange = function() {
+			if (this.readyState == 4 && this.status == 200) {
+				var ch = JSON.parse(this.responseText);
+				stream.start_stream(ch);
+			}
+			if (this.readyState == 4 && this.status != 200) {
+				bootbox.alert("An error occurred with channel");
+				stream.stop_stream();
+			}
+		};
+		rfid = Math.random().toString(36).substr(2, 8);
+		xhttp.open("POST", "/channels/" + rfid, true);
+		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+		var params = "ipaddr=" + encodeURIComponent(ipaddr) + "&port=" + encodeURIComponent(port);
+		xhttp.send(params);
+	};
+
+	this.start_stream = function (ch) {
+		Janus.log("Starting stream...");
+		var body = { "request": "watch", id: parseInt(ch.janus_streaming_id) };
+		handle.send({"message": body});
+		var vids = document.getElementById("remote_vids");
+
+		var div = document.createElement("div");
+		div.classList.add("text-center");
+		var vid = document.createElement("video");
+		vid.id = id; 
+		vid.classList.add("rounded");
+		vid.classList.add("centered");
+		vid.autoplay = true;
+		var head = document.createElement("h3");
+		head.classList.add("row");
+		head.classList.add("text-center");
+		head.innerHTML = id2nickname(ch.name);
+
+		div.appendChild(head);
+		div.appendChild(vid);
+		vids.appendChild(div);
+
+		keep_alive_task = setInterval(this.keep_alive, 3000);
+	};
+
+	this.stop_stream = function () {
+		var body = { "request": "stop" };
+		if (handle) {
+			handle.send({"message": body});
+			handle.hangup();
+		}
+		if (keep_alive_task)
+			clearInterval(keep_alive_task);
+	},
+
+	this.error = function(error) {
+		generic_error(error);
+	};
+
+	this.onmessage = function(msg, jsep) {
+		Janus.debug(msg);
+		var evt = msg["result"];
+		switch (evt) 
+		{
+			case "starting":
+				Janus.debug("Streaming starting..");
+				break;
+			case "statred":
+				Janus.debug("Streaming started");
+				break;
+			case "stopped":
+				Janus.debug("Streaming stopped");
+				this.stop_stream();
+				break;
+		}
+		if (jsep !== undefined && jsep !== null)
+		{
+			Janus.debug("Handling SDP for streaming...");
+			handle.createAnswer( {
+				jsep: jsep,
+				media: { audioSend: false, videoSend: false },	// We want recvonly audio/video
+				success: function(jsep) {
+					Janus.debug("Got SDP!");
+					Janus.debug(jsep);
+					var body = { "request": "start" };
+					handle.send({"message": body, "jsep": jsep});
+				},
+				error: function(error) {
+					Janus.error("WebRTC error:", error);
+					bootbox.alert("WebRTC error... " + JSON.stringify(error));
+				}
+			});
+		}
+	};
+
+	this.onlocalstream = function(stream) {
+		// nothing to do
+	};
+	
+	this.onremotestream = function(stream) {
+		var videotag = document.getElementById(id);
+		/*
+		if (videotag.length > 0) {
+			var videoTracks = stream.getVideoTracks();
+			if (videoTracks && videoTracks.length > 0 && !videoTracks[0].muted)
+				videotag.show();
+			return;
+		}
+		*/
+		Janus.debug("::::WE GOT IT, " + id);
+		Janus.debug(stream);
+		Janus.attachMediaStream(videotag, stream);
+	};
+
+	this.oncleanup = function(stream) {
+		// nothing to do
+	};
+
+	this.destroyed = function(stream) {
+		// nothing to do
+	};
+	this.keep_alive = function() {
+		if (rfid)
+		{
+			var xhttp = new XMLHttpRequest();
+			xhttp.open("UPDATE", "/channels/" + rfid, true);
+			xhttp.send();
+		}
+	};
+};
+
+function update_channels(chs)
+{
+	var to_add = [];
+	var to_remove = [];
+
+	for (nch in chs) {
+		var found = false;
+		if (id2roomname(chs[nch].name) == room_name) {
+			for (och in channels) {
+				if (channels[och].name == chs[nch].name)
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				to_add.push(chs[nch]);
+		}
+	}
+	for (och in channels) {
+		var found = false;
+			if (id2roomname(channels[och].name) == room_name) {
+			for (nch in chs) {
+				if (channels[och].name == chs[nch].name)
+				{
+					found = true;
+					break;
+				}
+			}
+			if (!found)
+				to_remove.push(channels[och]);
+		}
+	}
+
+	for (ch in to_add)
+		remote_objs.add_streamer(to_add[ch].name, to_add[ch].ipaddr, to_add[ch].port);
+	for (ch in to_remove)
+		remote_objs.del_streamer(to_remove[ch].name);
+
+	channels = chs;
+}
+
+function fetch_channels()
+{
+	Janus.log("Fetching channels");
+	var xhttp = new XMLHttpRequest();
+	xhttp.onreadystatechange = function() {
+		if (this.readyState == 4 && this.status == 200) {
+			var channels = JSON.parse(this.responseText);
+			update_channels(channels);
+		}
+	};
+	xhttp.open("GET", "/channels", true);
+	xhttp.send();
+}
+
+remote_objs = new RemoteObjs();
