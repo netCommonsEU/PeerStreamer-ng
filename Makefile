@@ -1,63 +1,66 @@
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+current_dir := $(patsubst %/,%,$(dir $(mkfile_path)))
+
 SRC=$(wildcard src/*.c)
 OBJS=$(SRC:.c=.o)
 
 EXE=peerstreamer-ng
-GRAPES=Libs/GRAPES
-NET_HELPER=Libs/pstreamer/Lib/net_helper
+GRAPES=$(current_dir)/Libs/GRAPES
+NET_HELPER=$(current_dir)/Libs/pstreamer/Lib/net_helper
 
-CFLAGS+=-Isrc/ -ILibs/mongoose/ -ILibs/pstreamer/include -I$(NET_HELPER)/include -I$(GRAPES)/include -L$(GRAPES)/src -L$(NET_HELPER)/  -LLibs/pstreamer/src 
+CFLAGS+=-I$(current_dir)/src/ -I$(current_dir)/Libs/mongoose/ -I$(current_dir)/Libs/pstreamer/include -I$(NET_HELPER)/include -I$(GRAPES)/include -L$(GRAPES)/src -L$(NET_HELPER)/  -L$(current_dir)/Libs/pstreamer/src 
 ifdef DEBUG
 CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0
 else
 CFLAGS+=-O6
 endif
 
-LIBS+=Libs/mongoose/mongoose.o $(GRAPES)/src/libgrapes.a Libs/pstreamer/src/libpstreamer.a
+LIBS+=$(current_dir)/Libs/mongoose/mongoose.o $(GRAPES)/src/libgrapes.a $(current_dir)/Libs/pstreamer/src/libpstreamer.a
 MONGOOSE_OPTS+=-DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 LDFLAGS+=  -lpstreamer -lgrapes -lnethelper -lm
 
-all: $(EXE) Tools/janus/bin/janus
+all: $(EXE) $(current_dir)/Tools/janus/bin/janus
 
 $(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
-	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) Libs/mongoose/mongoose.o $(CFLAGS) $(LDFLAGS)
+	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) $(current_dir)/Libs/mongoose/mongoose.o $(CFLAGS) $(LDFLAGS)
 
 %.o: %.c 
 	$(CC) $< -o $@ -c $(CFLAGS) 
 
-Libs/mongoose/mongoose.o:
-	git submodule init Libs/mongoose/
-	git submodule update Libs/mongoose/
-	make -C Libs/mongoose/ CFLAGS="$(CFLAGS)" MONGOOSE_OPTS="$(MONGOOSE_OPTS)"
+$(current_dir)/Libs/mongoose/mongoose.o:
+	git submodule init $(current_dir)/Libs/mongoose/
+	git submodule update $(current_dir)/Libs/mongoose/
+	make -C $(current_dir)/Libs/mongoose/ CFLAGS="$(CFLAGS)" MONGOOSE_OPTS="$(MONGOOSE_OPTS)"
 
 $(GRAPES)/src/libgrapes.a:
 	git submodule init $(GRAPES)/
 	git submodule update $(GRAPES)/
 	make -C $(GRAPES)/ 
 
-Libs/pstreamer/src/libpstreamer.a:
-	git submodule init Libs/pstreamer/
-	git submodule update Libs/pstreamer/
-	NET_HELPER=$(PWD)/$(NET_HELPER) GRAPES=$(PWD)/$(GRAPES) make -C Libs/pstreamer/ 
+$(current_dir)/Libs/pstreamer/src/libpstreamer.a:
+	git submodule init $(current_dir)/Libs/pstreamer/
+	git submodule update $(current_dir)/Libs/pstreamer/
+	NET_HELPER=$(NET_HELPER) GRAPES=$(GRAPES) make -C $(current_dir)/Libs/pstreamer/ 
 
-Tools/janus/bin/janus:
-	git submodule init Libs/janus-gateway/
-	git submodule update Libs/janus-gateway/
-	cd $(PWD)/Libs/janus-gateway/ && ./autogen.sh
-	cd $(PWD)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(PWD)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(PWD)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(PWD)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-rest --disable-turn-rest-api --enable-static --prefix=$(PWD)/Tools/janus --enable-plugin-streaming --enable-plugin-videoroom #--enable-libsrtp2
+$(current_dir)/Tools/janus/bin/janus:
+	git submodule init $(current_dir)/Libs/janus-gateway/
+	git submodule update $(current_dir)/Libs/janus-gateway/
+	cd $(current_dir)/Libs/janus-gateway/ && ./autogen.sh
+	cd $(current_dir)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(current_dir)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(current_dir)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(current_dir)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-rest --disable-turn-rest-api --enable-static --prefix=$(current_dir)/Tools/janus --enable-plugin-streaming --enable-plugin-videoroom #--enable-libsrtp2
 	make -C Libs/janus-gateway/ install
 
 tests:
-	NET_HELPER=$(PWD)/$(NET_HELPER) GRAPES=$(PWD)/$(GRAPES) make -C Test/  # CFLAGS="$(CFLAGS)"
+	NET_HELPER=$(current_dir)/$(NET_HELPER) GRAPES=$(current_dir)/$(GRAPES) make -C Test/  # CFLAGS="$(CFLAGS)"
 	Test/run_tests.sh
 
 clean:
-	rm -rf Tools/janus
+	rm -rf $(current_dir)/Tools/janus
 	rm -f *.o $(EXE) $(OBJS) $(LIBS)
-	make -C Test/ clean
-	make -C Libs/mongoose clean
+	make -C $(current_dir)/Test/ clean
+	make -C $(current_dir)/Libs/mongoose clean
 	make -C $(GRAPES) clean
-	NET_HELPER=$(PWD)/$(NET_HELPER) make -C Libs/pstreamer clean
-	make -C Libs/janus-gateway distclean
+	NET_HELPER=$(NET_HELPER) make -C $(current_dir)/Libs/pstreamer clean
+	make -C $(current_dir)/Libs/janus-gateway distclean
 
 .PHONY: all clean
 
