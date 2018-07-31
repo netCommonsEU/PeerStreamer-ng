@@ -10,12 +10,25 @@ var local_nickname = "";
 var room_name = "";
 var channels = [];
 
+$(document).ready(function() {
+	var uri = new URL(window.location.href);
+	var c = uri.searchParams.get("room");
+
+	if (c)
+		document.getElementById('room_name').value = c;
+	
+});
+
 function id2nickname(id) {
 	return id.split(":")[0];
 }
 
 function id2roomname(id) {
 	return id.split(":")[1];
+}
+
+function id2containername(id) {
+	return id + "_div";
 }
 
 function join_room() 
@@ -28,6 +41,7 @@ function join_room()
 	{
 		create_form.style.display = "none";
 		document.getElementById('screenname').innerHTML = local_nickname;
+		document.getElementById('roomname').innerHTML = "Room " + room_name;
 		document.getElementById('vids').style.display = "block";
 		init_room();
 	}
@@ -191,7 +205,9 @@ function RemoteFeed(id, ipaddr, port) {
 		return streamer.id;
 	}
 
-	this.streamer = streamer;
+	this.streamer = function () {
+		return streamer;
+	}
 	
 	return this;
 };
@@ -210,19 +226,24 @@ function RemoteObjs () {
 		obj = this.get_streamer_by_id(id);
 		if (obj != null)
 		{
-			feeds.streamer.stop_stream();
+			obj.stop_stream();
 			feeds.delete(obj);
-		}
+			document.getElementById("remote_vids").removeChild(document.getElementById(id2containername(id)));
+		} else
+			bootbox.alert("Could not delete video of " + id2nickname(id));
 	};
 
 	this.get_streamer_by_id = function(id) {
-		feeds.forEach(function(feed) {
-			if (feed.id() == id)
+		var obj = null;
+		a = Array.from(feeds);
+		for (var feed in a) {
+			if (a[feed].id() == id)
 			{
-				return feed.obj;
+				obj = a[feed].streamer();
 			}
-		});
-		return null;
+		}
+
+		return obj;
 	};
 
 	return this;
@@ -240,6 +261,7 @@ function Streamer(id, ipaddr, port) {
 
 	this.plugin = plugin;
 	this.opaqueID = opaqueID;
+	this.id = id;
 
 	this.success = function(plugin_handle) {
 		handle = plugin_handle;
@@ -271,6 +293,7 @@ function Streamer(id, ipaddr, port) {
 		var vids = document.getElementById("remote_vids");
 
 		var div = document.createElement("div");
+		div.id = id2containername(ch.name); 
 		div.classList.add("text-center");
 		var vid = document.createElement("video");
 		vid.id = id; 
@@ -390,7 +413,7 @@ function update_channels(chs)
 					break;
 				}
 			}
-			if (!found)
+			if (!found && id2nickname(chs[nch].name) !== local_nickname)
 				to_add.push(chs[nch]);
 		}
 	}
