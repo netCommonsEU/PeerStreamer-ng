@@ -294,14 +294,17 @@ function Streamer(id, ipaddr, port) {
 
 		var div = document.createElement("div");
 		div.id = id2containername(ch.name); 
-		div.classList.add("text-center");
+		div.classList.add("panel");
+		div.classList.add("panel-success");
 		var vid = document.createElement("video");
 		vid.id = id; 
-		vid.classList.add("rounded");
-		vid.classList.add("centered");
+		vid.classList.add("embed-responsive-item");
+		vid.classList.add("panel-body");
 		vid.autoplay = true;
-		var head = document.createElement("h3");
-		head.classList.add("row");
+		vid.rounded = true;
+		vid.style.width = "100%";
+		var head = document.createElement("div");
+		head.classList.add("panel-heading");
 		head.classList.add("text-center");
 		head.innerHTML = id2nickname(ch.name);
 
@@ -368,14 +371,6 @@ function Streamer(id, ipaddr, port) {
 	
 	this.onremotestream = function(stream) {
 		var videotag = document.getElementById(id);
-		/*
-		if (videotag.length > 0) {
-			var videoTracks = stream.getVideoTracks();
-			if (videoTracks && videoTracks.length > 0 && !videoTracks[0].muted)
-				videotag.show();
-			return;
-		}
-		*/
 		Janus.debug("::::WE GOT IT, " + id);
 		Janus.debug(stream);
 		Janus.attachMediaStream(videotag, stream);
