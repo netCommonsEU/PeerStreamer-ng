@@ -296,13 +296,15 @@ function Streamer(id, ipaddr, port) {
 		div.id = id2containername(ch.name); 
 		div.classList.add("panel");
 		div.classList.add("panel-success");
+		div.style.display = "inline-block";
+		//div.style.width = "30%";
 		var vid = document.createElement("video");
 		vid.id = id; 
 		vid.classList.add("embed-responsive-item");
 		vid.classList.add("panel-body");
 		vid.autoplay = true;
 		vid.rounded = true;
-		vid.style.width = "100%";
+		vid.controls = true;
 		var head = document.createElement("div");
 		head.classList.add("panel-heading");
 		head.classList.add("text-center");
