@@ -41,7 +41,7 @@ function join_room()
 	{
 		create_form.style.display = "none";
 		document.getElementById('screenname').innerHTML = local_nickname;
-		document.getElementById('roomname').innerHTML = "Room " + room_name;
+		document.getElementById('roomname').innerHTML = "Room \"" + room_name + "\"";
 		document.getElementById('vids').style.display = "block";
 		init_room();
 	}
@@ -158,7 +158,8 @@ publisher_obj = {
 					publisher_obj.handle.send({"message": publish, "jsep": jsep});
 				},
 				error: function(error) {
-					generic_error("WebRTC error");
+					Janus.error("WebRTC error:", error);
+					// generic_error("WebRTC error");
 				},
 			});
 		Janus.debug("SDP offer sent");
@@ -228,7 +229,9 @@ function RemoteObjs () {
 		{
 			obj.stop_stream();
 			feeds.delete(obj);
-			document.getElementById("remote_vids").removeChild(document.getElementById(id2containername(id)));
+			let cont = document.getElementById(id2containername(id));
+			if (cont)
+				document.getElementById("remote_vids").removeChild(cont);
 		} else
 			bootbox.alert("Could not delete video of " + id2nickname(id));
 	};
@@ -296,8 +299,7 @@ function Streamer(id, ipaddr, port) {
 		div.id = id2containername(ch.name); 
 		div.classList.add("panel");
 		div.classList.add("panel-success");
-		div.style.display = "inline-block";
-		//div.style.width = "30%";
+		div.classList.add("remote-video");
 		var vid = document.createElement("video");
 		vid.id = id; 
 		vid.classList.add("embed-responsive-item");

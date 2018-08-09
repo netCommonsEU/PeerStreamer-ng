@@ -118,7 +118,7 @@ function createJanus() {
 										}
 										return;
 									}
-									$('#stream').append('<video class="rounded centered hide" id="remotevideo" width=320 height=240 autoplay/>');
+									$('#stream').append('<video class="rounded centered hide" id="remotevideo" autoplay controls/>');
 									// Show the stream and hide the spinner when we get a playing event
 									$("#remotevideo").bind("playing", function () {
 										if(this.videoWidth)

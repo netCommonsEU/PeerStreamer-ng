@@ -9,12 +9,14 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="/assets/partyhub.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/5.0.1/adapter.min.js" ></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.1.0/bootbox.min.js"></script>
 <script src="/assets/janus.js"></script> 
 <script src="/assets/partyhub.js"></script> 
 
 </head>
+<body>
 	<div id=main-container class=container-fluid>
 		<div class="page-header text-center">
 			<h1>PeerStreamer-ng</h1>
@@ -22,7 +24,7 @@
 		</div>
 
 	
-		<nav class="navbar navbar-inverse " role="navigation">
+		<nav class="navbar navbar-inverse " role="navigation" >
 			
 			<div class = "navbar-header">
 				<button type = "button" class = "navbar-toggle" 
@@ -39,7 +41,7 @@
 					<li><a href="/player.html">Player</a></li>
 					<li><a href="/mysource.html">My Source</a></li>
 					<li class="active"><a href="/partyhub.html">PartyHub</a></li>
-					<li><a href="#">About</a></li>
+					<li><a href="/about.html">About</a></li>
 				</ul>
 			</div>
 		</nav>
@@ -68,16 +70,16 @@
 				</form>
 			</div>
 		</div>
-		<div id="vids" class="row center-block" style="display:none">
-			<h2 id="roomname" class="row text-center alert alert-info"></h2>
+		<div id="vids" class="row center-block">
+			<h3 id="roomname" class="row text-center alert alert-info" ></h3>
 			<div class="row panel-group text-center">
-				<div id="remote_vids" class="" style="display: inline-block;margin: 0 auto;"></div>
+				<div id="remote_vids" class="" ></div>
 			</div>
 
 			<div id="local_vid" class="row panel-group col-md-4 col-md-offset-4">
-				<div class="panel panel-primary ">
+				<div class="panel panel-primary text-center" >
 							<div id="screenname" class="panel-heading text-center"></div>
-							<video width=100% class="panel-body embed-responsive-item rounded centered" id="myvideo" muted autoplay />
+							<video height=200px class="panel-body embed-responsive-item rounded centered" id="myvideo" muted autoplay />
 				</div>
 			</div>
 		</div>

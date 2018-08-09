@@ -37,14 +37,16 @@ function update_channels(chs)
 		list.removeChild(list.firstChild);
 	}
 	for (el in chs) {
-		var node = document.createElement("LI");
-		node.className="list-group-item btn btn-default";
-		var textnode = document.createTextNode(chs[el].name);
-		node.appendChild(textnode);
-		list.appendChild(node);
-		(function (ch) {
-		node.onclick = function(e){request_channel(ch);};
-		})(chs[el]);
+		if (chs[el].name.split(":").length == 1) { // filtering the partyhub streamings
+			var node = document.createElement("LI");
+			node.className="list-group-item btn btn-default";
+			var textnode = document.createTextNode(chs[el].name);
+			node.appendChild(textnode);
+			list.appendChild(node);
+			(function (ch) {
+			node.onclick = function(e){request_channel(ch);};
+			})(chs[el]);
+		}
 	}
 }
 

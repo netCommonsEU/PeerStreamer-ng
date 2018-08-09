@@ -20,59 +20,58 @@
 
 </head>
 <body>
-	<div id=main-container class=container>
-		<div class=jumbotron>
+	<div id=main-container class=container-fluid>
+		<div class="page-header text-center">
 			<h1>PeerStreamer-ng</h1>
 			Your friendly-neighborhood streaming platform
 		</div>
-	</div>
 
 	
-	<nav class="navbar navbar-default ">
-		<div class="container-fluid">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
+		<nav class="navbar navbar-inverse " role="navigation" >
+			
+			<div class = "navbar-header">
+				<button type = "button" class = "navbar-toggle" 
+					data-toggle = "collapse" data-target = "#navbar">
+					<span class = "sr-only">Toggle navigation</span>
+					<span class = "icon-bar"></span>
+					<span class = "icon-bar"></span>
+					<span class = "icon-bar"></span>
 				</button>
+				<!-- <a class = "navbar-brand" href = "#">PeerStreamer-ng</a> -->
 			</div>
-			<div id="navbar" class="navbar-collapse collapse">
+			<div id="navbar" class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<li><a href="/player.html">Player</a></li>
-					<li class="active"><a href="/mysource.html">My Source</a></li>
+					<li><a href="/mysource.html">My Source</a></li>
 					<li><a href="/partyhub.html">PartyHub</a></li>
-					<li><a href="#">About</a></li>
+					<li class="active"><a href="/about.html">About</a></li>
 				</ul>
-			</div><!--/.nav-collapse -->
-		</div><!--/.container-fluid -->
-	</nav>
-
-
-	<div class="row center-block">
+			</div>
+		</nav>
 		<div class="row center-block">
-			<h2 id="player-title" class="text-center">&lt;Loading..&gt;</h2>
-		</div>
-		<div class="row text-center" id="creation_form">
-			<div class="row text-center">
-				<input type=text id="description" value="My Channel"/>
-				<input type=button id="submit" value="Create channel"/>
+			<div class="row center-block">
+				<h2 id="player-title" class="text-center">&lt;Loading..&gt;</h2>
 			</div>
-			<div class="row text-center">
-				<label for="radios">Quality: </label>
-				<form id="bitrate_radios">
-					<input type="radio" name="bitrate_radio" value="128000" checked> 128K
-					<input type="radio" name="bitrate_radio" value="256000"> 256K
-					<input type="radio" name="bitrate_radio" value="512000"> 512K
-					<input type="radio" name="bitrate_radio" value="1024000"> 1M
-				</form>
+			<div class="row text-center" id="creation_form">
+				<div class="row text-center">
+					<input type=text id="description" value="My Channel"/>
+					<input type=button id="submit" value="Create channel"/>
+				</div>
+				<div class="row text-center">
+					<label for="radios">Quality: </label>
+					<form id="bitrate_radios">
+						<input type="radio" name="bitrate_radio" value="128000" checked> 128K
+						<input type="radio" name="bitrate_radio" value="256000"> 256K
+						<input type="radio" name="bitrate_radio" value="512000"> 512K
+						<input type="radio" name="bitrate_radio" value="1024000"> 1M
+					</form>
+				</div>
 			</div>
-		</div>
-		<div id="plugin" class="row text-center" >
-						<div class="panel-body" id="stream"></div>
-						<video class="rounded centered" id="myvideo" width="400" height="300" autoplay />
-						<span id="status"></span>
+			<div id="plugin" class="row text-center" >
+							<div class="panel-body" id="stream"></div>
+							<video class="rounded centered" id="myvideo" width="400" height="300" autoplay />
+							<span id="status"></span>
+			</div>
 		</div>
 	</div>
 </body>
