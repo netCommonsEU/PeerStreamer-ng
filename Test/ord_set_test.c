@@ -183,9 +183,7 @@ void ord_set_remove_test()
 	assert(res == 0);
 
 	iter = ord_set_iter(os, iter);
-	assert(iter = &e2);
-	iter = ord_set_iter(os, iter);
-	assert(iter = &e3);
+	assert(iter == &e3);
 	iter = ord_set_iter(os, iter);
 	assert(iter == NULL);
 

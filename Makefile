@@ -50,7 +50,7 @@ $(current_dir)/Tools/janus/bin/janus:
 	make -C Libs/janus-gateway/ install
 
 tests:
-	NET_HELPER=$(current_dir)/$(NET_HELPER) GRAPES=$(current_dir)/$(GRAPES) make -C Test/  # CFLAGS="$(CFLAGS)"
+	NET_HELPER=$(NET_HELPER) GRAPES=$(GRAPES) make -C Test/  # CFLAGS="$(CFLAGS)"
 	Test/run_tests.sh
 
 clean:
