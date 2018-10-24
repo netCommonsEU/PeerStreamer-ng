@@ -38,11 +38,25 @@ void sig_exit(int signo)
 	running = 0;
 }
 
+void show_help()
+{
+	fprintf(stdout, "This is PeerStreamer-ng, a P2P live streaming platform\n");
+	fprintf(stdout, "Options:\n");
+	fprintf(stdout, "\t-p <http_port>:\t\tport number of the ReST HTTP server\n");
+	fprintf(stdout, "\t-s <csv_key_values>:\tcomma separated key=value string for advanced configuration\n");
+	fprintf(stdout, "\t-c <csv_channel_file>:\tfile with available remote channels\n");
+	fprintf(stdout, "\t-v:\t\t\tverbose output\n");
+	fprintf(stdout, "\t-q:\t\t\tquiet output\n");
+	fprintf(stdout, "\t-h:\t\t\tshows this help\n");
+	fprintf(stdout, "\n");
+
+}
+
 void parse_args(struct context *c, int argc, char *const* argv)
 {
 	int o;
 
-	while ((o = getopt (argc, argv, "vqp:c:s:")) != -1)
+	while ((o = getopt (argc, argv, "hvqp:c:s:")) != -1)
 		switch (o) {
 			case 'p':
 				strncpy(c->http_port, optarg, 16);
@@ -51,13 +65,17 @@ void parse_args(struct context *c, int argc, char *const* argv)
 				c->csvfile = strdup(optarg);
 				break;
 			case 's':
-				c->streamer_opts = strdup(optarg);
+				c->config_string = strdup(optarg);
 				break;
 			case 'q':
 				set_debug(0);
 				break;
 			case 'v':
 				set_debug(2);
+				break;
+			case 'h':
+				show_help();
+				running = 0;
 				break;
 		}
 }
@@ -117,24 +135,27 @@ void init(struct context *c, int argc, char **argv)
 	c->http_opts.document_root = "Public/";
 	c->http_opts.index_files = "index.html,player.html";
 	c->csvfile = NULL;
-	c->streamer_opts = NULL;
+	c->config_string = NULL;
 	set_debug(1);
-
-	c->router = router_create(10);
-	load_path_handlers(c->router);
-	c->tm = task_manager_new();
-
-	c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
-	mg_mgr_init(c->mongoose_srv, c);
-
-	c->janus = janus_instance_create(c->mongoose_srv, c->tm, NULL);
-	janus_instance_launch(c->janus);
-	c->psm = pstreamer_manager_new(6001, c->janus);
-
 	parse_args(c, argc, argv);
-	pstreamer_manager_set_streamer_options(c->psm, c->streamer_opts);
-	c->pb = pschannel_bucket_new(c->csvfile, c->psm);
-	pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
+
+	if (running)
+	{
+		c->router = router_create(10);
+		load_path_handlers(c->router);
+		c->tm = task_manager_new();
+
+		c->mongoose_srv = (struct mg_mgr*) malloc(sizeof(struct mg_mgr));
+		mg_mgr_init(c->mongoose_srv, c);
+
+		c->janus = janus_instance_create(c->mongoose_srv, c->tm, c->config_string);
+		janus_instance_launch(c->janus);
+		c->psm = pstreamer_manager_new(6001, c->janus);
+
+		pstreamer_manager_set_streamer_options(c->psm, c->config_string);
+		c->pb = pschannel_bucket_new(c->csvfile, c->psm);
+		pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
+	}
 }
 
 struct mg_mgr * launch_http_task(struct context *c)
@@ -157,8 +178,8 @@ void context_deinit(struct context *c)
 {
 	if (c->csvfile)
 		free(c->csvfile);
-	if (c->streamer_opts)
-		free(c->streamer_opts);
+	if (c->config_string)
+		free(c->config_string);
 	router_destroy(&(c->router));
 	pstreamer_manager_destroy(&(c->psm));  // this must be destroyed before task managers!
 	sleep(1); //  let janus get the http notications for interrupting streaming sessions
@@ -166,7 +187,8 @@ void context_deinit(struct context *c)
 	task_manager_destroy(&(c->tm));
 	pschannel_bucket_destroy(&(c->pb));
 	mg_mgr_free(c->mongoose_srv);
-	free(c->mongoose_srv);
+	if(c->mongoose_srv)
+		free(c->mongoose_srv);
 }
 
 int main(int argc, char** argv)
@@ -175,13 +197,15 @@ int main(int argc, char** argv)
 
 	init(&c, argc, argv);
 
-
-	info("Starting server on port %s\n", c.http_port);
-	launch_http_task(&c);
-	task_manager_new_task(c.tm, NULL, pschannel_populate_task_callback, 1000, (void *) c.pb);
-	task_manager_new_task(c.tm, NULL, pstreamer_purge_task_callback, 5000, (void *) c.psm);
-	while (running)
-		task_manager_poll(c.tm, 1000);
+	if (running)
+	{
+		info("Starting server on port %s\n", c.http_port);
+		launch_http_task(&c);
+		task_manager_new_task(c.tm, NULL, pschannel_populate_task_callback, 1000, (void *) c.pb);
+		task_manager_new_task(c.tm, NULL, pstreamer_purge_task_callback, 5000, (void *) c.psm);
+		while (running)
+			task_manager_poll(c.tm, 1000);
+	}
 
 	info("\nExiting..\n");
 	context_deinit(&c);

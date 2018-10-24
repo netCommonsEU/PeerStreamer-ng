@@ -17,7 +17,7 @@ struct context{
 	struct pstreamer_manager * psm;
 	struct janus_instance * janus;
 	char * csvfile;
-	char * streamer_opts;
+	char * config_string;
 };
 
 #endif

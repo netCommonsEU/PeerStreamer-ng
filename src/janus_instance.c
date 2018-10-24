@@ -337,7 +337,7 @@ int8_t janus_instance_launch(struct janus_instance * ji)
 
 	if (ji && ji->janus_pid == INVALID_PID)
 	{
-		info("%s - %s\n", ji->executable, ji->conf_param);
+		debug("%s - %s\n", ji->executable, ji->conf_param);
 		res = stat(ji->executable, &s);
 		// check exe existence
 		if (res == 0 && S_ISREG(s.st_mode))
