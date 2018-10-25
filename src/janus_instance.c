@@ -395,7 +395,6 @@ void janus_instance_streaming_point_handler(struct mg_connection *nc, int ev, vo
 		case MG_EV_CONNECT:
 			if (*(int *) ev_data != 0)
 				debug("Janus communication failure\n");
-				debug("Ora triggero!\n");
 			break;
 		case MG_EV_HTTP_REPLY:
 			switch (hm->resp_code) {
@@ -513,10 +512,7 @@ int8_t janus_instance_destroy_streaming_point(struct janus_instance const * janu
 			sprintf(buff, fmt, mp_id);
 			conn = mg_connect_http(janus->mongoose_srv, janus_instance_generic_handler, uri, NULL, buff);
 			if (conn)
-			{
-				conn->user_data = (void *) mp_id;
 				res = 0;
-			} 
 			free(uri);
 		}
 	}
@@ -571,10 +567,7 @@ int8_t janus_instance_destroy_videoroom(struct janus_instance const * janus, con
 			sprintf(buff, fmt, room_id);
 			conn = mg_connect_http(janus->mongoose_srv, janus_instance_generic_handler, uri, NULL, buff);
 			if (conn)
-			{
-				conn->user_data = (void *) room_id;
 				res = 0;
-			} 
 			free(uri);
 		}
 	}
