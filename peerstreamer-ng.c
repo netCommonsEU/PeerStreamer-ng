@@ -45,6 +45,7 @@ void show_help()
 	fprintf(stdout, "\t-p <http_port>:\t\tport number of the ReST HTTP server\n");
 	fprintf(stdout, "\t-s <csv_key_values>:\tcomma separated key=value string for advanced configuration\n");
 	fprintf(stdout, "\t-c <csv_channel_file>:\tfile with available remote channels\n");
+	fprintf(stdout, "\t-f <http_folder>:\tfolder for HTTP accessible files\n");
 	fprintf(stdout, "\t-v:\t\t\tverbose output\n");
 	fprintf(stdout, "\t-q:\t\t\tquiet output\n");
 	fprintf(stdout, "\t-h:\t\t\tshows this help\n");
@@ -56,8 +57,12 @@ void parse_args(struct context *c, int argc, char *const* argv)
 {
 	int o;
 
-	while ((o = getopt (argc, argv, "hvqp:c:s:")) != -1)
+	while ((o = getopt (argc, argv, "hvqp:c:s:f:")) != -1)
 		switch (o) {
+			case 'f':
+				free((char *)c->http_opts.document_root);
+				c->http_opts.document_root = strdup(optarg);
+				break;
 			case 'p':
 				strncpy(c->http_port, optarg, 16);
 				break;
@@ -132,7 +137,7 @@ void init(struct context *c, int argc, char **argv)
 	signal(SIGINT, sig_exit);
 
 	c->http_opts.enable_directory_listing = "no";
-	c->http_opts.document_root = "Public/";
+	c->http_opts.document_root = strdup("Public/");
 	c->http_opts.index_files = "index.html,player.html";
 	c->csvfile = NULL;
 	c->config_string = NULL;
@@ -189,6 +194,7 @@ void context_deinit(struct context *c)
 	mg_mgr_free(c->mongoose_srv);
 	if(c->mongoose_srv)
 		free(c->mongoose_srv);
+	free((char*)c->http_opts.document_root);
 }
 
 int main(int argc, char** argv)
