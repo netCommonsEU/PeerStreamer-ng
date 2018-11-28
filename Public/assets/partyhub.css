@@ -3,7 +3,7 @@
 }
 
 .remote-video video {
-	height: 500px;
+	width: 100%;
 }
 
 .navbar {
@@ -28,4 +28,8 @@
 #remote_vids {
 	display: inline-block;
 	margin: 0 auto;
+}
+
+.checkboxes {
+       width: auto;
 }

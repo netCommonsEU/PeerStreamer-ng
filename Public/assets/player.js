@@ -155,7 +155,7 @@ function createJanus() {
 										$('#stream').append(
 											'<div id="novideo" class="no-video-container">' +
 												'<i class="fa fa-video-camera fa-5 no-video-icon"></i>' +
-												'<span class="no-video-text">Loading video</span>' +
+												'<span class="no-video-text">Loading media</span>' +
 											'</div>');
 									}
 								},

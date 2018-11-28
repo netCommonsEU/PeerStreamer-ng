@@ -150,7 +150,7 @@ publisher_obj = {
 		Janus.debug("Creating SDP offer");
 		publisher_obj.handle.createOffer(
 			{
-				media: { audioRecv: false, videoRecv: false, audioSend: true, videoSend: true },
+				media: { audioRecv: false, videoRecv: false, audioSend: true, videoSend: document.getElementById("videoactive").checked },
 				simulcast: false,
 				success: function(jsep) {
 					Janus.debug("Got publisher SDP");

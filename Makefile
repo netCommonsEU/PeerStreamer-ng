@@ -8,7 +8,7 @@ EXE=peerstreamer-ng
 GRAPES=$(current_dir)/Libs/GRAPES
 NET_HELPER=$(current_dir)/Libs/pstreamer/Lib/net_helper
 
-CFLAGS+=-I$(current_dir)/src/ -I$(current_dir)/Libs/mongoose/ -I$(current_dir)/Libs/pstreamer/include -I$(NET_HELPER)/include -I$(GRAPES)/include -L$(GRAPES)/src -L$(NET_HELPER)/  -L$(current_dir)/Libs/pstreamer/src 
+LIB_CFLAGS+=-I$(current_dir)/src/ -I$(current_dir)/Libs/mongoose/ -I$(current_dir)/Libs/pstreamer/include -I$(NET_HELPER)/include -I$(GRAPES)/include -L$(GRAPES)/src -L$(NET_HELPER)/  -L$(current_dir)/Libs/pstreamer/src 
 ifdef DEBUG
 CFLAGS+=-g -W -Wall -Wno-unused-function -Wno-unused-parameter -O0
 else
@@ -22,10 +22,10 @@ LDFLAGS+=  -lpstreamer -lgrapes -lnethelper -lm
 all: $(EXE) $(current_dir)/Tools/janus/bin/janus
 
 $(EXE): $(LIBS) $(OBJS) peerstreamer-ng.c
-	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) $(current_dir)/Libs/mongoose/mongoose.o $(CFLAGS) $(LDFLAGS)
+	$(CC) -o peerstreamer-ng  peerstreamer-ng.c $(OBJS) $(current_dir)/Libs/mongoose/mongoose.o $(CFLAGS) $(LIB_CFLAGS) $(LDFLAGS)
 
 %.o: %.c 
-	$(CC) $< -o $@ -c $(CFLAGS) 
+	$(CC) $< -o $@ -c $(LIB_CFLAGS) $(CFLAGS) 
 
 $(current_dir)/Libs/mongoose/mongoose.o:
 	git submodule init $(current_dir)/Libs/mongoose/
