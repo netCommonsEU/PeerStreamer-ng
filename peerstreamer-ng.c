@@ -126,6 +126,9 @@ void ev_handler(struct mg_connection *nc, int ev, void *ev_data)
 			if(router_handle(c->router, nc, hm))
 				mg_serve_http(nc, hm, c->http_opts);
 			break;
+		case MG_EV_CLOSE:
+			nc->flags |= CONNECTION_CLOSED;
+			break;
 		default:
 			break;
 	}
@@ -159,7 +162,7 @@ void init(struct context *c, int argc, char **argv)
 
 		pstreamer_manager_set_streamer_options(c->psm, c->config_string);
 		c->pb = pschannel_bucket_new(c->csvfile, c->psm);
-		pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
+		// pschannel_bucket_insert(c->pb, "local_channel", "127.0.0.1", "6000", "300kbps", "127.0.0.1:3000/lchannel.sdp");
 	}
 }
 

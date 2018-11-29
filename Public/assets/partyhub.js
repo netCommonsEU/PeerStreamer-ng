@@ -103,7 +103,7 @@ publisher_obj = {
 	},
 
 	start_streaming: function () {
-		var register = { "request": "joinandconfigure", "bitrate": 128000, "room": publisher_obj.room_id, "ptype": "publisher", "display": local_nickname, "id": publisher_obj.publisher_id };
+		var register = { "request": "joinandconfigure", "bitrate": 64000, "room": publisher_obj.room_id, "ptype": "publisher", "display": local_nickname, "id": publisher_obj.publisher_id };
 		publisher_obj.handle.send({"message": register});
 		var xhttp = new XMLHttpRequest();
 		xhttp.onreadystatechange = function() {

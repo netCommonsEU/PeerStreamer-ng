@@ -54,13 +54,15 @@ tests:
 	Test/run_tests.sh
 
 clean:
-	rm -rf $(current_dir)/Tools/janus
 	rm -f *.o $(EXE) $(OBJS) $(LIBS)
 	make -C $(current_dir)/Test/ clean
-	make -C $(current_dir)/Libs/mongoose clean
 	make -C $(GRAPES) clean
 	NET_HELPER=$(NET_HELPER) make -C $(current_dir)/Libs/pstreamer clean
+
+distclean: clean
+	make -C $(current_dir)/Libs/mongoose clean
+	rm -rf $(current_dir)/Tools/janus
 	make -C $(current_dir)/Libs/janus-gateway distclean
 
-.PHONY: all clean
+.PHONY: all clean distclean
 

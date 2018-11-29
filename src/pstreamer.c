@@ -289,7 +289,7 @@ const struct pstreamer * pstreamer_manager_create_streamer(struct pstreamer_mana
 		} else
 		{
 			if (scc)
-				free(scc);
+				streamer_creation_callback_destroy(&scc);
 			free(ps);
 			ps = NULL;
 		}
@@ -455,11 +455,16 @@ const struct pstreamer * pstreamer_manager_create_source_streamer(struct pstream
 			}
 			else
 				if (scc)
+				{
 					streamer_creation_callback_trigger(scc, 0);
+					streamer_creation_callback_destroy(&scc);
+				}
 			pstreamer_init(ps, ps->source_ip, STREAMER_SOURCE_CONF, psm->streamer_opts);
 			ord_set_insert(psm->streamers, ps, 0);
 		} else
 		{
+			if(scc)
+				streamer_creation_callback_destroy(&scc);
 			free(ps);
 			ps = NULL;
 		}

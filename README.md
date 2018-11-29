@@ -32,6 +32,13 @@ In the "test" folder are stored the test files. To run them and check code consi
 $> make tests
 ``
 
+Besides implementation test suite, it is also possible to test against the HTTP interface.
+``
+$> DEBUG=1 make
+$> valgrind --leak-check=full ./peerstreamer-ng
+$> Test/http_test.sh
+``
+
 ## Tutorial: Stream a web camera with WebRTC
 _Tested on Ubuntu 17.10_
 

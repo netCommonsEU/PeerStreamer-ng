@@ -24,6 +24,7 @@ struct streamer_creation_callback {
 	const struct pstreamer * ps;
 	const struct pschannel_bucket * psb;
 	struct mg_connection *nc;
+	struct mg_mgr *mgr;
 };
 
 int8_t streamer_creation_set_pstreamer_ref(struct streamer_creation_callback * scc, const struct pstreamer *ps)
@@ -31,6 +32,7 @@ int8_t streamer_creation_set_pstreamer_ref(struct streamer_creation_callback * s
 	if (scc && ps)
 	{
 		scc->ps = ps;
+		// scc->nc->user_data = (void *)ps;
 		return 0;
 	}
 	return -1;
@@ -46,6 +48,7 @@ struct streamer_creation_callback * streamer_creation_callback_new(struct mg_con
 		scc->ps = NULL;
 		scc->callback = handler;
 		scc->nc = nc;
+		scc->mgr = nc->mgr;
 		scc->psb = psb;
 	}
 	return scc;
@@ -54,8 +57,16 @@ struct streamer_creation_callback * streamer_creation_callback_new(struct mg_con
 int8_t streamer_creation_callback_trigger(struct streamer_creation_callback * scc, int8_t ret)
 {
 	int8_t res = -1;
+	struct mg_connection *nc;
 	if (scc)
-		res = scc->callback(scc->nc, scc->psb, scc->ps, ret);
+	{
+		// we now look for the correct connection as the one we have might have
+		// died in the meantime
+		nc = scc->mgr->active_connections;
+		while (nc && nc != scc->nc && nc->next)
+			nc = nc->next;
+		res = scc->callback(nc == scc->nc ? nc : NULL, scc->psb, scc->ps, ret);
+	}
 	return res;
 }
 

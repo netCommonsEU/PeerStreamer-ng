@@ -110,6 +110,8 @@ void sdpfile_handler(struct mg_connection *nc, int ev, void *ev_data)
 					sdpdesc[hm->body.len] = '\0';  // make sure string terminates
 					sdpfile_dump(psdp->path, sdpdesc, psdp->ps, psdp->dst_ip);
 					free(sdpdesc);
+					debug("SDPFILE server answers: %d\n", hm->resp_code);
+					break;
 				default:
 					debug("SDPFILE server answers: %d\n", hm->resp_code);
 			}

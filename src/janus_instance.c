@@ -196,6 +196,7 @@ void janus_instance_streaming_plugin_handler(struct mg_connection *nc, int ev, v
 					janus->streaming_plugin_handle = janus_instance_msg_get_id(buff);
 					free(buff);
 					debug("Got plugin streaming_handle!\n");
+					break;
 				default:
 					debug("Janus answers: %d\n", hm->resp_code);
 			}
@@ -230,6 +231,7 @@ void janus_instance_videoroom_plugin_handler(struct mg_connection *nc, int ev, v
 					janus->videoroom_plugin_handle = janus_instance_msg_get_id(buff);
 					free(buff);
 					debug("Got plugin videoroom_handle!\n");
+					break;
 				default:
 					debug("Janus answers: %d\n", hm->resp_code);
 			}
@@ -280,6 +282,7 @@ void janus_instance_session_handler(struct mg_connection *nc, int ev, void *ev_d
 					free(buff);
 					if (conn)
 						conn->user_data = (void *) janus;
+					break;
 				default:
 					debug("Janus answers: %d\n", hm->resp_code);
 			}
@@ -405,6 +408,7 @@ void janus_instance_streaming_point_handler(struct mg_connection *nc, int ev, vo
 					debug(buff);
 					*mp_id = janus_instance_msg_get_id(buff);
 					free(buff);
+					break;
 				default:
 					debug("Janus answers: %d\n", hm->resp_code);
 			}
@@ -442,6 +446,7 @@ void janus_instance_videoroom_creation_handler(struct mg_connection *nc, int ev,
 			switch (hm->resp_code) {
 				case 200:
 					info("Room created\n");
+					break;
 				default:
 					debug("Janus answers: %d\n", hm->resp_code);
 			}
