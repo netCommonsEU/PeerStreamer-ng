@@ -332,7 +332,15 @@ function Streamer(id, ipaddr, port) {
 		var head = document.createElement("div");
 		head.classList.add("panel-heading");
 		head.classList.add("text-center");
-		head.innerHTML = id2nickname(ch.name);
+		head.innerHTML = id2nickname(ch.name) + " - ";
+
+		var reload_btn = document.createElement("span");
+		reload_btn.innerHTML = "&#9851;";
+		reload_btn.title = "Recycle";
+		reload_btn.style.cursor = "crosshair"; 
+		reload_btn.setAttribute('href', '#');
+		reload_btn.onclick = function() { reload_stream(ch.name); };
+		head.appendChild(reload_btn);
 
 		div.appendChild(head);
 		div.appendChild(vid);
@@ -455,6 +463,11 @@ function update_channels(chs)
 		remote_objs.del_streamer(to_remove[ch].name);
 
 	channels = chs;
+}
+
+function reload_stream(name)
+{
+	remote_objs.del_streamer(name);
 }
 
 function fetch_channels()
