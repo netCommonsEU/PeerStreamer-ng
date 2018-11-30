@@ -44,7 +44,7 @@ void mg_http_answer(struct mg_connection *nc, uint16_t code, const char * conten
 {
 	if (nc && !(nc->flags & CONNECTION_CLOSED) && content_type && body)
 	{	
-		mg_printf(nc, "%s %d %s\r\nTransfer-Encoding: chunked\r\nCotent-type: %s\r\n\r\n", "HTTP/1.1", code, http_status(code), content_type);
+		mg_printf(nc, "%s %d %s\r\nTransfer-Encoding: chunked\r\nContent-type: %s\r\n\r\n", "HTTP/1.1", code, http_status(code), content_type);
 		mg_printf_http_chunk(nc, body);
 		mg_send_http_chunk(nc, "", 0); /* Send empty chunk, the end of response */
 	}
@@ -52,12 +52,12 @@ void mg_http_answer(struct mg_connection *nc, uint16_t code, const char * conten
 
 void mg_http_text_answer(struct mg_connection *nc, uint16_t code, const char * body)
 {
-	mg_http_answer(nc, code, "application/json", body);
+	mg_http_answer(nc, code, "text/plain", body);
 }
 
 void mg_http_json_answer(struct mg_connection *nc, uint16_t code, const char * json)
 {
-	mg_http_answer(nc, code, "text/html; charset=utf-8", json);
+	mg_http_answer(nc, code, "application/json", json);
 }
 
 void mg_http_short_answer(struct mg_connection *nc, uint16_t code)

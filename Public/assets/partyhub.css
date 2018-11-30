@@ -1,8 +1,13 @@
 .remote-video {
 	display: inline-block;
+	width: 30%;
 }
 
 .remote-video video {
+	width: 100%;
+}
+
+#remote_vids {
 	width: 100%;
 }
 

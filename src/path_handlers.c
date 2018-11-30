@@ -68,9 +68,9 @@ int8_t source_streamer_creation_handler(struct mg_connection *nc, const struct p
 			// destroy ps?
 			info("Stream room cannot be correctly created\n");
 			if (json)
-				debug(json);
+				info(json);
 			else
-				debug("PS does not exist");
+				info("PS does not exist");
 		}
 		if (json)
 			free(json);

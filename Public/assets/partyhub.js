@@ -8,6 +8,7 @@ else
 
 var local_nickname = "";
 var room_name = "";
+var id_separator = ":";
 var channels = [];
 
 $(document).ready(function() {
@@ -20,11 +21,11 @@ $(document).ready(function() {
 });
 
 function id2nickname(id) {
-	return id.split(":")[0];
+	return id.split(id_separator)[0];
 }
 
 function id2roomname(id) {
-	return id.split(":")[1];
+	return id.split(id_separator)[1];
 }
 
 function id2containername(id) {
@@ -117,7 +118,7 @@ publisher_obj = {
 
 		xhttp.open("UPDATE", "/sources/" + publisher_obj.room_id, true);
 		xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-		var params = "participant_id=" + encodeURIComponent(publisher_obj.publisher_id) + "&channel_name=" + encodeURIComponent(local_nickname+":"+room_name);
+		var params = "participant_id=" + encodeURIComponent(publisher_obj.publisher_id) + "&channel_name=" + encodeURIComponent(local_nickname+id_separator+room_name);
 		xhttp.send(params);
 	},
 
@@ -154,7 +155,7 @@ publisher_obj = {
 				simulcast: false,
 				success: function(jsep) {
 					Janus.debug("Got publisher SDP");
-					var publish = { "request": "configure", "audio": true, "video": true, "audiocodec": "opus", "videocodec": "vp8" };
+					var publish = { "request": "configure", "audio": true, "video": document.getElementById("videoactive").checked, "audiocodec": "opus", "videocodec": "vp8" };
 					publisher_obj.handle.send({"message": publish, "jsep": jsep});
 				},
 				error: function(error) {
@@ -192,22 +193,29 @@ publisher_obj = {
 
 function RemoteFeed(id, ipaddr, port) {
 	var streamer = null;
+	var id = id;
+	var stat = "loading";
 
 	var janus_session = new Janus({
 		server: server,
 		success: function() {
 			streamer = new Streamer(id, ipaddr, port);
+			stat = "loaded";
 			janus_session.attach(streamer)},
 		error: generic_error,
 		destroyed: function () {}
 	});
 
 	this.id = function () {
-		return streamer.id;
+		return id;
 	}
 
 	this.streamer = function () {
 		return streamer;
+	}
+
+	this.stat = function() {
+		return stat;
 	}
 	
 	return this;
@@ -224,11 +232,17 @@ function RemoteObjs () {
 
 	this.del_streamer = function(id) {
 		Janus.debug("Removing streamer " + id);
-		obj = this.get_streamer_by_id(id);
-		if (obj != null)
+		var feed = null;
+		a = Array.from(feeds);
+		for (var f in a) {
+			if (a[f].id() == id)
+				feed = a[f];
+		}
+		if (feed != null && feed.stat() == "loaded")
 		{
-			obj.stop_stream();
-			feeds.delete(obj);
+			feed.streamer().stop_stream();
+			feeds.delete(feed);
+			
 			let cont = document.getElementById(id2containername(id));
 			if (cont)
 				document.getElementById("remote_vids").removeChild(cont);
@@ -240,13 +254,21 @@ function RemoteObjs () {
 		var obj = null;
 		a = Array.from(feeds);
 		for (var feed in a) {
-			if (a[feed].id() == id)
-			{
+			if (a[feed].id() == id && a[feed].stat() == "loaded")
 				obj = a[feed].streamer();
-			}
 		}
 
 		return obj;
+	};
+
+	this.get_streamer_status = function(id) {
+		var res = "absent";
+		a = Array.from(feeds);
+		for (var feed in a) {
+			if (a[feed].id() == id)
+				res = a[feed].stat();
+		}
+		return res;
 	};
 
 	return this;
@@ -278,8 +300,8 @@ function Streamer(id, ipaddr, port) {
 				stream.start_stream(ch);
 			}
 			if (this.readyState == 4 && this.status != 200) {
-				bootbox.alert("An error occurred with channel");
-				stream.stop_stream();
+				bootbox.alert("An error occurred with channel (" + this.status + ")");
+				remote_objs.del_streamer(id);
 			}
 		};
 		rfid = Math.random().toString(36).substr(2, 8);
@@ -401,33 +423,29 @@ function update_channels(chs)
 {
 	var to_add = [];
 	var to_remove = [];
+	var stat;
 
 	for (nch in chs) {
-		var found = false;
 		if (id2roomname(chs[nch].name) == room_name) {
-			for (och in channels) {
-				if (channels[och].name == chs[nch].name)
-				{
-					found = true;
-					break;
-				}
-			}
-			if (!found && id2nickname(chs[nch].name) !== local_nickname)
+			stat = remote_objs.get_streamer_status(chs[nch].name);
+			if (stat == "absent" && id2nickname(chs[nch].name) !== local_nickname) {
 				to_add.push(chs[nch]);
+			}
 		}
 	}
 	for (och in channels) {
-		var found = false;
-			if (id2roomname(channels[och].name) == room_name) {
+		if (id2roomname(channels[och].name) == room_name) {
+			var found = false;
 			for (nch in chs) {
-				if (channels[och].name == chs[nch].name)
-				{
+				if (chs[nch].name == channels[och].name)
 					found = true;
-					break;
+			}
+			if (!found) {
+				stat = remote_objs.get_streamer_status(channels[och].name);
+				if (stat == "loaded") {
+					to_remove.push(channels[och]);
 				}
 			}
-			if (!found)
-				to_remove.push(channels[och]);
 		}
 	}
 
