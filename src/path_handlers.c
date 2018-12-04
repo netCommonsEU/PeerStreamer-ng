@@ -138,7 +138,8 @@ void streamer_create(struct mg_connection *nc, struct http_message *hm)
 		mg_get_http_var(&hm->body, "port", port, MAX_PORT_LENGTH);
 
 		id = mg_uri_field(hm, 1);
-		strncpy(rtp_dst_ip, janus_instance_ipaddr(c->janus), MAX_IPADDR_LENGTH);
+		// strncpy(rtp_dst_ip, janus_instance_ipaddr(c->janus), MAX_IPADDR_LENGTH);
+		strncpy(rtp_dst_ip, "127.0.0.1", MAX_IPADDR_LENGTH);
 
 		info("POST request for resource %s to %s\n", id, rtp_dst_ip);
 		ch = pschannel_bucket_find(c->pb, ipaddr, port);
