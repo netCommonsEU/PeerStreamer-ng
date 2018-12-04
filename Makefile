@@ -46,7 +46,7 @@ $(current_dir)/Tools/janus/bin/janus:
 	git submodule init $(current_dir)/Libs/janus-gateway/
 	git submodule update $(current_dir)/Libs/janus-gateway/
 	cd $(current_dir)/Libs/janus-gateway/ && ./autogen.sh
-	cd $(current_dir)/Libs/janus-gateway/ && SRTP15X_CFLAGS="-I$(current_dir)/Libs/janus-gateway/Libs/libsrtp/include" SRTP15X_LIBS="-L$(current_dir)/Libs/janus-gateway/Libs/libsrtp" PKG_CONFIG_PATH=$(current_dir)/Libs/janus-gateway/Libs/libsrtp ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-rest --disable-turn-rest-api --enable-static --prefix=$(current_dir)/Tools/janus --enable-plugin-streaming --enable-plugin-videoroom #--enable-libsrtp2
+	cd $(current_dir)/Libs/janus-gateway/ && CFLAGS="-I$(current_dir)/Libs/janus-gateway/Libs/libsrtp/" LIBS=" -lsrtp2 " LDFLAGS="-L$(current_dir)/Libs/janus-gateway/Libs/libsrtp" ./configure --disable-all-plugins --disable-all-transports --disable-all-handlers --enable-rest --disable-turn-rest-api --enable-libsrtp2 --enable-static --prefix=$(current_dir)/Tools/janus --enable-plugin-streaming --enable-plugin-videoroom 
 	make -C Libs/janus-gateway/ install
 
 tests:
