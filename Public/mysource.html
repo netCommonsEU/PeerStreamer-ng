@@ -6,16 +6,15 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>PeerSteamer-ng</title>
 
-	<!-- Twitter Bootstrap -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="/assets/psng.css">
+	<link rel="stylesheet" href="/assets/partyhub.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/5.0.1/adapter.min.js" ></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.1.0/bootbox.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
-	<script src="/assets/janus.js"></script>
-	<script src="/assets/psng.js"></script>
+<script src="/assets/janus.js"></script> 
+<script src="/assets/psng.js"></script> 
 <script src="/assets/mysource.js"></script> 
 
 </head>
@@ -42,35 +41,53 @@
 			<div id="navbar" class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
 					<li><a href="/player.html">Player</a></li>
-					<li><a href="/mysource.html">My Source</a></li>
+					<li class="active"><a href="/mysource.html">My Source</a></li>
 					<li><a href="/partyhub.html">PartyHub</a></li>
-					<li class="active"><a href="/about.html">About</a></li>
+					<li><a href="/about.html">About</a></li>
 				</ul>
 			</div>
 		</nav>
-		<div class="row center-block">
-			<div class="row center-block">
-				<h2 id="player-title" class="text-center">&lt;Loading..&gt;</h2>
+
+
+		<div id="creation_form" class="row center-block">
+			<div class="col-md-6 col-md-offset-3">
+				<form class="form-horizontal" action="#" onsubmit="return false;">
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="source_name">Channel name:</label>
+						<div class="col-sm-10">
+							<input type="text" autocomplete="off" class="form-control" id="source_name" placeholder="My Channel">
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="bitrate_radios">Bitrate:</label>
+						<div class="col-sm-10" id="bitrate_radios">
+							<input type="radio" name="bitrate_radio" value="128000" checked> 128K
+							<input type="radio" name="bitrate_radio" value="256000"> 256K
+							<input type="radio" name="bitrate_radio" value="512000"> 512K
+							<input type="radio" name="bitrate_radio" value="1024000"> 1M
+						</div>
+					</div>
+					<div class="form-group">
+						<label class="control-label col-sm-2" for="videoactive">Video sharing</label>
+						<div class="col-sm-10">
+							<input type="checkbox" class="form-control checkboxes" id="videoactive" checked="true">
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-sm-offset-2 col-sm-10">
+							<button type="button" class="btn btn-info"  onclick="start_source()">Start channel!</button>
+						</div>
+					</div>
+				</form>
 			</div>
-			<div class="row text-center" id="creation_form">
-				<div class="row text-center">
-					<input type=text id="description" value="My Channel"/>
-					<input type=button id="submit" value="Create channel"/>
+		</div>
+		<div id="vids" class="row center-block">
+			<h3 id="status" class="row text-center alert alert-info" ></h3>
+			<div id="local_vid" class="row panel-group col-md-4 col-md-offset-4">
+				<div class="panel panel-primary text-center" >
+							<div id="screenname" class="panel-heading text-center"></div>
+							<video height=200px class="panel-body embed-responsive-item rounded centered" id="myvideo" muted autoplay />
 				</div>
-				<div class="row text-center">
-					<label for="radios">Quality: </label>
-					<form id="bitrate_radios">
-						<input type="radio" name="bitrate_radio" value="128000" checked> 128K
-						<input type="radio" name="bitrate_radio" value="256000"> 256K
-						<input type="radio" name="bitrate_radio" value="512000"> 512K
-						<input type="radio" name="bitrate_radio" value="1024000"> 1M
-					</form>
-				</div>
-			</div>
-			<div id="plugin" class="row text-center" >
-							<div class="panel-body" id="stream"></div>
-							<video class="rounded centered" id="myvideo" width="400" height="300" autoplay />
-							<span id="status"></span>
 			</div>
 		</div>
 	</div>

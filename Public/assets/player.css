@@ -1,7 +1,5 @@
-#video-container {
-	 border-right: thick solid #000000;
+.remote-video {
+	display: inline-block;
+	width: 100%;
 }
 
-.fit-height {
-	 height: 90%;
-}

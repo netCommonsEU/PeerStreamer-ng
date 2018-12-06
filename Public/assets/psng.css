@@ -1,0 +1,35 @@
+.remote-video video {
+	width: 100%;
+}
+
+#remote_vids {
+	width: 100%;
+}
+
+.navbar {
+	margin-bottom: 0px;
+}
+
+#creation_form {
+	margin-top: 10%;
+}
+
+#vids {
+	display: none;
+	margin-top: 0px;
+}
+
+#roomname {
+	margin-left: 10%;
+	margin-right: 10%;
+	margin-top: 0px;
+}
+
+#remote_vids {
+	display: inline-block;
+	margin: 0 auto;
+}
+
+.checkboxes {
+       width: auto;
+}

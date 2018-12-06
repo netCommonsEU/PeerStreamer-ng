@@ -1,27 +1,25 @@
 <!DOCTYPE html>
-<html class="fit-height">
+<html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>PeerSteamer-ng</title>
 
-	<!-- Twitter Bootstrap -->
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js" ></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<link rel="stylesheet" href="/assets/player.css">
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" href="/assets/psng.css">
+	<link rel="stylesheet" href="/assets/player.css">
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/webrtc-adapter/5.0.1/adapter.min.js" ></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/4.1.0/bootbox.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/spin.js/2.3.2/spin.min.js"></script>
-<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.1.3/toastr.min.js"></script>
 <script src="/assets/janus.js"></script> 
-	<script src="/assets/psng.js"></script>
+<script src="/assets/psng.js"></script> 
 <script src="/assets/player.js"></script> 
 
 </head>
-<body class="fit-height">
-	<div id=main-container class="container-fluid fit-height">
+<body>
+	<div id=main-container class=container-fluid>
 		<div class="page-header text-center">
 			<h1>PeerStreamer-ng</h1>
 			Your friendly-neighborhood streaming platform
@@ -42,29 +40,19 @@
 			</div>
 			<div id="navbar" class="collapse navbar-collapse">
 				<ul class="nav navbar-nav">
-					<li><a href="/player.html">Player</a></li>
+					<li class="active"><a href="/player.html">Player</a></li>
 					<li><a href="/mysource.html">My Source</a></li>
 					<li><a href="/partyhub.html">PartyHub</a></li>
-					<li class="active"><a href="/about.html">About</a></li>
+					<li><a href="/about.html">About</a></li>
 				</ul>
 			</div>
 		</nav>
 
-		<div class="row center-block fit-height">
-			<div id="video-container" class="col-md-10 fit-height">
-				<div class="row center-block text-center">
-					<h2 id="player-title" class="text-center">&lt;Pick a channel from the list&gt;</h2>
-				</div>
-				<div id="plugin" class="row text-center" >
-								<div class="panel-body" id="stream"></div>
-								<span id="status"></span>
-				</div>
-				<div class="row center-block">
-					<div class="col-md-3"></div>
-					<div class="col-md-6">
-						<p id="vlc-alt"></p>
-					</div>
-					<div class="col-md-3"></div>
+
+		<div id="tab" class="row center-block">
+			<div class="col-md-10">
+				<div class="row panel-group text-center">
+					<div id="remote_vids" class="" ></div>
 				</div>
 			</div>
 			<div class="col-md-2">
