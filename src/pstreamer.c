@@ -30,7 +30,7 @@
 
 #define MAX_PSINSTANCE_CONFIG_LENGTH 255
 #define STREAMER_PEER_CONF "port=%d,dechunkiser=rtp,audio=%d,video=%d,addr=%s"
-#define STREAMER_SOURCE_CONF "port=%d,chunkiser=rtp,audio=%d,video=%d,addr=%s,max_delay_ms=25,rfc3551=1,chunk_size=10000"
+#define STREAMER_SOURCE_CONF "port=%d,chunkiser=rtp,audio=%d,video=%d,addr=%s,max_delay_ms=40,rfc3551=1,chunk_size=100000"
 
 struct pstreamer {
 	char source_ip[MAX_IPADDR_LENGTH];

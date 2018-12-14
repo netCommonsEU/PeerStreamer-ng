@@ -8,7 +8,6 @@ function start_source()
 {
 	var create_form = document.getElementById('creation_form');
 	source_name = document.getElementById('source_name').value;
-	channel_name = source_name;
 	local_nickname = source_name;
 	var radios = document.getElementsByName('bitrate_radio');
 	var i=0;
@@ -24,6 +23,7 @@ function start_source()
 		}
 		i++;
 	}
+	channel_name = source_name;
 
 	if (source_name.split("@")[0] != "")
 	{

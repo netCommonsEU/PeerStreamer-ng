@@ -7,15 +7,8 @@ function init_player()
 {
 	if (!init) {
 	Janus.init({debug: "all", callback: function() {
-		var janus_session = new Janus({
-			server: server,
-			success: function() {
-				init = true;
-			},
-			error: generic_error,
-			destroyed: function () {}
-		});
-	}
+			init = true;
+		}
 	}
 	);
 	}
