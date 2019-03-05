@@ -16,7 +16,7 @@ CFLAGS+=-O6
 endif
 
 LIBS+=$(current_dir)/Libs/mongoose/mongoose.o $(GRAPES)/src/libgrapes.a $(current_dir)/Libs/pstreamer/src/libpstreamer.a
-MONGOOSE_OPTS+=-DMG_SSL_IF=MG_SSL_OPENSSL -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
+MONGOOSE_OPTS+=-DMG_SSL_IF=MG_SSL_IF_OPENSSL -DMG_DISABLE_MQTT -DMG_DISABLE_JSON_RPC -DMG_DISABLE_SOCKETPAIR  -DMG_DISABLE_CGI # -DMG_DISABLE_HTTP_WEBSOCKET
 LDFLAGS+=  -lpstreamer -lgrapes -lnethelper -lm -lssl -lcrypto
 
 all: $(EXE) $(current_dir)/Tools/janus/bin/janus
